@@ -29,7 +29,7 @@ class HomePage(View):
 		self.pharma = self.fetch_pharma()
 		pprint(self.pharma)
 		response = {'pharma' : self.pharma, 'parkings' : self.parkings, 'traffic' : self.traffic}
-		return HttpResponse( json.dumps(response), 'application/json' )
+		return HttpResponse( json.dumps(response), content_type="application/json", mimetype='application/json' )
 		
 	def fetch_parkings(self, url):
 		parkings = []
