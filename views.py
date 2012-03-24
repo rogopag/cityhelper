@@ -7,15 +7,16 @@ from django.utils import simplejson as json
 from pprint import pprint
 import urllib2
 from xml.dom import minidom
+import csv
 
 
 class HomePage(View):
 	
 	parkings = []
 	traffic = []
+	pharma = []
 	
-	def get(self, request):
-		
+	def get(self, request):	
 		t = loader.get_template('map.html')
 		c = RequestContext(request, {'page_title':'Data Living Turin'})
 		return HttpResponse(t.render(c), content_type="text/html")
@@ -25,7 +26,10 @@ class HomePage(View):
 		trf_url = 'http://opendata.5t.torino.it/get_fdt'
 		self.parkings = self.fetch_parkings(pck_url)
 		self.traffic = self.fetch_traffic(trf_url)
-		return HttpResponse( json.dumps({'parkings' : self.parkings, 'traffic' : self.traffic}), type="application/json" )
+		self.pharma = self.fetch_pharma()
+		pprint(self.pharma)
+		response = {'pharma' : self.pharma, 'parkings' : self.parkings, 'traffic' : self.traffic}
+		return HttpResponse( json.dumps(response), 'application/json' )
 		
 	def fetch_parkings(self, url):
 		parkings = []
@@ -64,3 +68,20 @@ class HomePage(View):
 		except urllib2.HTTPError, e:
 			print "Problems loading the url " + str(e)
 			return None
+			
+	def fetch_pharma(self):
+		pharma = []
+		INPUT_FILE = "data/farmacie_geo.csv"
+		all_rows = list(csv.reader(open(INPUT_FILE, "rU")))
+		for row in all_rows:
+			pharma.append({
+			'name' : row[0],
+			'address' : str(row[1]) + ", " + str(row[2]),
+			'cap' : row[3],
+			'phone' : row[4],
+			'code' : row[5],
+			'vat': row[6],
+			'lat': row[7],
+			'lng' : row[8]
+			})
+		return pharma
