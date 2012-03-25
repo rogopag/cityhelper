@@ -10,33 +10,91 @@ function main()
 		map : null,
 		d : null,
 		objects : {},
+		dzoom: 13,
+		mng: null,
 		init:function()
 		{
+			var o;
 			self = this;
 			self.ajax_populate();
+			self.map = self.drawMap();
 			$('#map_canvas').ajaxComplete(function(event)
 			{
-				self.map = self.drawMap();
-				self.draw_markers(self.fill_objects());
+				o = self.fill_objects()
+				self.mng = self.draw_markers(o);
+				self.manageZoom(o, self.mng);
+			});	
+		},
+		manageZoom: function(obj, mng)
+		{
+			google.maps.event.addListener(self.map, "zoom_changed", function() {
+				var size = self.map.getZoom();
+				if( size < self.dzoom ) return; 
+				for(var key in obj)
+				{
+					var icon = icon = '/static/images/org/'+key + ".png", image;
+					
+					mng[key].hide();
+					
+					switch(key)
+					{
+						case 'pharma':
+						ratio = 0.92;
+						break;
+						case 'parkings':
+						ratio = 1.5;
+						break;
+						case 'traffic':
+						ratio = 0.92;
+						break;
+					}
+					image = new google.maps.MarkerImage(icon,null, null, null, new google.maps.Size(size, size*ratio));
+					for( var items in obj[key] )
+					{
+						obj[key][items].marker.setIcon(image);
+					}
+					mng[key].show();
+				}
 			});
-			
 		},
 		drawMap:function()
 		{
-			var latlng = new google.maps.LatLng(45.0708515, 7.684340399999996), options = {
-		      zoom: 10,
-		      center: latlng,
-			  mapTypeId: google.maps.MapTypeId.TERRAIN
+			var latlng = new google.maps.LatLng(45.07, 7.68), options = {
+		      	backgroundColor: '#FFFFFF',
+				zoom: self.dzoom,
+				navigationControl: true,
+				mapTypeId: google.maps.MapTypeId.ROADMAP,
+				center: latlng
 		    };
 			if( document.getElementById("map_canvas") )
 			return new google.maps.Map(document.getElementById("map_canvas"), options);
 		},
 		fill_objects : function()
 		{
+			var index = 1, ratio = 1, size = self.map.getZoom();
+			
 			for(var key in program.d)
 			{
 				self.objects[key] = [];
 				icon = '/static/images/'+key + ".png";
+				switch(key)
+				{
+					case 'pharma':
+					index = 1001;
+					ratio = 0.92;
+					break;
+					case 'parkings':
+					index = 1000;
+					ratio = 1.5;
+					break;
+					case 'traffic':
+					index = 999;
+					ratio = 0.92;
+					break;
+				}
+				
+				image = new google.maps.MarkerImage(icon,null, null, null, new google.maps.Size(size, size*ratio));
+				
 				for( var items in program.d[key] )
 				{
 					////console.log(key + " "+ items);
@@ -44,19 +102,12 @@ function main()
 					current = program.d[key][items];
 					current.type = key;
 					current.icon_url = icon;
-					image = new google.maps.MarkerImage(icon
-					      // This marker is 20 pixels wide by 32 pixels tall.
-					      //new google.maps.Size(15, 20),
-					      // The origin for this image is 0,0.
-					      //new google.maps.Point(0,0),
-					      // The anchor for this image is the base of the flagpole at 0,32.
-					      //new google.maps.Point(0, 20)
-					);
 					current.marker = new google.maps.Marker({
 						position: new google.maps.LatLng(current.lat, current.lng),
 						title: current.name,
 						icon: image,
-						type: current.type
+						type: current.type,
+						zIndex: index
 					});
 					self.objects[key].push( current );
 					delete current;
@@ -82,24 +133,26 @@ function main()
 				}
 			}
 			google.maps.event.addListener(mgr.traffic, 'loaded', function(){
-			      mgr.traffic.addMarkers(markers.traffic, 12);
+			      mgr.traffic.addMarkers(markers.traffic, self.dzoom);
 			      mgr.traffic.refresh();
 			  });
 			google.maps.event.addListener(mgr.pharma, 'loaded', function(){
-			      mgr.pharma.addMarkers(markers.pharma, 12);
+			      mgr.pharma.addMarkers(markers.pharma, self.dzoom);
 			      mgr.pharma.refresh();
 			  });
 			google.maps.event.addListener(mgr.parkings, 'loaded', function(){
-			      mgr.parkings.addMarkers(markers.parkings, 12);
+			      mgr.parkings.addMarkers(markers.parkings, self.dzoom);
 			      mgr.parkings.refresh();
 			  });
+			return mgr;
 		},
 		ajax_populate: function()
 		{
 			obj = {'do' : 'something'};
 			
 			$.ajax({  
-				type: 'post',  
+				type: 'post',
+				async: true,  
 				url: ajaxurl,  
 				data: {data: JSON.stringify(obj) },
 				dataType: 'json',
