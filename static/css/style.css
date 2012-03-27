@@ -1,3 +1,4 @@
 div.items-container{width:20%;float:left;}
 div#map_canvas{width:100%;height:100%;}
 div#token{display:none;}
+div#loading-gif{position:absolute;left:50%;top:50%;}

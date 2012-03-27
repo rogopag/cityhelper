@@ -12,3 +12,5 @@ urls.pyc
 views.pyc
 
 static/images/.DS_Store
+
+static/.DS_Store

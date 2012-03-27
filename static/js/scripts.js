@@ -1,3 +1,5 @@
+var LocalSettings;
+
 $(function(){
 	main();
 });
@@ -10,8 +12,9 @@ function main()
 		map : null,
 		d : null,
 		objects : {},
-		dzoom: 13,
+		dzoom: 12,
 		mng: null,
+		icons: {},
 		init:function()
 		{
 			var o;
@@ -27,35 +30,37 @@ function main()
 		},
 		manageZoom: function(obj, mng)
 		{
+			$(mng).bind( 'zoom_done', function(event) {
+				$.each(mng, function(key, value){
+					if( "show" in value )
+					{
+						value.show();
+					}
+				});
+			});
+			
 			google.maps.event.addListener(self.map, "zoom_changed", function() {
-				var size = self.map.getZoom();
-				if( size < self.dzoom ) return; 
+				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 ), timeout;
+				
+				if( zoom <= self.dzoom ) return;
+				
 				for(var key in obj)
 				{
-					var icon = icon = '/static/images/org/'+key + ".png", image;
-					
 					mng[key].hide();
 					
-					switch(key)
-					{
-						case 'pharma':
-						ratio = 0.92;
-						break;
-						case 'parkings':
-						ratio = 1.5;
-						break;
-						case 'traffic':
-						ratio = 0.92;
-						break;
-					}
-					image = new google.maps.MarkerImage(icon,null, null, null, new google.maps.Size(size, size*ratio));
+					p = self.switch_parameters(key);
+					
+					image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
 					for( var items in obj[key] )
 					{
 						obj[key][items].marker.setIcon(image);
-					}
-					mng[key].show();
-				}
-			});
+					} //end for
+				} //end for
+				timeout = window.setTimeout(function(){
+					$(mng).trigger("zoom_done");
+					clearTimeout( timeout );
+				}, 1000); //timeout
+			}); //zoom event
 		},
 		drawMap:function()
 		{
@@ -71,29 +76,15 @@ function main()
 		},
 		fill_objects : function()
 		{
-			var index = 1, ratio = 1, size = self.map.getZoom();
+			var index = 1, ratio = 1, size = self.map.getZoom(), p;
 			
 			for(var key in program.d)
 			{
-				self.objects[key] = [];
-				icon = '/static/images/'+key + ".png";
-				switch(key)
-				{
-					case 'pharma':
-					index = 1001;
-					ratio = 0.92;
-					break;
-					case 'parkings':
-					index = 1000;
-					ratio = 1.5;
-					break;
-					case 'traffic':
-					index = 999;
-					ratio = 0.92;
-					break;
-				}
 				
-				image = new google.maps.MarkerImage(icon,null, null, null, new google.maps.Size(size, size*ratio));
+				self.objects[key] = [];
+				self.icons[key] = LocalSettings.STATIC_URL+'images/'+key + ".png";
+				p = self.switch_parameters(key);
+				image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
 				
 				for( var items in program.d[key] )
 				{
@@ -101,19 +92,40 @@ function main()
 					var current = {}, image;
 					current = program.d[key][items];
 					current.type = key;
-					current.icon_url = icon;
+					current.icon_url = self.icons[key];
 					current.marker = new google.maps.Marker({
 						position: new google.maps.LatLng(current.lat, current.lng),
 						title: current.name,
 						icon: image,
 						type: current.type,
-						zIndex: index
+						zIndex: p.index
 					});
 					self.objects[key].push( current );
 					delete current;
 				}
 			}
 			return self.objects;
+		},
+		switch_parameters : function(key)
+		{
+			var params = {};
+			
+			switch(key)
+			{
+				case 'pharma':
+				params.index = 1001;
+				params.ratio = 1.5;
+				break;
+				case 'parkings':
+				params.index = 1000;
+				params.ratio = 1.5;
+				break;
+				case 'traffic':
+				params.index = 999;
+				params.ratio = 0.92;
+				break;
+			}
+			return params;
 		},
 		draw_markers : function(obj)
 		{
@@ -177,9 +189,17 @@ function main()
 				},
 				complete: function( data, textStatus )
 				{
-				//	console.log( data, textStatus );
-				}  
+					self.loader_hide();
+				}
 			});
+		},
+		loader_hide:function()
+		{
+			$("div#loading-gif").hide();
+		},
+		loader_show:function()
+		{
+			$("div#loading-gif").show();
 		}
 	}
 	program.init();

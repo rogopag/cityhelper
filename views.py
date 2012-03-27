@@ -14,7 +14,7 @@ class HomePage(View):
 	traffic = []
 	pharma = []
 	
-	def get(self, request):	
+	def get(self, request):
 		t = loader.get_template('map.html')
 		c = RequestContext(request, {'page_title':'Data Living Turin'})
 		return HttpResponse(t.render(c), content_type="text/html")
@@ -27,7 +27,7 @@ class HomePage(View):
 		self.pharma = self.fetch_pharma()
 		response = {'pharma' : self.pharma, 'parkings' : self.parkings, 'traffic' : self.traffic}
 		return HttpResponse( json.dumps(response), content_type="application/json", mimetype='application/json' )
-		
+	
 	def fetch_parkings(self, url):
 		parkings = []
 		try:
@@ -65,7 +65,7 @@ class HomePage(View):
 		except urllib2.HTTPError, e:
 			print "Problems loading the url %s" + e
 			return None
-			
+	
 	def fetch_pharma(self):
 		pharma = []
 		INPUT_FILE = "data/farmacie_geo.csv"
