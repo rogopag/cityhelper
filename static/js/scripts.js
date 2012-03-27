@@ -30,6 +30,10 @@ function main()
 		},
 		manageZoom: function(obj, mng)
 		{
+			google.maps.event.addListener(self.map, "changed", function() {
+						
+			});
+			
 			$(mng).bind( 'zoom_done', function(event) {
 				$.each(mng, function(key, value){
 					if( "show" in value )
@@ -46,8 +50,6 @@ function main()
 				
 				for(var key in obj)
 				{
-					mng[key].hide();
-					
 					p = self.switch_parameters(key);
 					
 					image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
@@ -61,6 +63,15 @@ function main()
 					clearTimeout( timeout );
 				}, 1000); //timeout
 			}); //zoom event
+		},
+		hide_managers:function(m)
+		{
+			$.each(m, function(key, value){
+				if( "hide" in value )
+				{
+					value.hide();
+				}
+			});
 		},
 		drawMap:function()
 		{
@@ -136,26 +147,15 @@ function main()
 			for(var key in obj)
 			{
 				
-				mgr[key] = new MarkerManager(self.map);
+				mgr[key] = new MarkerClusterer(self.map);
 				markers[key] = [];
 				
 				for( var items in obj[key] )
 				{
 					markers[key].push(obj[key][items].marker);
 				}
+				mgr[key].addMarkers(markers[key]);
 			}
-			google.maps.event.addListener(mgr.traffic, 'loaded', function(){
-			      mgr.traffic.addMarkers(markers.traffic, self.dzoom);
-			      mgr.traffic.refresh();
-			  });
-			google.maps.event.addListener(mgr.pharma, 'loaded', function(){
-			      mgr.pharma.addMarkers(markers.pharma, self.dzoom);
-			      mgr.pharma.refresh();
-			  });
-			google.maps.event.addListener(mgr.parkings, 'loaded', function(){
-			      mgr.parkings.addMarkers(markers.parkings, self.dzoom);
-			      mgr.parkings.refresh();
-			  });
 			return mgr;
 		},
 		ajax_populate: function()

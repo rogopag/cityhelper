@@ -22,13 +22,15 @@ class HomePage(View):
 	def post(self, request):
 		pck_url = 'http://opendata.5t.torino.it/get_pk'
 		trf_url = 'http://opendata.5t.torino.it/get_fdt'
-		self.parkings = self.fetch_parkings(pck_url)
-		self.traffic = self.fetch_traffic(trf_url)
-		self.pharma = self.fetch_pharma()
+		phr_url = 'data/farmacie_geo.csv'
+		#self.parkings = self.fetch_parkings(pck_url)
+		#self.traffic = self.fetch_traffic(trf_url)
+		self.pharma = self.fetch_pharma(phr_url)
 		response = {'pharma' : self.pharma, 'parkings' : self.parkings, 'traffic' : self.traffic}
 		return HttpResponse( json.dumps(response), content_type="application/json", mimetype='application/json' )
 	
 	def fetch_parkings(self, url):
+		
 		parkings = []
 		try:
 			s = urllib2.urlopen(urllib2.Request(url=url))
@@ -66,11 +68,10 @@ class HomePage(View):
 			print "Problems loading the url %s" + e
 			return None
 	
-	def fetch_pharma(self):
+	def fetch_pharma(self, url):
 		pharma = []
-		INPUT_FILE = "data/farmacie_geo.csv"
 		try:
-			all_rows = list(csv.reader(open(INPUT_FILE, "rU")))
+			all_rows = list(csv.reader(open(url, "rU")))
 			for row in all_rows:
 				pharma.append({
 				'name' : row[0],
