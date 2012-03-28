@@ -94,6 +94,7 @@ function main()
 				
 				self.objects[key] = [];
 				self.icons[key] = LocalSettings.STATIC_URL+'images/'+key + ".png";
+				
 				p = self.switch_parameters(key);
 				image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
 				
@@ -123,6 +124,10 @@ function main()
 			
 			switch(key)
 			{
+				case 'hospitals':
+				params.index = 1001;
+				params.ratio = 1.5;
+				break;
 				case 'pharma':
 				params.index = 1001;
 				params.ratio = 1.5;
@@ -146,8 +151,34 @@ function main()
 			
 			for(var key in obj)
 			{
+				var styles, params = self.switch_parameters(key);
 				
-				mgr[key] = new MarkerClusterer(self.map);
+				styles = [{
+					url : LocalSettings.STATIC_URL+'images/'+key + "34.png",
+					height : 34,
+					width : 34,
+					anchor : [15,0],
+					textColor : '#ff0000',
+					textSize : 12
+				},
+				{
+					url : LocalSettings.STATIC_URL+'images/'+key + "44.png",
+					height : 44,
+					width : 44,
+					anchor : [23,0],
+					textColor : '#ff0000',
+					textSize : 12
+				},
+				{
+					url : LocalSettings.STATIC_URL+'images/'+key + "54.png",
+					height : 54,
+					width : 54,
+					anchor : [31,0],
+					textColor : '#ff0000',
+					textSize : 12
+				}];
+				mgr[key] = new MarkerClusterer(self.map, [], {styles : styles});
+				
 				markers[key] = [];
 				
 				for( var items in obj[key] )
@@ -184,6 +215,7 @@ function main()
 					//////console.log( XMLHttpRequest, textStatus, jqXHR );
 					if( response )
 					{
+						console.log(response)
 						program.d = response;
 					}
 				},

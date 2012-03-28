@@ -13,6 +13,7 @@ class HomePage(View):
 	parkings = []
 	traffic = []
 	pharma = []
+	hospitals = []
 	
 	def get(self, request):
 		t = loader.get_template('map.html')
@@ -23,14 +24,15 @@ class HomePage(View):
 		pck_url = 'http://opendata.5t.torino.it/get_pk'
 		trf_url = 'http://opendata.5t.torino.it/get_fdt'
 		phr_url = 'data/farmacie_geo.csv'
-		#self.parkings = self.fetch_parkings(pck_url)
-		#self.traffic = self.fetch_traffic(trf_url)
+		h_url = 'data/h_geo.csv'
+		self.parkings = self.fetch_parkings(pck_url)
+		self.traffic = self.fetch_traffic(trf_url)
 		self.pharma = self.fetch_pharma(phr_url)
-		response = {'pharma' : self.pharma, 'parkings' : self.parkings, 'traffic' : self.traffic}
+		self.hospitals = self.fetch_hospitals(h_url)
+		response = {'pharma' : self.pharma, 'parkings' : self.parkings, 'traffic' : self.traffic, 'hospitals' : self.hospitals}
 		return HttpResponse( json.dumps(response), content_type="application/json", mimetype='application/json' )
 	
-	def fetch_parkings(self, url):
-		
+	def fetch_parkings(self, url):	
 		parkings = []
 		try:
 			s = urllib2.urlopen(urllib2.Request(url=url))
@@ -67,7 +69,26 @@ class HomePage(View):
 		except urllib2.HTTPError, e:
 			print "Problems loading the url %s" + e
 			return None
-	
+			
+	def fetch_hospitals(self, url):
+		h = []
+		try:
+			all_rows = list(csv.reader(open(url, "rU")))
+			for row in all_rows:
+				h.append({
+				'name' : row[0],
+				'address' : str(row[1]) + ", " + str(row[2]),
+				'phone' : row[3],
+				'lat': row[6],
+				'lng' : row[7],
+				'kind': row[5],
+				'type': 'hospitals'
+				})
+			return h
+		except IOError as (errno, strerror):
+				print "I/O error({0}): {1}".format(errno, strerror)
+				return None	
+				
 	def fetch_pharma(self, url):
 		pharma = []
 		try:
@@ -87,3 +108,4 @@ class HomePage(View):
 		except IOError as (errno, strerror):
 				print "I/O error({0}): {1}".format(errno, strerror)
 				return None
+	
