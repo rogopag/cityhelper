@@ -153,31 +153,38 @@ function main()
 			{
 				var styles, params = self.switch_parameters(key);
 				
-				styles = [{
-					url : LocalSettings.STATIC_URL+'images/'+key + "34.png",
-					height : 34,
-					width : 34,
-					anchor : [15,0],
-					textColor : '#ff0000',
-					textSize : 12
-				},
+				if( key != 'traffic')
 				{
-					url : LocalSettings.STATIC_URL+'images/'+key + "44.png",
-					height : 44,
-					width : 44,
-					anchor : [23,0],
-					textColor : '#ff0000',
-					textSize : 12
-				},
-				{
-					url : LocalSettings.STATIC_URL+'images/'+key + "54.png",
-					height : 54,
-					width : 54,
-					anchor : [31,0],
-					textColor : '#ff0000',
-					textSize : 12
-				}];
-				mgr[key] = new MarkerClusterer(self.map, [], {styles : styles});
+					styles = [{
+						url : LocalSettings.STATIC_URL+'images/'+key + "34.png",
+						height : 34,
+						width : 34,
+						anchor : [15,0],
+						textColor : '#ff0000',
+						textSize : 12
+					},
+					{
+						url : LocalSettings.STATIC_URL+'images/'+key + "44.png",
+						height : 44,
+						width : 44,
+						anchor : [23,0],
+						textColor : '#ff0000',
+						textSize : 12
+					},
+					{
+						url : LocalSettings.STATIC_URL+'images/'+key + "54.png",
+						height : 54,
+						width : 54,
+						anchor : [31,0],
+						textColor : '#ff0000',
+						textSize : 12
+						}];
+						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles});
+					}
+					else
+					{
+						mgr[key] = new MarkerManager( self.map );
+					}
 				
 				markers[key] = [];
 				
@@ -185,8 +192,13 @@ function main()
 				{
 					markers[key].push(obj[key][items].marker);
 				}
+				if(key != 'traffic')
 				mgr[key].addMarkers(markers[key]);
 			}
+			google.maps.event.addListener(mgr.traffic, 'loaded', function(){
+			      mgr.traffic.addMarkers(markers.traffic, self.dzoom);
+			      mgr.traffic.refresh();
+			  });
 			return mgr;
 		},
 		ajax_populate: function()
