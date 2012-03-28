@@ -15,10 +15,12 @@ function main()
 		dzoom: 12,
 		mng: null,
 		icons: {},
+		me: {},
 		init:function()
 		{
 			var o;
 			self = this;
+			self.me.ratio = 2.07;
 			self.ajax_populate();
 			self.map = self.drawMap();
 			$('#map_canvas').ajaxComplete(function(event)
@@ -26,14 +28,56 @@ function main()
 				o = self.fill_objects()
 				self.mng = self.draw_markers(o);
 				self.manageZoom(o, self.mng);
+				self.geolocate_me();
 			});	
+		},
+		geolocate_me:function()
+		{
+			if (navigator.geolocation) {
+				var startPos;
+				navigator.geolocation.getCurrentPosition(function(position) {
+					startPos = position;
+					self.me.lat = startPos.coords.latitude;
+					self.me.lng = startPos.coords.longitude;
+					//console.log(self.me);
+				},
+				function(error) {
+					console.log('Error occurred. Error code: ' + error.code);
+				}
+			);
+			navigator.geolocation.watchPosition(function(position) {
+				var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude), size = self.map.getZoom(), image, circle_options, circle;
+				self.me.icon = LocalSettings.STATIC_URL+'images/me.png'
+				self.map.setCenter(currentLocation);
+				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.ratio));
+				self.me.marker = new google.maps.Marker({
+				      position: currentLocation, 
+				      map: self.map, 
+				      title:"Here I am",
+					  icon:image
+				  });
+				circle_options = {
+					strokeColor: "#FF0000",
+					strokeOpacity: 0.4,
+					strokeWeight: 2,
+					fillColor: "#FF0000",
+					fillOpacity: 0.2,
+					map: self.map,
+					center: currentLocation,
+					radius: 500
+				};
+				self.me.cirlce = new google.maps.Circle(circle_options);
+				
+				self.me.lat = position.coords.latitude;
+				self.me.lng = position.coords.longitude;
+				});
+			}
+			else {
+				console.log('Geolocation is not supported for this Browser/OS version yet.');
+			}
 		},
 		manageZoom: function(obj, mng)
 		{
-			google.maps.event.addListener(self.map, "changed", function() {
-						
-			});
-			
 			$(mng).bind( 'zoom_done', function(event) {
 				$.each(mng, function(key, value){
 					if( "show" in value )
@@ -48,6 +92,11 @@ function main()
 				
 				if( zoom <= self.dzoom ) return;
 				
+				// sets the new zoom for the user's icon
+				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.ratio));
+				self.me.marker.setIcon(image);
+				
+				// sets the new zoom for the assets icons if not clustered
 				for(var key in obj)
 				{
 					p = self.switch_parameters(key);
@@ -58,6 +107,8 @@ function main()
 						obj[key][items].marker.setIcon(image);
 					} //end for
 				} //end for
+				
+				// we don't want to show too much of resizing and we try to hide the operation
 				timeout = window.setTimeout(function(){
 					$(mng).trigger("zoom_done");
 					clearTimeout( timeout );

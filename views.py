@@ -11,7 +11,9 @@ from xml.dom import minidom
 
 class About(View):
 	def get(self, request):
-		return HttpResponse("ciao miki", content_type="text/html")
+		t = loader.get_template('items.html')
+		c = RequestContext(request, {'page_title':'Data Living Turin'})
+		return HttpResponse(t.render(c), content_type="text/html")
 
 class HomePage(View):
 	
