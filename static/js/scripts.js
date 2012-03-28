@@ -112,6 +112,14 @@ function main()
 						type: current.type,
 						zIndex: p.index
 					});
+					google.maps.event.addListener(current.marker, 'click', (function(o)
+					{
+						return function()
+						{
+							console.log(o);
+						}
+						
+					})(current));
 					self.objects[key].push( current );
 					delete current;
 				}

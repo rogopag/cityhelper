@@ -8,6 +8,11 @@ from pprint import pprint
 import urllib2
 from xml.dom import minidom
 
+
+class About(View):
+	def get(self, request):
+		return HttpResponse("ciao miki", content_type="text/html")
+
 class HomePage(View):
 	
 	parkings = []
