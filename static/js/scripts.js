@@ -1,6 +1,6 @@
 var LocalSettings;
 
-$(function(){
+jQuery(function($){
 	main();
 });
 
@@ -238,10 +238,12 @@ function main()
 						textColor : '#ff0000',
 						textSize : 12
 						}];
+						//sets MarkerClusters for each group 
 						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles});
 					}
 					else
 					{
+						//sets MarkerManager for those we don't want to cluster 
 						mgr[key] = new MarkerManager( self.map );
 					}
 				
