@@ -24,12 +24,12 @@ function main()
 			self.me.RADIUS = 3000;
 			self.ajax_populate();
 			self.map = self.drawMap();
+			self.geolocate_me();
 			$('#map_canvas').ajaxComplete(function(event)
 			{
 				o = self.fill_objects()
 				self.mng = self.draw_markers(o);
 				self.manageZoom(o, self.mng);
-				self.geolocate_me();
 			});	
 		},
 		geolocate_me:function()
@@ -134,12 +134,10 @@ function main()
 				
 				p = self.switch_parameters(key);
 				image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
-				
 				for( var items in program.d[key] )
 				{
-					////console.log(key + " "+ items);
 					var current = {}, image;
-					current = program.d[key][items];
+					current = ( typeof program.d[key][items].fields != 'undefined' )?program.d[key][items].fields:program.d[key][items];
 					current.type = key;
 					current.icon_url = self.icons[key];
 					current.marker = new google.maps.Marker({
@@ -274,6 +272,7 @@ function main()
 					//////console.log( XMLHttpRequest, textStatus, jqXHR );
 					if( response )
 					{
+						//console.log(response)
 						program.d = response;
 					}
 				},
