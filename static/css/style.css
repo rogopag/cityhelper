@@ -14,7 +14,7 @@ body {
 	margin: 0;
 }
 
-/* interface */
+/* main top bar */
 #mainbar {
 	position: absolute;
 	top: 0;
@@ -40,7 +40,7 @@ body {
 	width: 100%;
 	height: 100%;
 	right: 50%;
-	background: red;
+/*	background: url(../images/site/mainbutton.png) repeat-x; */
 }
 #mainbar .left {
 	width: 40%;
@@ -54,33 +54,31 @@ body {
 #mainbar .right .button  {
 	width: 50%;
 	float: left;
-	height: 50%;
-	background: cyan;
+	height: 100%;
+	background: url(../images/site/bar_divider.gif) 100% 0 no-repeat;
+	text-align: center;
 }
 #mainbar .right .button {
 	float: right;
+	background-position: 0 0;
 }
-
-
-/*
-#mainbar .mainbutton {
-	position: absolute;
-	margin: 0 auto;
-	width: 20%;
+#mainbar .left span,
+#mainbar .center span,
+#mainbar .right span {
+	display: inline-block;
+	width: 60px;
 	height: 100%;
-	background: url(../images/site/mainbutton.png) repeat-x;
-	z-index: 1;
+	background: url(../images/site/bar_buttons.png) 0 -50px no-repeat;
 }
-
-#mainbar .button {
-	position: relative;
-//	right: 50%;
-	float: left;
-	width: 20%;
-	height: 30px;
-	z-index: 99;
-	background: white;
-	margin: 0 auto;
-	display: block;
+#mainbar .bt_2 span {
+	background-position: -60px -50px;
 }
-*/
+#mainbar .bt_3 span {
+	background-position: -120px -50px;	
+}
+#mainbar .bt_4 span {
+	background-position: -240px -50px;
+}
+#mainbar .bt_5 span {
+	background-position: -180px -50px;
+}
