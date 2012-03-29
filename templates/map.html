@@ -13,5 +13,17 @@
 	<div id="map_canvas"></div>
 	<div id="token">{{ csrf_token }}</div>
 	<div id="loading-gif"><img src="{{STATIC_URL}}images/site/ajax-loader.gif" alt="loading" /></div>
-	<div id="mainbar"></div>
+	<div id="mainbar">
+		<div class="group left">
+			<div class="button bt_1"><span>X</span></div>
+			<div class="button bt_2"><span>X</span></div>
+		</div>
+		<div class="group center">
+			<div class="button bt_3"><span>X</span></div>
+		</div>
+		<div class="group right">
+			<div class="button bt_4"><span>X</span></div>
+			<div class="button bt_5"><span>X</span></div>
+		</div>
+	</div>
 	{% endblock %}
