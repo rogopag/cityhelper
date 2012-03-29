@@ -20,7 +20,8 @@ function main()
 		{
 			var o;
 			self = this;
-			self.me.ratio = 2.07;
+			self.me.RATIO = 2.07;
+			self.me.RADIUS = 3000;
 			self.ajax_populate();
 			self.map = self.drawMap();
 			$('#map_canvas').ajaxComplete(function(event)
@@ -49,7 +50,7 @@ function main()
 				var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude), size = self.map.getZoom(), image, circle_options, circle;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png'
 				self.map.setCenter(currentLocation);
-				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.ratio));
+				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
 				self.me.marker = new google.maps.Marker({
 				      position: currentLocation, 
 				      map: self.map, 
@@ -64,9 +65,9 @@ function main()
 					fillOpacity: 0.2,
 					map: self.map,
 					center: currentLocation,
-					radius: 500
+					radius: self.me.RADIUS / self.dzoom
 				};
-				self.me.cirlce = new google.maps.Circle(circle_options);
+				self.me.circle = new google.maps.Circle(circle_options);
 				
 				self.me.lat = position.coords.latitude;
 				self.me.lng = position.coords.longitude;
@@ -78,22 +79,13 @@ function main()
 		},
 		manageZoom: function(obj, mng)
 		{
-			$(mng).bind( 'zoom_done', function(event) {
-				$.each(mng, function(key, value){
-					if( "show" in value )
-					{
-					//	value.show();
-					}
-				});
-			});
-			
 			google.maps.event.addListener(self.map, "zoom_changed", function() {
-				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 ), timeout;
-				
 				if( zoom <= self.dzoom ) return;
 				
+				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 ), timeout;
 				// sets the new zoom for the user's icon
-				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.ratio));
+				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
+				self.me.circle.setRadius( self.me.RADIUS / zoom );
 				self.me.marker.setIcon(image);
 				
 				// sets the new zoom for the assets icons if not clustered
@@ -107,13 +99,7 @@ function main()
 						obj[key][items].marker.setIcon(image);
 					} //end for
 				} //end for
-				
-				// we don't want to show too much of resizing and we try to hide the operation
-				timeout = window.setTimeout(function(){
-					$(mng).trigger("zoom_done");
-					clearTimeout( timeout );
-				}, 1000); //timeout
-			}); //zoom event
+			});
 		},
 		hide_managers:function(m)
 		{
@@ -288,7 +274,6 @@ function main()
 					//////console.log( XMLHttpRequest, textStatus, jqXHR );
 					if( response )
 					{
-						console.log(response)
 						program.d = response;
 					}
 				},

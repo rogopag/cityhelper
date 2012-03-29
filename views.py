@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.generic import View
 from django.utils import simplejson as json
+from django.contrib.sites.models import Site
 from pprint import pprint
 import urllib2
 from xml.dom import minidom
@@ -25,13 +26,14 @@ class HomePage(View):
 	def get(self, request):
 		t = loader.get_template('map.html')
 		c = RequestContext(request, {'page_title':'Data Living Turin'})
+		print >> sys.stderr, "%s" % Site.objects.get_current()
 		return HttpResponse(t.render(c), content_type="text/html")
 	
 	def post(self, request):
 		pck_url = 'http://opendata.5t.torino.it/get_pk'
 		trf_url = 'http://opendata.5t.torino.it/get_fdt'
-		phr_url = 'data/farmacie_geo.csv'
-		h_url = 'data/h_geo.csv'
+		phr_url = '%s/data/farmacie_geo.csv' % os.path.dirname(os.path.realpath(__file__))
+		h_url = '%s/data/h_geo.csv' % os.path.dirname(os.path.realpath(__file__))
 		self.parkings = self.fetch_parkings(pck_url)
 		self.traffic = self.fetch_traffic(trf_url)
 		self.pharma = self.fetch_pharma(phr_url)
@@ -55,7 +57,7 @@ class HomePage(View):
 				})
 			return parkings
 		except urllib2.HTTPError, e:
-			print "Problems loading the url %s" + e
+			print >> sys.stderr, "Problems loading the url %s" + e
 			return None
 	
 	def fetch_traffic(self, url):
@@ -74,7 +76,7 @@ class HomePage(View):
 				})
 			return traffic
 		except urllib2.HTTPError, e:
-			print "Problems loading the url %s" + e
+			print >> sys.stderr, "Problems loading the url %s" + e
 			return None
 			
 	def fetch_hospitals(self, url):
@@ -93,7 +95,7 @@ class HomePage(View):
 				})
 			return h
 		except IOError as (errno, strerror):
-				print "I/O error({0}): {1}".format(errno, strerror)
+				print >> sys.stderr, "I/O error({0}): {1}".format(errno, strerror)
 				return None	
 				
 	def fetch_pharma(self, url):
@@ -113,6 +115,5 @@ class HomePage(View):
 				})
 			return pharma
 		except IOError as (errno, strerror):
-				print "I/O error({0}): {1}".format(errno, strerror)
+				print >> sys.stderr, "I/O error({0}): {1}".format(errno, strerror)
 				return None
-	
