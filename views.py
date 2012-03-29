@@ -1,5 +1,5 @@
 # Create your views here.
-import os
+import os, sys, csv
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.generic import View
@@ -7,16 +7,22 @@ from django.utils import simplejson as json
 from pprint import pprint
 import urllib2
 from xml.dom import minidom
-import csv
 
+
+class About(View):
+	def get(self, request):
+		t = loader.get_template('items.html')
+		c = RequestContext(request, {'page_title':'Data Living Turin'})
+		return HttpResponse(t.render(c), content_type="text/html")
 
 class HomePage(View):
 	
 	parkings = []
 	traffic = []
 	pharma = []
+	hospitals = []
 	
-	def get(self, request):	
+	def get(self, request):
 		t = loader.get_template('map.html')
 		c = RequestContext(request, {'page_title':'Data Living Turin'})
 		return HttpResponse(t.render(c), content_type="text/html")
@@ -24,14 +30,16 @@ class HomePage(View):
 	def post(self, request):
 		pck_url = 'http://opendata.5t.torino.it/get_pk'
 		trf_url = 'http://opendata.5t.torino.it/get_fdt'
+		phr_url = 'data/farmacie_geo.csv'
+		h_url = 'data/h_geo.csv'
 		self.parkings = self.fetch_parkings(pck_url)
 		self.traffic = self.fetch_traffic(trf_url)
-		self.pharma = self.fetch_pharma()
-		pprint(self.pharma)
-		response = {'pharma' : self.pharma, 'parkings' : self.parkings, 'traffic' : self.traffic}
-		return HttpResponse( json.dumps(response), 'application/json' )
-		
-	def fetch_parkings(self, url):
+		self.pharma = self.fetch_pharma(phr_url)
+		self.hospitals = self.fetch_hospitals(h_url)
+		response = {'pharma' : self.pharma, 'parkings' : self.parkings, 'traffic' : self.traffic, 'hospitals' : self.hospitals}
+		return HttpResponse( json.dumps(response), content_type="application/json", mimetype='application/json' )
+	
+	def fetch_parkings(self, url):	
 		parkings = []
 		try:
 			s = urllib2.urlopen(urllib2.Request(url=url))
@@ -47,7 +55,7 @@ class HomePage(View):
 				})
 			return parkings
 		except urllib2.HTTPError, e:
-			print "Problems loading the url " + str(e)
+			print "Problems loading the url %s" + e
 			return None
 	
 	def fetch_traffic(self, url):
@@ -66,22 +74,45 @@ class HomePage(View):
 				})
 			return traffic
 		except urllib2.HTTPError, e:
-			print "Problems loading the url " + str(e)
+			print "Problems loading the url %s" + e
 			return None
 			
-	def fetch_pharma(self):
+	def fetch_hospitals(self, url):
+		h = []
+		try:
+			all_rows = list(csv.reader(open(url, "rU")))
+			for row in all_rows:
+				h.append({
+				'name' : row[0],
+				'address' : str(row[1]) + ", " + str(row[2]),
+				'phone' : row[3],
+				'lat': row[6],
+				'lng' : row[7],
+				'kind': row[5],
+				'type': 'hospitals'
+				})
+			return h
+		except IOError as (errno, strerror):
+				print "I/O error({0}): {1}".format(errno, strerror)
+				return None	
+				
+	def fetch_pharma(self, url):
 		pharma = []
-		INPUT_FILE = "data/farmacie_geo.csv"
-		all_rows = list(csv.reader(open(INPUT_FILE, "rU")))
-		for row in all_rows:
-			pharma.append({
-			'name' : row[0],
-			'address' : str(row[1]) + ", " + str(row[2]),
-			'cap' : row[3],
-			'phone' : row[4],
-			'code' : row[5],
-			'vat': row[6],
-			'lat': row[7],
-			'lng' : row[8]
-			})
-		return pharma
+		try:
+			all_rows = list(csv.reader(open(url, "rU")))
+			for row in all_rows:
+				pharma.append({
+				'name' : row[0],
+				'address' : str(row[1]) + ", " + str(row[2]),
+				'cap' : row[3],
+				'phone' : row[4],
+				'code' : row[5],
+				'vat': row[6],
+				'lat': row[7],
+				'lng' : row[8]
+				})
+			return pharma
+		except IOError as (errno, strerror):
+				print "I/O error({0}): {1}".format(errno, strerror)
+				return None
+	

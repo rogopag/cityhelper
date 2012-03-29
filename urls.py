@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import patterns, include, url
-from cityhelper.views import HomePage
+from cityhelper.views import HomePage, About
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -8,6 +8,7 @@ from cityhelper.views import HomePage
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', HomePage.as_view(), name='home'),
+	url(r'^about', About.as_view(), name='home')
     # url(r'^cityhelper/', include('cityhelper.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

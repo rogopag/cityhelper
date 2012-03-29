@@ -12,3 +12,9 @@ urls.pyc
 views.pyc
 
 static/images/.DS_Store
+
+static/.DS_Store
+
+data/.~lock.h_geo.csv#
+
+.DS_Store
