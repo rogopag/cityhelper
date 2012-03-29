@@ -82,7 +82,7 @@ function main()
 				$.each(mng, function(key, value){
 					if( "show" in value )
 					{
-						value.show();
+					//	value.show();
 					}
 				});
 			});
