@@ -18,3 +18,5 @@ static/.DS_Store
 data/.~lock.h_geo.csv#
 
 .DS_Store
+
+services/models.pyc

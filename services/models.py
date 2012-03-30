@@ -5,7 +5,7 @@ from django.db import models
 class PublicService(models.Model):
 	name = models.CharField(max_length=255, blank=False, null=False)
 	address = models.TextField()
-	phone = models.CharField(max_length=35, blank=False, null=False)
+	phone = models.CharField(max_length=50, blank=False, null=False)
 	cap = models.CharField(max_length=5, blank=False, null=False)
 	lat = models.CharField(max_length=30,blank=False, null=False)
 	lng = models.CharField(max_length=30,blank=False, null=False)

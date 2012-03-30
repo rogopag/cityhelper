@@ -35,8 +35,8 @@ function main()
 		geolocate_me:function()
 		{
 			if (navigator.geolocation) {
-				var startPos;
-				navigator.geolocation.getCurrentPosition(function(position) {
+				var startPos, current, watch;
+				current = navigator.geolocation.getCurrentPosition(function(position) {
 					startPos = position;
 					self.me.lat = startPos.coords.latitude;
 					self.me.lng = startPos.coords.longitude;
@@ -46,7 +46,7 @@ function main()
 					console.log('Error occurred. Error code: ' + error.code);
 				}
 			);
-			navigator.geolocation.watchPosition(function(position) {
+			watch = navigator.geolocation.watchPosition(function(position) {
 				var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude), size = self.map.getZoom(), image, circle_options, circle;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png'
 				self.map.setCenter(currentLocation);
@@ -71,6 +71,15 @@ function main()
 				
 				self.me.lat = position.coords.latitude;
 				self.me.lng = position.coords.longitude;
+				},
+				function(error) 
+				{
+					console.log('Error occurred. Error code: ' + error.code);
+				}, 
+				{
+					enableHighAccuracy:true, 
+					maximumAge:30000, 
+					timeout:27000
 				});
 			}
 			else {
