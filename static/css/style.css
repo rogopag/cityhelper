@@ -16,7 +16,7 @@ body {
 
 /* main top bar */
 #mainbar {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	z-index: 999;
@@ -81,4 +81,22 @@ body {
 }
 #mainbar .bt_5 span {
 	background-position: -184px -50px;
+}
+
+/* footer */
+#footer {
+	width: 23px;
+	height: 47px;
+	position: fixed;
+	bottom: 15px;
+	left: 50%;
+}
+#footer span {
+	position: relative;
+	left: -23px;
+	width: 46px;
+	height: 100%;
+	margin: 0 auto;
+	display: block;
+	background: url(../images/site/geolocme.png) 50% -47px no-repeat;
 }
