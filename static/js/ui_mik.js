@@ -1,18 +1,40 @@
-var $dialog, $button;
+var $options, $optionsSelect,
+	$traffic, $trafficSelect;
 
 $(document).ready(function () {
-	$('#footer').append($button);
+	/* info */
+	/* bookmark */
+	/* means */
+	/* options */
+	$('div.bt_4 span').append($options);
+	$('div.bt_4 div.open').append($traffic,$ztl);
 });
 
 function addButton() {
-    $button = $.ninja.button({
-		html: '<b>Ninja</b> star...'
-	}).select(function () {
-		$dialog.attach();
+	/* create drawers */
+	$options = $.ninja.drawer({
+		html: '<div class="open"></div>',
+		value: ''
+	}),
+	$optionsSelect = $.ninja.drawer({
+		html: '',
+		select: true,
+		value: ''
 	});
-    $dialog = $.ninja.dialog({
-		html: '<img src="http://ninjaui.com/img/logo.png"/>'
-	}).detach(function () {
-		$button.deselect();
+	
+	/* create buttons */
+	$traffic = $.ninja.button({
+		html: 'Traffico'
+		}),
+	$trafficSelect = $.ninja.button({
+		html: 'Selected',
+		select: true
+	});
+	$ztl = $.ninja.button({
+		html: 'ZTL'
+		}),
+	$ztlSelect = $.ninja.button({
+		html: 'Selected',
+		select: true
 	});
 };
