@@ -1,7 +1,7 @@
 var $options, $optionsSelect,
 	$traffic, $trafficSelect;
 
-$(document).ready(function () {
+$(document).ready(function(){
 	/* info */
 	/* bookmark */
 	/* means */
@@ -9,6 +9,12 @@ $(document).ready(function () {
 	$('div.bt_4 span').append($options);
 	$('div.bt_4 div.open').append($traffic,$ztl);
 });
+$(window).load(function(){
+	/* hide address bar */
+	setTimeout(function(){
+    	window.scrollTo(0,1);
+  	},0);
+}
 
 function addButton() {
 	/* create drawers */
