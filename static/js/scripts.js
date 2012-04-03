@@ -339,16 +339,17 @@ function main()
 		traffic:null, 
 		trafficSelect:null, 
 		parkings:null,
-		mng:null,
+		mngs:null,
 		buttons:null,
+		mng:{},
 		init: function(mng)
 		{
 			view = this;
-			view.mng = mng;
+			view.mngs = mng;
 			view.buttons = new Array();
 			view.hideAddressBar();
 			view.setSelectLayer();
-			//console.log(view.mng);
+			//console.log(view.mngs);
 		},
 		setSelectLayer: function()
 		{
@@ -383,32 +384,33 @@ function main()
 				select: true,
 				value: ''
 			});
-			$.each(view.mng, function(key, value){
+			$.each(view.mngs, function(key, value){
+				self.mng[key].mng = value;
 				view.buttons[count] = {};
 				view.buttons[count][key] = {};
 				view.buttons[count][key].name = key;
 				view.buttons[count][key].el = $.ninja.button({
 					html: view.buttons[count][key].name
 					}).select(function(){
-						if( 'hide' in value)
+						if( 'hide' in self.mng[key].mng)
 						{
-							value.hide();
+							self.mng[key].mng.hide();
 						}
 						else
 						{
-							cluster = value.getMarkers()
-							value.clearMarkers();
+							self.mng[key].cluster = self.mng[key].mng.getMarkers()
+							self.mng[key].mng.clearMarkers();
 						}
 						
 					}).deselect(function(){
-						if( 'hide' in value)
+						if( 'hide' in self.mng[key].mng)
 						{
-							value.show();
+							self.mng[key].mng.show();
 						}
 						else
 						{
-							value.addMarkers(cluster);
-							value.repaint();
+							self.mng[key].mng.addMarkers(self.mng[key].cluster);
+							self.mng[key].mng.repaint();
 						}
 					}),
 				view.buttons[count][key].sel = $.ninja.button({
