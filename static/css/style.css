@@ -1,4 +1,140 @@
 div.items-container{width:20%;float:left;}
 div#map_canvas{width:100%;height:100%;}
 div#token{display:none;}
+<<<<<<< HEAD:static/css/style.css
 div#loading-gif{position:absolute;left:50%;top:50%;width:100px;height:100px;overflow:hidden;}
+=======
+div#loading-gif{position:absolute;left:50%;top:50%;}
+
+
+/*
+** to do: add resets
+*/
+
+/* general */
+body {
+	padding: 0;
+	margin: 0;
+}
+
+/* main top bar */
+#mainbar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 999;
+	width: 100%;
+	height: 50px;
+	background: url(../images/site/bar_background.png) repeat-x;
+	text-align: center;
+}
+#mainbar .group {
+	position: absolute;
+	text-align: center;
+	height: 100%;
+}
+#mainbar .center {
+	left: 50%;
+	width: 20%;
+	margin: 0 auto;
+}
+#mainbar .center .button {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	right: 50%;
+/*	background: url(../images/site/mainbutton.png) repeat-x; */
+}
+#mainbar .left {
+	width: 40%;
+	left: 0;
+}
+#mainbar .right {
+	width: 40%;
+	right: 0;
+}
+#mainbar .left .button,
+#mainbar .right .button  {
+	width: 50%;
+	float: left;
+	height: 100%;
+	background: url(../images/site/bar_divider.gif) 100% 0 no-repeat;
+	text-align: center;
+}
+#mainbar .right .button {
+	float: right;
+	background-position: 0 0;
+}
+#mainbar .left span,
+#mainbar .center span,
+#mainbar .right span {
+	display: inline-block;
+	width: 60px;
+	height: 100%;
+	background: url(../images/site/bar_buttons.png) 0 -50px no-repeat;
+}
+#mainbar .bt_2 span {
+	background-position: -60px -50px;
+}
+#mainbar .bt_3 span {
+	background-position: -120px -50px;	
+}
+#mainbar .bt_4 span {
+	background: none;
+}
+#mainbar .bt_5 span {
+	background-position: -184px -50px;
+}
+
+/* footer */
+#footer {
+	width: 23px;
+	height: 47px;
+	position: fixed;
+	bottom: 15px;
+	left: 50%;
+}
+#footer span {
+	position: relative;
+	left: -23px;
+	width: 46px;
+	height: 100%;
+	margin: 0 auto;
+	display: block;
+	background: url(../images/site/geolocme.png) 50% -47px no-repeat;
+}
+
+/* ui elements - nui overwrites */
+#mainbar button.nui-btn {
+	height: 100%;
+	background: url(../images/site/bar_buttons.png) -241px -50px no-repeat;
+	border: 0;
+	padding: 0;
+}
+#mainbar button.nui-btn img {
+	display: none;
+}
+#mainbar button.nui-slc {
+	background-position: -241px 0;
+}
+#mainbar div.nui-try {
+	background: #242423;
+	border: 0;
+	padding: 0;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+}
+#mainbar div.nui-try button.nui-btn {
+	background: none;
+	padding: 10px;
+	color: white;
+	text-shadow: none;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+}
+#mainbar div.nui-try button.nui-slc {
+	background: #ff9800;
+}
+>>>>>>> master:static/css/style.css

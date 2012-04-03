@@ -19,4 +19,11 @@ data/.~lock.h_geo.csv#
 
 .DS_Store
 
+<<<<<<< HEAD:.gitignore
+=======
+cityhelper.esproj/Project.espressostorage
+
+cityhelper.esproj/user.miguel.espressostorage
+
+>>>>>>> master:.gitignore
 services/models.pyc
