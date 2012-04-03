@@ -20,22 +20,23 @@ function main()
 		{
 			var o;
 			self = this;
-			self.me.ratio = 2.07;
+			self.me.RATIO = 2.07;
+			self.me.RADIUS = 3000;
 			self.ajax_populate();
 			self.map = self.drawMap();
+			self.geolocate_me();
 			$('#map_canvas').ajaxComplete(function(event)
 			{
 				o = self.fill_objects()
 				self.mng = self.draw_markers(o);
 				self.manageZoom(o, self.mng);
-				self.geolocate_me();
 			});	
 		},
 		geolocate_me:function()
 		{
 			if (navigator.geolocation) {
-				var startPos;
-				navigator.geolocation.getCurrentPosition(function(position) {
+				var startPos, current, watch;
+				current = navigator.geolocation.getCurrentPosition(function(position) {
 					startPos = position;
 					self.me.lat = startPos.coords.latitude;
 					self.me.lng = startPos.coords.longitude;
@@ -45,11 +46,11 @@ function main()
 					console.log('Error occurred. Error code: ' + error.code);
 				}
 			);
-			navigator.geolocation.watchPosition(function(position) {
+			watch = navigator.geolocation.watchPosition(function(position) {
 				var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude), size = self.map.getZoom(), image, circle_options, circle;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png'
 				self.map.setCenter(currentLocation);
-				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.ratio));
+				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
 				self.me.marker = new google.maps.Marker({
 				      position: currentLocation, 
 				      map: self.map, 
@@ -64,12 +65,21 @@ function main()
 					fillOpacity: 0.2,
 					map: self.map,
 					center: currentLocation,
-					radius: 500
+					radius: self.me.RADIUS / self.dzoom
 				};
-				self.me.cirlce = new google.maps.Circle(circle_options);
+				self.me.circle = new google.maps.Circle(circle_options);
 				
 				self.me.lat = position.coords.latitude;
 				self.me.lng = position.coords.longitude;
+				},
+				function(error) 
+				{
+					console.log('Error occurred. Error code: ' + error.code);
+				}, 
+				{
+					enableHighAccuracy:true, 
+					maximumAge:30000, 
+					timeout:27000
 				});
 			}
 			else {
@@ -78,22 +88,13 @@ function main()
 		},
 		manageZoom: function(obj, mng)
 		{
-			$(mng).bind( 'zoom_done', function(event) {
-				$.each(mng, function(key, value){
-					if( "show" in value )
-					{
-					//	value.show();
-					}
-				});
-			});
-			
 			google.maps.event.addListener(self.map, "zoom_changed", function() {
-				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 ), timeout;
-				
 				if( zoom <= self.dzoom ) return;
 				
+				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 ), timeout;
 				// sets the new zoom for the user's icon
-				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.ratio));
+				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
+				self.me.circle.setRadius( self.me.RADIUS / zoom );
 				self.me.marker.setIcon(image);
 				
 				// sets the new zoom for the assets icons if not clustered
@@ -107,13 +108,7 @@ function main()
 						obj[key][items].marker.setIcon(image);
 					} //end for
 				} //end for
-				
-				// we don't want to show too much of resizing and we try to hide the operation
-				timeout = window.setTimeout(function(){
-					$(mng).trigger("zoom_done");
-					clearTimeout( timeout );
-				}, 1000); //timeout
-			}); //zoom event
+			});
 		},
 		hide_managers:function(m)
 		{
@@ -148,12 +143,10 @@ function main()
 				
 				p = self.switch_parameters(key);
 				image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
-				
 				for( var items in program.d[key] )
 				{
-					////console.log(key + " "+ items);
 					var current = {}, image;
-					current = program.d[key][items];
+					current = ( typeof program.d[key][items].fields != 'undefined' )?program.d[key][items].fields:program.d[key][items];
 					current.type = key;
 					current.icon_url = self.icons[key];
 					current.marker = new google.maps.Marker({
@@ -288,7 +281,7 @@ function main()
 					//////console.log( XMLHttpRequest, textStatus, jqXHR );
 					if( response )
 					{
-						console.log(response)
+						//console.log(response)
 						program.d = response;
 					}
 				},

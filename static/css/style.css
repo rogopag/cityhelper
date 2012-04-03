@@ -1,6 +1,9 @@
 div.items-container{width:20%;float:left;}
 div#map_canvas{width:100%;height:100%;}
 div#token{display:none;}
+<<<<<<< HEAD:static/css/style.css
+div#loading-gif{position:absolute;left:50%;top:50%;width:100px;height:100px;overflow:hidden;}
+=======
 div#loading-gif{position:absolute;left:50%;top:50%;}
 
 
@@ -134,3 +137,4 @@ body {
 #mainbar div.nui-try button.nui-slc {
 	background: #ff9800;
 }
+>>>>>>> master:static/css/style.css
