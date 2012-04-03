@@ -138,7 +138,29 @@ function main()
 				zoom: self.ZOOM,
 				navigationControl: false,
 				mapTypeId: google.maps.MapTypeId.ROADMAP,
-				center: latlng
+				center: latlng,
+				mapTypeControl: true,
+				    mapTypeControlOptions: {
+				        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+				        position: google.maps.ControlPosition.BOTTOM_CENTER
+				    },
+				    panControl: true,
+				    panControlOptions: {
+				        position: google.maps.ControlPosition.TOP_RIGHT
+				    },
+				    zoomControl: true,
+				    zoomControlOptions: {
+				        style: google.maps.ZoomControlStyle.LARGE,
+				        position: google.maps.ControlPosition.LEFT_CENTER
+				    },
+				    scaleControl: true,
+				    scaleControlOptions: {
+				        position: google.maps.ControlPosition.TOP_LEFT
+				    },
+				    streetViewControl: true,
+				    streetViewControlOptions: {
+				        position: google.maps.ControlPosition.LEFT_TOP
+				    }
 		    };
 			if( document.getElementById("map_canvas") )
 			return new google.maps.Map(document.getElementById("map_canvas"), options);

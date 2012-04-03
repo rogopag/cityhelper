@@ -32,16 +32,19 @@ class HomePage(View):
 		return HttpResponse(t.render(c), content_type="text/html")
 	
 	def post(self, request):
+		print >> sys.stderr, "fuck 1"
 		pck_url = 'http://opendata.5t.torino.it/get_pk'
 		trf_url = 'http://opendata.5t.torino.it/get_fdt'
 		self.parkings = self.fetch_parkings(pck_url)
+		print >> sys.stderr, "fuck 2"
 		self.traffic = self.fetch_traffic(trf_url)
-		try:
-			self.pharma = serializers.serialize('python', Pharma.objects.all())
-			self.hospitals = serializers.serialize('python', Hospital.objects.all())
-		except:
-			raise			
+		print >> sys.stderr, "fuck 3"
+		self.pharma = serializers.serialize('python', Pharma.objects.all())
+		print >> sys.stderr, "fuck 4"
+		self.hospitals = serializers.serialize('python', Hospital.objects.all())
+		print >> sys.stderr, "fuck 5"			
 		response = {'pharma' : self.pharma, 'parkings' : self.parkings, 'traffic' : self.traffic, 'hospitals' : self.hospitals}
+		print >> sys.stderr, "fuck 6"
 		return HttpResponse( json.dumps(response), content_type="application/json", mimetype='application/json' )
 	
 	def fetch_parkings(self, url):	
