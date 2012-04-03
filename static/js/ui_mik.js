@@ -51,6 +51,8 @@ function uiController(){
 				html: 'Selected',
 				select: true
 			});
+			$(traffic).addClass("traffic-button")
+			console.log(traffic)
 			ztl = $.ninja.button({
 				html: 'ZTL'
 				}),
@@ -58,8 +60,8 @@ function uiController(){
 				html: 'Selected',
 				select: true
 			});
+			$(ztl).addClass("ztl-button")
 		}
 	}
 	viewController.init();
-}
-
+};

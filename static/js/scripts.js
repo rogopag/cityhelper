@@ -12,7 +12,7 @@ function main()
 		map : null,
 		d : null,
 		objects : {},
-		dzoom: 12,
+		ZOOM: 12,
 		mng: null,
 		icons: {},
 		me: {},
@@ -74,7 +74,7 @@ function main()
 						fillOpacity: 0.2,
 						map: self.map,
 						center: currentLocation,
-						radius: self.me.RADIUS / self.dzoom
+						radius: self.me.RADIUS / self.ZOOM
 					};
 					self.me.circle = new google.maps.Circle(circle_options);
 				}
@@ -101,7 +101,7 @@ function main()
 		manageZoom: function(obj, mng)
 		{
 			google.maps.event.addListener(self.map, "zoom_changed", function() {
-				if( zoom <= self.dzoom ) return;
+				if( zoom <= self.ZOOM ) return;
 				
 				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 ), timeout;
 				// sets the new zoom for the user's icon
@@ -135,7 +135,7 @@ function main()
 		{
 			var latlng = new google.maps.LatLng(45.07, 7.68), options = {
 		      	backgroundColor: '#FFFFFF',
-				zoom: self.dzoom,
+				zoom: self.ZOOM,
 				navigationControl: true,
 				mapTypeId: google.maps.MapTypeId.ROADMAP,
 				center: latlng
@@ -262,7 +262,7 @@ function main()
 				mgr[key].addMarkers(markers[key]);
 			}
 			google.maps.event.addListener(mgr.traffic, 'loaded', function(){
-			      mgr.traffic.addMarkers(markers.traffic, self.dzoom);
+			      mgr.traffic.addMarkers(markers.traffic, self.ZOOM);
 			      mgr.traffic.refresh();
 			  });
 			return mgr;
