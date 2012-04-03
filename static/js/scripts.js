@@ -6,7 +6,7 @@ jQuery(function($){
 
 function main()
 {
-	ajaxurl = '/', self = null;
+	ajaxurl = '/', self = null, view = null;
 	
 	var program = {
 		map : null,
@@ -31,6 +31,7 @@ function main()
 			{
 				o = self.fill_objects()
 				self.mng = self.draw_markers(o);
+				viewController.init(self.mng);
 				self.manageZoom(o, self.mng);
 			});	
 		},
@@ -54,9 +55,9 @@ function main()
 				self.me.lng = position.coords.longitude;
 				var currentLocation = new google.maps.LatLng(self.me.lat, self.me.lng), size = self.map.getZoom(), image, circle_options, circle;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png'
-				self.map.setCenter(currentLocation);
+				//self.map.setCenter(currentLocation);
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
-				console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
+				//console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
 
 				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
 				{
@@ -82,6 +83,7 @@ function main()
 				{
 					self.me.marker.setPosition( currentLocation );
 					self.me.circle.setPosition( currentLocation );
+					self.me.circle.setRadius( self.me.RADIUS / self.map.getZoom() );
 				}
 			},
 				function(error) 
@@ -167,7 +169,7 @@ function main()
 			
 			for(var key in program.d)
 			{
-				
+				//console.log( key );
 				self.objects[key] = [];
 				self.icons[key] = LocalSettings.STATIC_URL+'images/'+key + ".png";
 				
@@ -330,6 +332,94 @@ function main()
 			$("div#loading-gif").show();
 		},
 		
-	}
+	};
+	var viewController = {
+		options:null,
+		optionsSelect:null, 
+		traffic:null, 
+		trafficSelect:null, 
+		parkings:null,
+		mng:null,
+		buttons:null,
+		init: function(mng)
+		{
+			view = this;
+			view.mng = mng;
+			view.buttons = new Array();
+			view.hideAddressBar();
+			view.setSelectLayer();
+			//console.log(view.mng);
+		},
+		setSelectLayer: function()
+		{
+			// create elements and their otions
+			view.addButton();
+			//append elements created to buttons
+			$('div.bt_4 span').append(view.options);
+			
+			$.each(view.buttons, function(key, value)
+			{
+				for( var key in value)
+				{
+					$('div.bt_4 div.open').append(value[key].el);
+				}
+			});
+		},
+		 hideAddressBar: function()
+		{
+			setTimeout(function(){
+		    	window.scrollTo(0,1);
+		  	},0);
+		},
+		 addButton: function() {
+			/* create drawers */
+			var count = 0, cluster;
+			view.options = $.ninja.drawer({
+				html: '<div class="open"></div>',
+				value: ''
+			}),
+			view.optionsSelect = $.ninja.drawer({
+				html: '',
+				select: true,
+				value: ''
+			});
+			$.each(view.mng, function(key, value){
+				view.buttons[count] = {};
+				view.buttons[count][key] = {};
+				view.buttons[count][key].name = key;
+				view.buttons[count][key].el = $.ninja.button({
+					html: view.buttons[count][key].name
+					}).select(function(){
+						if( 'hide' in value)
+						{
+							value.hide();
+						}
+						else
+						{
+							cluster = value.getMarkers()
+							value.clearMarkers();
+						}
+						
+					}).deselect(function(){
+						if( 'hide' in value)
+						{
+							value.show();
+						}
+						else
+						{
+							value.addMarkers(cluster);
+							value.repaint();
+						}
+					}),
+				view.buttons[count][key].sel = $.ninja.button({
+					html: 'Selected',
+					select: true
+				});
+				//console.log( view.key.el );
+				$(view.buttons[count][key].el).addClass(view.buttons[count][key].name+"-button");
+				count++;
+			});
+		}
+	};
 	program.init();
 };
