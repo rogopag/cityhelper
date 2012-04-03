@@ -7,7 +7,7 @@ jQuery(document).ready(function($){
 });
 function uiController(){
 	
-	var options, optionsSelect, traffic, trafficSelect, ztl, self;
+	var options, optionsSelect, traffic, trafficSelect, parkings, self;
 	
 	var viewController = {
 		init: function()
@@ -22,7 +22,7 @@ function uiController(){
 			self.addButton();
 			//append elements created to buttons
 			$('div.bt_4 span').append(options);
-			$('div.bt_4 div.open').append(traffic,ztl);
+			$('div.bt_4 div.open').append(traffic,parkings);
 		},
 		 hideAddressBar: function()
 		{
@@ -30,7 +30,6 @@ function uiController(){
 		    	window.scrollTo(0,1);
 		  	},0);
 		},
-
 		 addButton: function() {
 			/* create drawers */
 			options = $.ninja.drawer({
@@ -52,15 +51,14 @@ function uiController(){
 				select: true
 			});
 			$(traffic).addClass("traffic-button")
-			console.log(traffic)
-			ztl = $.ninja.button({
-				html: 'ZTL'
+			parkings = $.ninja.button({
+				html: 'Parcheggi'
 				}),
-			ztlSelect = $.ninja.button({
+			parkingsSelect = $.ninja.button({
 				html: 'Selected',
 				select: true
 			});
-			$(ztl).addClass("ztl-button")
+			$(parkings).addClass("parkings-button")
 		}
 	}
 	viewController.init();
