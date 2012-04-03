@@ -9,6 +9,8 @@ import urllib2
 from xml.dom import minidom
 from services.models import Pharma, Hospital, Veterinarian
 from django.core import serializers
+import logging
+log = logging.getLogger("cityhelper.filelogger")
 
 
 class About(View):
