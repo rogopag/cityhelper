@@ -7,10 +7,29 @@
 	<script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.9/src/markerclusterer_packed.js"></script>
 	<script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markermanager/src/markermanager.js"></script>
 	<script src="{{STATIC_URL}}js/scripts.js?v=0.1"></script>
+	<script src="{{STATIC_URL}}js/ninjaui.js?v=0.1"></script>
+	<script src="{{STATIC_URL}}js/ui_mik.js?v=0.1"></script>
 	{% endblock %}
 	
 	{% block content %}
 	<div id="map_canvas"></div>
 	<div id="token">{{ csrf_token }}</div>
 	<div id="loading-gif"><img src="{{STATIC_URL}}images/site/ajax-loader.gif" alt="loading" /></div>
+	<div id="mainbar">
+		<div class="group left">
+			<div class="button bt_1"><span></span></div>
+			<div class="button bt_2"><span></span></div>
+		</div>
+		<div class="group center">
+			<div class="button bt_3"><span></span></div>
+		</div>
+		<div class="group right">
+			<div class="button bt_4"><span></span></div>
+			<div class="button bt_5"><span></span></div>
+		</div>
+	</div>
+	<div id="footer"><span></span></div>
+	<script>
+		addButton();
+	</script>
 	{% endblock %}
