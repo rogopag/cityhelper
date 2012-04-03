@@ -17,7 +17,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(SITE_ROOT, 'db1'),                      # Or path to database file if using sqlite3.
+        'NAME': os.path.join(SITE_ROOT, 'data/db1'),                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -122,6 +122,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+	'services',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -134,19 +135,38 @@ INSTALLED_APPS = (
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    }
+	'version': 1,
+	'disable_existing_loggers': True,
+	'formatters': {
+	        'verbose': {
+	            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+	        },
+	        'simple': {
+	            'format': '%(levelname)s %(message)s'
+	        },
+	    },
+	'handlers': {
+		'mail_admins': {
+			'level': 'ERROR',
+			'class': 'django.utils.log.AdminEmailHandler'
+		},
+		'filelogger':{
+			'level':'INFO',
+			'class':'logging.FileHandler',
+			'filename':os.path.join(SITE_ROOT, 'logs/django.log'),
+			'formatter':'verbose',
+		},
+	},
+	'loggers': {
+		'django.request': {
+			'handlers': ['mail_admins'],
+			'level': 'ERROR',
+			'propagate': True,
+		},
+		'cityhelper.filelogger' : {
+			'handlers': ['filelogger'],
+			'level': 'INFO',
+			'propagate': True,
+		},
+	}
 }
