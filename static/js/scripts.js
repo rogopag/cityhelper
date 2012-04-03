@@ -346,7 +346,7 @@ function main()
 		{
 			view = this;
 			view.mngs = mng;
-			view.buttons = new Array();
+			view.buttons = [];
 			view.hideAddressBar();
 			view.setSelectLayer();
 			//console.log(view.mngs);
