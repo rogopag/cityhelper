@@ -22,6 +22,8 @@ function main()
 			self = this;
 			self.me.RATIO = 2.07;
 			self.me.RADIUS = 3000;
+			self.me.startlat = 0;
+			self.me.startlng = 0;
 			self.ajax_populate();
 			self.map = self.drawMap();
 			self.geolocate_me();
@@ -35,51 +37,61 @@ function main()
 		geolocate_me:function()
 		{
 			if (navigator.geolocation) {
-				var startPos, current, watch;
+				var current, watch;
+				/*eventually if you want to store the original position */
 				current = navigator.geolocation.getCurrentPosition(function(position) {
 					startPos = position;
-					self.me.lat = startPos.coords.latitude;
-					self.me.lng = startPos.coords.longitude;
-					//console.log(self.me);
+					self.me.startlat = startPos.coords.latitude;
+					self.me.startlng = startPos.coords.longitude;
 				},
 				function(error) {
 					console.log('Error occurred. Error code: ' + error.code);
 				}
 			);
+			/*and then watch it change*/
 			watch = navigator.geolocation.watchPosition(function(position) {
-				var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude), size = self.map.getZoom(), image, circle_options, circle;
+				self.me.lat = position.coords.latitude;
+				self.me.lng = position.coords.longitude;
+				var currentLocation = new google.maps.LatLng(self.me.lat, self.me.lng), size = self.map.getZoom(), image, circle_options, circle;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png'
 				self.map.setCenter(currentLocation);
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
-				self.me.marker = new google.maps.Marker({
-				      position: currentLocation, 
-				      map: self.map, 
-				      title:"Here I am",
-					  icon:image
-				  });
-				circle_options = {
-					strokeColor: "#FF0000",
-					strokeOpacity: 0.4,
-					strokeWeight: 2,
-					fillColor: "#FF0000",
-					fillOpacity: 0.2,
-					map: self.map,
-					center: currentLocation,
-					radius: self.me.RADIUS / self.dzoom
-				};
-				self.me.circle = new google.maps.Circle(circle_options);
-				
-				self.me.lat = position.coords.latitude;
-				self.me.lng = position.coords.longitude;
-				},
+				console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
+
+				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
+				{
+					self.me.marker = new google.maps.Marker({
+						position: currentLocation, 
+						map: self.map, 
+						title:"Here I am",
+						icon:image
+					});
+					circle_options = {
+						strokeColor: "#FF0000",
+						strokeOpacity: 0.4,
+						strokeWeight: 2,
+						fillColor: "#FF0000",
+						fillOpacity: 0.2,
+						map: self.map,
+						center: currentLocation,
+						radius: self.me.RADIUS / self.dzoom
+					};
+					self.me.circle = new google.maps.Circle(circle_options);
+				}
+				else
+				{
+					self.me.marker.setPosition( currentLocation );
+					self.me.circle.setPosition( currentLocation );
+				}
+			},
 				function(error) 
 				{
 					console.log('Error occurred. Error code: ' + error.code);
 				}, 
 				{
 					enableHighAccuracy:true, 
-					maximumAge:30000, 
-					timeout:27000
+					maximumAge:10000, 
+					timeout:10000
 				});
 			}
 			else {

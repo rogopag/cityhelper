@@ -5,7 +5,7 @@ from pprint import pprint
 from geopy import geocoders
 import csv
 
-#Usage python geocode.py path_to_file.csv start_from end_to ### this is needed cause Google() geocoder has severe limitations on query per second and our app is fast....
+#Usage python geocode.py path_to_file.csv start_from end_to ### this is needed cause Google() geocoder has severe limitations on query per second and our app is fast.....
 data = []
 
 def main():

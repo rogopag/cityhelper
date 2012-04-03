@@ -32,6 +32,7 @@ class HomePage(View):
 		return HttpResponse(t.render(c), content_type="text/html")
 	
 	def post(self, request):
+		print >> sys.stderr, 'foooo'
 		pck_url = 'http://opendata.5t.torino.it/get_pk'
 		trf_url = 'http://opendata.5t.torino.it/get_fdt'
 		self.parkings = self.fetch_parkings(pck_url)
