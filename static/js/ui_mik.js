@@ -1,46 +1,65 @@
-var $options, $optionsSelect,
-	$traffic, $trafficSelect;
-
-$(document).ready(function(){
+jQuery(document).ready(function($){
 	/* info */
 	/* bookmark */
 	/* means */
 	/* options */
-	$('div.bt_4 span').append($options);
-	$('div.bt_4 div.open').append($traffic,$ztl);
+	uiController();
 });
-$(window).load(function(){
-	/* hide address bar */
-	setTimeout(function(){
-    	window.scrollTo(0,1);
-  	},0);
-});
-
-function addButton() {
-	/* create drawers */
-	$options = $.ninja.drawer({
-		html: '<div class="open"></div>',
-		value: ''
-	}),
-	$optionsSelect = $.ninja.drawer({
-		html: '',
-		select: true,
-		value: ''
-	});
+function uiController(){
 	
-	/* create buttons */
-	$traffic = $.ninja.button({
-		html: 'Traffico'
-		}),
-	$trafficSelect = $.ninja.button({
-		html: 'Selected',
-		select: true
-	});
-	$ztl = $.ninja.button({
-		html: 'ZTL'
-		}),
-	$ztlSelect = $.ninja.button({
-		html: 'Selected',
-		select: true
-	});
+	var options, optionsSelect, traffic, trafficSelect, parkings, self;
+	
+	var viewController = {
+		init: function()
+		{
+			self = this;
+			self.hideAddressBar();
+			self.setSelectLayer();
+		},
+		setSelectLayer: function()
+		{
+			// create elements and their otions
+			self.addButton();
+			//append elements created to buttons
+			$('div.bt_4 span').append(options);
+			$('div.bt_4 div.open').append(traffic,parkings);
+		},
+		 hideAddressBar: function()
+		{
+			setTimeout(function(){
+		    	window.scrollTo(0,1);
+		  	},0);
+		},
+		 addButton: function() {
+			/* create drawers */
+			options = $.ninja.drawer({
+				html: '<div class="open"></div>',
+				value: ''
+			}),
+			optionsSelect = $.ninja.drawer({
+				html: '',
+				select: true,
+				value: ''
+			});
+
+			/* create buttons */
+			traffic = $.ninja.button({
+				html: 'Traffico'
+				}),
+			trafficSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+			$(traffic).addClass("traffic-button")
+			parkings = $.ninja.button({
+				html: 'Parcheggi'
+				}),
+			parkingsSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+			$(parkings).addClass("parkings-button")
+		}
+	}
+	viewController.init();
 };

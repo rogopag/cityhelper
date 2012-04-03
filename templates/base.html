@@ -4,6 +4,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0 maximum-scale=1.0, user-scalable=no" />
 	<title>{% block title %}{{ page_title }}{% endblock %}</title>
 	<link rel="stylesheet" href="{{STATIC_URL}}css/style.css" media="screen" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+	<script src="{{STATIC_URL}}js/csfr.js?v=0.1"></script>
 	<script type="text/javascript">
 	//<![CDATA[
 		var LocalSettings = {'STATIC_URL' : '{{STATIC_URL}}'};
@@ -13,6 +15,14 @@
 </head>
 <body>
 	{% block content %}
+	{% endblock %}
+	
+	{%block page-messages%}
+	<div id="page-messages"></div>
+	{% endblock %}
+	
+	{%block footer%}
+	<div id="footer"><span></span></div>
 	{% endblock %}
 </body>
 </html>
