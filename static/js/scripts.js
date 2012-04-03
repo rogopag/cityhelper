@@ -16,10 +16,14 @@ function main()
 		mng: null,
 		icons: {},
 		me: {},
+		touch: false,
+		is_touch: false,
 		init:function()
 		{
 			var o;
 			self = this;
+			self.touch = ( typeof window.Touch != 'undefined' ) ? window.Touch : false;
+			self.is_not_touch = ( self.touch ) ?  false : true;
 			self.me.RATIO = 2.07;
 			self.me.RADIUS = 3000;
 			self.me.startlat = 0;
@@ -44,6 +48,8 @@ function main()
 					startPos = position;
 					self.me.startlat = startPos.coords.latitude;
 					self.me.startlng = startPos.coords.longitude;
+					var startLocation = new google.maps.LatLng(self.me.startlat, self.me.startlng), size = self.map.getZoom();
+					self.map.setCenter(startLocation);
 				},
 				function(error) {
 					console.log('Error occurred. Error code: ' + error.code);
@@ -54,8 +60,7 @@ function main()
 				self.me.lat = position.coords.latitude;
 				self.me.lng = position.coords.longitude;
 				var currentLocation = new google.maps.LatLng(self.me.lat, self.me.lng), size = self.map.getZoom(), image, circle_options, circle;
-				self.me.icon = LocalSettings.STATIC_URL+'images/me.png'
-				//self.map.setCenter(currentLocation);
+				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
 				//console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
 
@@ -142,20 +147,20 @@ function main()
 				mapTypeId: google.maps.MapTypeId.ROADMAP,
 				center: latlng,
 				mapTypeControl: false,
-				panControl: true,
+				panControl: self.is_not_touch,
 			    panControlOptions: {
 			        position: google.maps.ControlPosition.LEFT_CENTER
 			    },
-			    zoomControl: true,
+			    zoomControl: self.is_not_touch,
 			    zoomControlOptions: {
 			        style: google.maps.ZoomControlStyle.LARGE,
 			        position: google.maps.ControlPosition.LEFT_CENTER
 			    },
-			    scaleControl: true,
+			    scaleControl: self.is_not_touch,
 			    scaleControlOptions: {
 			        position: google.maps.ControlPosition.LEFT_CENTER
 			    },
-			    streetViewControl: true,
+			    streetViewControl: self.is_not_touch,
 			    streetViewControlOptions: {
 			        position: google.maps.ControlPosition.LEFT_CENTER
 			    }
