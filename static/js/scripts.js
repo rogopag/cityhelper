@@ -136,7 +136,7 @@ function main()
 			var latlng = new google.maps.LatLng(45.07, 7.68), options = {
 		      	backgroundColor: '#FFFFFF',
 				zoom: self.ZOOM,
-				navigationControl: true,
+				navigationControl: false,
 				mapTypeId: google.maps.MapTypeId.ROADMAP,
 				center: latlng
 		    };

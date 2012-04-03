@@ -32,13 +32,15 @@ class HomePage(View):
 		return HttpResponse(t.render(c), content_type="text/html")
 	
 	def post(self, request):
-		print >> sys.stderr, 'foooo'
 		pck_url = 'http://opendata.5t.torino.it/get_pk'
 		trf_url = 'http://opendata.5t.torino.it/get_fdt'
 		self.parkings = self.fetch_parkings(pck_url)
 		self.traffic = self.fetch_traffic(trf_url)
-		self.pharma = serializers.serialize('python', Pharma.objects.all())
-		self.hospitals = serializers.serialize('python', Hospital.objects.all())
+		try:
+			self.pharma = serializers.serialize('python', Pharma.objects.all())
+			self.hospitals = serializers.serialize('python', Hospital.objects.all())
+		except:
+			raise			
 		response = {'pharma' : self.pharma, 'parkings' : self.parkings, 'traffic' : self.traffic, 'hospitals' : self.hospitals}
 		return HttpResponse( json.dumps(response), content_type="application/json", mimetype='application/json' )
 	
@@ -58,7 +60,8 @@ class HomePage(View):
 				})
 			return parkings
 		except urllib2.HTTPError, e:
-			print >> sys.stderr, "Problems loading the url %s" + e
+			print >> sys.stderr, "Problems loading the url %s" % e
+			log.error("Problems loading the url %s" % e)
 			return None
 	
 	def fetch_traffic(self, url):
@@ -77,7 +80,8 @@ class HomePage(View):
 				})
 			return traffic
 		except urllib2.HTTPError, e:
-			print >> sys.stderr, "Problems loading the url %s" + e
+			print >> sys.stderr, "Problems loading the url %s" % e
+			log.error("Problems loading the url %s" % e)
 			return None
 			
 	def fetch_hospitals(self, url=''):
