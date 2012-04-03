@@ -2,7 +2,7 @@ import os, sys; sys.path.insert(0, os.path.join("..", ".."))
 from pattern.web import URL, Document, plaintext
 from pattern.db import Datasheet
 from pprint import pprint
-
+#ff
 def numeric(value):
 	try:
 		return float(value)

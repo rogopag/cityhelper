@@ -12,7 +12,7 @@ function main()
 		map : null,
 		d : null,
 		objects : {},
-		dzoom: 12,
+		ZOOM: 12,
 		mng: null,
 		icons: {},
 		me: {},
@@ -22,6 +22,8 @@ function main()
 			self = this;
 			self.me.RATIO = 2.07;
 			self.me.RADIUS = 3000;
+			self.me.startlat = 0;
+			self.me.startlng = 0;
 			self.ajax_populate();
 			self.map = self.drawMap();
 			self.geolocate_me();
@@ -35,51 +37,61 @@ function main()
 		geolocate_me:function()
 		{
 			if (navigator.geolocation) {
-				var startPos, current, watch;
+				var current, watch;
+				/*eventually if you want to store the original position */
 				current = navigator.geolocation.getCurrentPosition(function(position) {
 					startPos = position;
-					self.me.lat = startPos.coords.latitude;
-					self.me.lng = startPos.coords.longitude;
-					//console.log(self.me);
+					self.me.startlat = startPos.coords.latitude;
+					self.me.startlng = startPos.coords.longitude;
 				},
 				function(error) {
 					console.log('Error occurred. Error code: ' + error.code);
 				}
 			);
+			/*and then watch it change*/
 			watch = navigator.geolocation.watchPosition(function(position) {
-				var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude), size = self.map.getZoom(), image, circle_options, circle;
+				self.me.lat = position.coords.latitude;
+				self.me.lng = position.coords.longitude;
+				var currentLocation = new google.maps.LatLng(self.me.lat, self.me.lng), size = self.map.getZoom(), image, circle_options, circle;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png'
 				self.map.setCenter(currentLocation);
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
-				self.me.marker = new google.maps.Marker({
-				      position: currentLocation, 
-				      map: self.map, 
-				      title:"Here I am",
-					  icon:image
-				  });
-				circle_options = {
-					strokeColor: "#FF0000",
-					strokeOpacity: 0.4,
-					strokeWeight: 2,
-					fillColor: "#FF0000",
-					fillOpacity: 0.2,
-					map: self.map,
-					center: currentLocation,
-					radius: self.me.RADIUS / self.dzoom
-				};
-				self.me.circle = new google.maps.Circle(circle_options);
-				
-				self.me.lat = position.coords.latitude;
-				self.me.lng = position.coords.longitude;
-				},
+				console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
+
+				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
+				{
+					self.me.marker = new google.maps.Marker({
+						position: currentLocation, 
+						map: self.map, 
+						title:"Here I am",
+						icon:image
+					});
+					circle_options = {
+						strokeColor: "#FF0000",
+						strokeOpacity: 0.4,
+						strokeWeight: 2,
+						fillColor: "#FF0000",
+						fillOpacity: 0.2,
+						map: self.map,
+						center: currentLocation,
+						radius: self.me.RADIUS / self.ZOOM
+					};
+					self.me.circle = new google.maps.Circle(circle_options);
+				}
+				else
+				{
+					self.me.marker.setPosition( currentLocation );
+					self.me.circle.setPosition( currentLocation );
+				}
+			},
 				function(error) 
 				{
 					console.log('Error occurred. Error code: ' + error.code);
 				}, 
 				{
 					enableHighAccuracy:true, 
-					maximumAge:30000, 
-					timeout:27000
+					maximumAge:10000, 
+					timeout:10000
 				});
 			}
 			else {
@@ -89,7 +101,7 @@ function main()
 		manageZoom: function(obj, mng)
 		{
 			google.maps.event.addListener(self.map, "zoom_changed", function() {
-				if( zoom <= self.dzoom ) return;
+				if( zoom <= self.ZOOM ) return;
 				
 				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 ), timeout;
 				// sets the new zoom for the user's icon
@@ -123,10 +135,32 @@ function main()
 		{
 			var latlng = new google.maps.LatLng(45.07, 7.68), options = {
 		      	backgroundColor: '#FFFFFF',
-				zoom: self.dzoom,
-				navigationControl: true,
+				zoom: self.ZOOM,
+				navigationControl: false,
 				mapTypeId: google.maps.MapTypeId.ROADMAP,
-				center: latlng
+				center: latlng,
+				mapTypeControl: true,
+				    mapTypeControlOptions: {
+				        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+				        position: google.maps.ControlPosition.BOTTOM_CENTER
+				    },
+				    panControl: true,
+				    panControlOptions: {
+				        position: google.maps.ControlPosition.TOP_RIGHT
+				    },
+				    zoomControl: true,
+				    zoomControlOptions: {
+				        style: google.maps.ZoomControlStyle.LARGE,
+				        position: google.maps.ControlPosition.LEFT_CENTER
+				    },
+				    scaleControl: true,
+				    scaleControlOptions: {
+				        position: google.maps.ControlPosition.TOP_LEFT
+				    },
+				    streetViewControl: true,
+				    streetViewControlOptions: {
+				        position: google.maps.ControlPosition.LEFT_TOP
+				    }
 		    };
 			if( document.getElementById("map_canvas") )
 			return new google.maps.Map(document.getElementById("map_canvas"), options);
@@ -250,7 +284,7 @@ function main()
 				mgr[key].addMarkers(markers[key]);
 			}
 			google.maps.event.addListener(mgr.traffic, 'loaded', function(){
-			      mgr.traffic.addMarkers(markers.traffic, self.dzoom);
+			      mgr.traffic.addMarkers(markers.traffic, self.ZOOM);
 			      mgr.traffic.refresh();
 			  });
 			return mgr;
@@ -298,51 +332,8 @@ function main()
 		loader_show:function()
 		{
 			$("div#loading-gif").show();
-		}
+		},
+		
 	}
 	program.init();
 };
-$(document).ajaxSend(function(event, xhr, settings) {
-  function getCookie(name) {
-    var cookieValue = null;
-
-    if (document.cookie && document.cookie != '') {
-      var cookies = document.cookie.split(';');
-
-      for (var i = 0; i < cookies.length; i++) {
-        var cookie = jQuery.trim(cookies[i]);
-
-        // Does this cookie string begin with the name we want?
-        if (cookie.substring(0, name.length + 1) == (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-
-    return cookieValue;
-  }
-
-  function sameOrigin(url) {
-    // url could be relative or scheme relative or absolute
-    var host = document.location.host;
-    // host + port
-    var protocol = document.location.protocol;
-    var sr_origin = '//' + host;
-    var origin = protocol + sr_origin;
-
-    // Allow absolute or scheme relative URLs to same origin
-    return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
-           (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
-           // or any other URL that isn't scheme relative or absolute i.e relative.
-           !(/^(\/\/|http:|https:).*/.test(url));
-  }
-
-  function safeMethod(method) {
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-  }
-
-  if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
-    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-  }
-});

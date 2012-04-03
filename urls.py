@@ -8,7 +8,7 @@ from cityhelper.views import HomePage, About
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', HomePage.as_view(), name='home'),
-	url(r'^about', About.as_view(), name='home')
+	url(r'^about', About.as_view(), name='about'),
     # url(r'^cityhelper/', include('cityhelper.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

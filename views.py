@@ -37,7 +37,7 @@ class HomePage(View):
 		self.parkings = self.fetch_parkings(pck_url)
 		self.traffic = self.fetch_traffic(trf_url)
 		self.pharma = serializers.serialize('python', Pharma.objects.all())
-		self.hospitals = serializers.serialize('python', Hospital.objects.all())
+		self.hospitals = serializers.serialize('python', Hospital.objects.all())			
 		response = {'pharma' : self.pharma, 'parkings' : self.parkings, 'traffic' : self.traffic, 'hospitals' : self.hospitals}
 		return HttpResponse( json.dumps(response), content_type="application/json", mimetype='application/json' )
 	
@@ -57,7 +57,8 @@ class HomePage(View):
 				})
 			return parkings
 		except urllib2.HTTPError, e:
-			print >> sys.stderr, "Problems loading the url %s" + e
+			print >> sys.stderr, "Problems loading the url %s" % e
+			log.error("Problems loading the url %s" % e)
 			return None
 	
 	def fetch_traffic(self, url):
@@ -76,7 +77,8 @@ class HomePage(View):
 				})
 			return traffic
 		except urllib2.HTTPError, e:
-			print >> sys.stderr, "Problems loading the url %s" + e
+			print >> sys.stderr, "Problems loading the url %s" % e
+			log.error("Problems loading the url %s" % e)
 			return None
 			
 	def fetch_hospitals(self, url=''):

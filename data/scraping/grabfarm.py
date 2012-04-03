@@ -2,7 +2,7 @@ import os, sys; sys.path.insert(0, os.path.join("..", ".."))
 from pattern.web import URL, Document, plaintext
 from pattern.db import Datasheet
 from pprint import pprint
-
+#ff
 
 CAPS = (10121,10125,10129,10134,10138,10143,10147,10152,10156,10122,10126,10131,10135,10139,10144,10148,10153,10123,10127,10132,10136,10141,10149,10154,10124,10128,10133,10137,10142,10146,10151,10155,10145)
 
