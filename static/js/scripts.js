@@ -6,7 +6,7 @@ jQuery(function($){
 
 function main()
 {
-	ajaxurl = '/', self = null;
+	ajaxurl = '/', self = null, view = null;
 	
 	var program = {
 		map : null,
@@ -16,10 +16,14 @@ function main()
 		mng: null,
 		icons: {},
 		me: {},
+		touch: false,
+		is_touch: false,
 		init:function()
 		{
 			var o;
 			self = this;
+			self.touch = ( typeof window.Touch != 'undefined' ) ? window.Touch : false;
+			self.is_not_touch = ( self.touch ) ?  false : true;
 			self.me.RATIO = 2.07;
 			self.me.RADIUS = 3000;
 			self.me.startlat = 0;
@@ -31,6 +35,7 @@ function main()
 			{
 				o = self.fill_objects()
 				self.mng = self.draw_markers(o);
+				viewController.init(self.mng);
 				self.manageZoom(o, self.mng);
 			});	
 		},
@@ -43,6 +48,8 @@ function main()
 					startPos = position;
 					self.me.startlat = startPos.coords.latitude;
 					self.me.startlng = startPos.coords.longitude;
+					var startLocation = new google.maps.LatLng(self.me.startlat, self.me.startlng), size = self.map.getZoom();
+					self.map.setCenter(startLocation);
 				},
 				function(error) {
 					console.log('Error occurred. Error code: ' + error.code);
@@ -53,10 +60,9 @@ function main()
 				self.me.lat = position.coords.latitude;
 				self.me.lng = position.coords.longitude;
 				var currentLocation = new google.maps.LatLng(self.me.lat, self.me.lng), size = self.map.getZoom(), image, circle_options, circle;
-				self.me.icon = LocalSettings.STATIC_URL+'images/me.png'
-				self.map.setCenter(currentLocation);
+				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
-				console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
+				//console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
 
 				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
 				{
@@ -82,6 +88,7 @@ function main()
 				{
 					self.me.marker.setPosition( currentLocation );
 					self.me.circle.setPosition( currentLocation );
+					self.me.circle.setRadius( self.me.RADIUS / self.map.getZoom() );
 				}
 			},
 				function(error) 
@@ -139,28 +146,24 @@ function main()
 				navigationControl: false,
 				mapTypeId: google.maps.MapTypeId.ROADMAP,
 				center: latlng,
-				mapTypeControl: true,
-				    mapTypeControlOptions: {
-				        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-				        position: google.maps.ControlPosition.BOTTOM_CENTER
-				    },
-				    panControl: true,
-				    panControlOptions: {
-				        position: google.maps.ControlPosition.TOP_RIGHT
-				    },
-				    zoomControl: true,
-				    zoomControlOptions: {
-				        style: google.maps.ZoomControlStyle.LARGE,
-				        position: google.maps.ControlPosition.LEFT_CENTER
-				    },
-				    scaleControl: true,
-				    scaleControlOptions: {
-				        position: google.maps.ControlPosition.TOP_LEFT
-				    },
-				    streetViewControl: true,
-				    streetViewControlOptions: {
-				        position: google.maps.ControlPosition.LEFT_TOP
-				    }
+				mapTypeControl: false,
+				panControl: self.is_not_touch,
+			    panControlOptions: {
+			        position: google.maps.ControlPosition.LEFT_CENTER
+			    },
+			    zoomControl: self.is_not_touch,
+			    zoomControlOptions: {
+			        style: google.maps.ZoomControlStyle.LARGE,
+			        position: google.maps.ControlPosition.LEFT_CENTER
+			    },
+			    scaleControl: self.is_not_touch,
+			    scaleControlOptions: {
+			        position: google.maps.ControlPosition.LEFT_CENTER
+			    },
+			    streetViewControl: self.is_not_touch,
+			    streetViewControlOptions: {
+			        position: google.maps.ControlPosition.LEFT_CENTER
+			    }
 		    };
 			if( document.getElementById("map_canvas") )
 			return new google.maps.Map(document.getElementById("map_canvas"), options);
@@ -171,7 +174,7 @@ function main()
 			
 			for(var key in program.d)
 			{
-				
+				//console.log( key );
 				self.objects[key] = [];
 				self.icons[key] = LocalSettings.STATIC_URL+'images/'+key + ".png";
 				
@@ -334,6 +337,96 @@ function main()
 			$("div#loading-gif").show();
 		},
 		
-	}
+	};
+	var viewController = {
+		options:null,
+		optionsSelect:null, 
+		traffic:null, 
+		trafficSelect:null, 
+		parkings:null,
+		mngs:null,
+		buttons:null,
+		mng:{},
+		init: function(mng)
+		{
+			view = this;
+			view.mngs = mng;
+			view.buttons = [];
+			view.hideAddressBar();
+			view.setSelectLayer();
+			//console.log(view.mngs);
+		},
+		setSelectLayer: function()
+		{
+			// create elements and their otions
+			view.addButton();
+			//append elements created to buttons
+			$('div.bt_4 span').append(view.options);
+			
+			$.each(view.buttons, function(key, value)
+			{
+				for( var key in value)
+				{
+					$('div.bt_4 div.open').append(value[key].el);
+				}
+			});
+		},
+		 hideAddressBar: function()
+		{
+			setTimeout(function(){
+		    	window.scrollTo(0,1);
+		  	},0);
+		},
+		 addButton: function() {
+			/* create drawers */
+			var count = 0, cluster;
+			view.options = $.ninja.drawer({
+				html: '<div class="open"></div>',
+				value: ''
+			}),
+			view.optionsSelect = $.ninja.drawer({
+				html: '',
+				select: true,
+				value: ''
+			});
+			$.each(view.mngs, function(key, value){
+				self.mng[key].mng = value;
+				view.buttons[count] = {};
+				view.buttons[count][key] = {};
+				view.buttons[count][key].name = key;
+				view.buttons[count][key].el = $.ninja.button({
+					html: view.buttons[count][key].name
+					}).select(function(){
+						if( 'hide' in self.mng[key].mng)
+						{
+							self.mng[key].mng.hide();
+						}
+						else
+						{
+							self.mng[key].cluster = self.mng[key].mng.getMarkers()
+							self.mng[key].mng.clearMarkers();
+						}
+						
+					}).deselect(function(){
+						if( 'hide' in self.mng[key].mng)
+						{
+							self.mng[key].mng.show();
+						}
+						else
+						{
+							self.mng[key].mng.addMarkers(self.mng[key].cluster);
+							self.mng[key].mng.repaint();
+						}
+					}),
+				view.buttons[count][key].sel = $.ninja.button({
+					html: 'Selected',
+					select: true
+				});
+				//console.log( view.key.el );
+				$(view.buttons[count][key].el).addClass(view.buttons[count][key].name+"-button");
+				count++;
+			});
+		}
+	};
 	program.init();
 };
