@@ -6,9 +6,9 @@ jQuery(function($){
 
 function main()
 {
-	ajaxurl = '/', self = null, view = null;
+	ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null;
 	
-	var program = {
+	var Program = {
 		map : null,
 		d : null,
 		objects : {},
@@ -17,7 +17,7 @@ function main()
 		icons: {},
 		me: {},
 		touch: false,
-		is_touch: false,
+		is_not_touch: true,
 		init:function()
 		{
 			var o;
@@ -35,8 +35,9 @@ function main()
 			{
 				o = self.fill_objects()
 				self.mng = self.draw_markers(o);
-				viewController.init(self.mng);
+				ViewController.init(self.mng);
 				self.manageZoom(o, self.mng);
+				DirectionsViewController.init();
 			});	
 		},
 		geolocate_me:function()
@@ -48,8 +49,8 @@ function main()
 					startPos = position;
 					self.me.startlat = startPos.coords.latitude;
 					self.me.startlng = startPos.coords.longitude;
-					var startLocation = new google.maps.LatLng(self.me.startlat, self.me.startlng), size = self.map.getZoom();
-					self.map.setCenter(startLocation);
+					self.me.startLocation = new google.maps.LatLng(self.me.startlat, self.me.startlng), size = self.map.getZoom();
+				//	self.map.setCenter(startLocation);
 				},
 				function(error) {
 					console.log('Error occurred. Error code: ' + error.code);
@@ -59,7 +60,8 @@ function main()
 			watch = navigator.geolocation.watchPosition(function(position) {
 				self.me.lat = position.coords.latitude;
 				self.me.lng = position.coords.longitude;
-				var currentLocation = new google.maps.LatLng(self.me.lat, self.me.lng), size = self.map.getZoom(), image, circle_options, circle;
+				self.me.currentLocation = new google.maps.LatLng(self.me.lat, self.me.lng)
+				var size = self.map.getZoom(), image, circle_options, circle;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
 				//console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
@@ -67,7 +69,7 @@ function main()
 				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
 				{
 					self.me.marker = new google.maps.Marker({
-						position: currentLocation, 
+						position: self.me.currentLocation, 
 						map: self.map, 
 						title:"Here I am",
 						icon:image
@@ -79,15 +81,15 @@ function main()
 						fillColor: "#FF0000",
 						fillOpacity: 0.2,
 						map: self.map,
-						center: currentLocation,
+						center: self.me.currentLocation,
 						radius: self.me.RADIUS / self.ZOOM
 					};
 					self.me.circle = new google.maps.Circle(circle_options);
 				}
 				else
 				{
-					self.me.marker.setPosition( currentLocation );
-					self.me.circle.setPosition( currentLocation );
+					self.me.marker.setPosition( self.me.currentLocation );
+					self.me.circle.setCenter( self.me.currentLocation );
 					self.me.circle.setRadius( self.me.RADIUS / self.map.getZoom() );
 				}
 			},
@@ -108,9 +110,10 @@ function main()
 		manageZoom: function(obj, mng)
 		{
 			google.maps.event.addListener(self.map, "zoom_changed", function() {
-				if( zoom <= self.ZOOM ) return;
-				
 				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 ), timeout;
+				if( zoom <= self.ZOOM ) return;
+				console.log( "zoom is "+zoom);
+				
 				// sets the new zoom for the user's icon
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
 				self.me.circle.setRadius( self.me.RADIUS / zoom );
@@ -172,18 +175,18 @@ function main()
 		{
 			var index = 1, ratio = 1, size = self.map.getZoom(), p;
 			
-			for(var key in program.d)
+			for(var key in self.d)
 			{
 				//console.log( key );
 				self.objects[key] = [];
-				self.icons[key] = LocalSettings.STATIC_URL+'images/'+key + ".png";
+				self.icons[key] = LocalSettings.STATIC_URL+'images/' + key + ".png";
 				
 				p = self.switch_parameters(key);
 				image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
-				for( var items in program.d[key] )
+				for( var items in self.d[key] )
 				{
 					var current = {}, image;
-					current = ( typeof program.d[key][items].fields != 'undefined' )?program.d[key][items].fields:program.d[key][items];
+					current = ( typeof self.d[key][items].fields != 'undefined' )?self.d[key][items].fields:self.d[key][items];
 					current.type = key;
 					current.icon_url = self.icons[key];
 					current.marker = new google.maps.Marker({
@@ -197,7 +200,19 @@ function main()
 					{
 						return function()
 						{
-							console.log(o);
+							if( dircontrol.isSearchingForDirection )
+							{
+								var request = {
+									origin: self.me.currentLocation,
+									destination: new google.maps.LatLng(o.lat, o.lng),
+									travelMode: google.maps.DirectionsTravelMode.DRIVING
+								};
+								dir.calculateRoute(request);
+							}
+							else
+							{
+								console.log(o);
+							}
 						}
 						
 					})(current));
@@ -269,7 +284,7 @@ function main()
 						textSize : 12
 						}];
 						//sets MarkerClusters for each group 
-						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles});
+						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:14});
 					}
 					else
 					{
@@ -319,7 +334,7 @@ function main()
 					if( response )
 					{
 						//console.log(response)
-						program.d = response;
+						self.d = response;
 					}
 				},
 				complete: function( data, textStatus )
@@ -335,10 +350,77 @@ function main()
 		loader_show:function()
 		{
 			$("div#loading-gif").show();
-		},
-		
+		},	
 	};
-	var viewController = {
+	var Directions = {
+		directionsService: new google.maps.DirectionsService(),
+		directionDisplay:null,
+		origin:null,
+		destination:null,
+		request:{},
+		init:function()
+		{
+			dir = this;
+			dir.directionDisplay = new google.maps.DirectionsRenderer({
+				draggable:false,
+				map:self.map,
+				panel: document.getElementById('directions-panel'),
+				markerOptions:{
+					visible:false
+				}
+			});
+		},
+		destroy:function()
+		{
+			
+		},
+		calculateRoute:function(request)
+		{
+			dir.directionsService.route(request, function(response, status) {
+			      if (status == google.maps.DirectionsStatus.OK) {
+			        dir.directionDisplay.setDirections(response);
+					
+					console.log( response );
+			      }
+			    });
+		}
+	};
+	var DirectionsViewController = {
+		options: null,
+		optionsSelect:null,
+		button:null,
+		isSearchingForDirection:false,
+		init: function()
+		{
+			dircontrol = this
+			dircontrol.setSelectLayer();
+		},
+		setSelectLayer: function()
+		{
+			dircontrol.addButton();
+			$('div.bt_5 span').append(dircontrol.options);
+		},
+		addButton: function()
+		{
+			dircontrol.options = $.ninja.drawer({
+				html: '<div class="open"></div>',
+				value: ''
+			}).select(function(){
+				dircontrol.isSearchingForDirection = true;
+				Directions.init();
+			}).deselect(function(){
+				dircontrol.isSearchingForDirection = false;
+				Directions.destroy();
+			}),
+			dircontrol.optionsSelect = $.ninja.drawer({
+				html: '',
+				select: true,
+				value: 'Selected'
+			});
+			dircontrol.options.addClass('directions-control-button');
+		}
+	};
+	var ViewController = {
 		options:null,
 		optionsSelect:null, 
 		traffic:null, 
@@ -367,7 +449,7 @@ function main()
 			{
 				for( var key in value)
 				{
-					$('div.bt_4 div.open').append(value[key].el);
+					$('div.bt_4 div.open').append( value[key].el );
 				}
 			});
 		},
@@ -387,7 +469,7 @@ function main()
 			view.optionsSelect = $.ninja.drawer({
 				html: '',
 				select: true,
-				value: ''
+				value: 'Selected'
 			});
 			$.each(view.mngs, function(key, value){
 				self.mng[key].mng = value;
@@ -428,5 +510,5 @@ function main()
 			});
 		}
 	};
-	program.init();
+	Program.init();
 };
