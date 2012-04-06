@@ -6,13 +6,13 @@ jQuery(function($){
 
 function main()
 {
-	ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null;
+	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null;
 	
 	var Program = {
 		map : null,
 		d : null,
 		objects : {},
-		ZOOM: 12,
+		ZOOM: 14,
 		mng: null,
 		icons: {},
 		me: {},
@@ -38,6 +38,7 @@ function main()
 				ViewController.init(self.mng);
 				self.manageZoom(o, self.mng);
 				DirectionsViewController.init();
+				SessionStorageController.init();
 			});	
 		},
 		geolocate_me:function()
@@ -111,8 +112,7 @@ function main()
 		{
 			google.maps.event.addListener(self.map, "zoom_changed", function() {
 				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 ), timeout;
-				if( zoom <= self.ZOOM ) return;
-				console.log( "zoom is "+zoom);
+				if( zoom <= self.ZOOM ) return false;
 				
 				// sets the new zoom for the user's icon
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
@@ -202,12 +202,7 @@ function main()
 						{
 							if( dircontrol.isSearchingForDirection )
 							{
-								var request = {
-									origin: self.me.currentLocation,
-									destination: new google.maps.LatLng(o.lat, o.lng),
-									travelMode: google.maps.DirectionsTravelMode.DRIVING
-								};
-								dir.calculateRoute(request);
+								dir.calculateRoute(o.lat, o.lng);
 							}
 							else
 							{
@@ -358,9 +353,12 @@ function main()
 		origin:null,
 		destination:null,
 		request:{},
+		hasDirection:false,
+		mode: google.maps.DirectionsTravelMode.DRIVING,
 		init:function()
 		{
 			dir = this;
+			dir.save = null;
 			dir.directionDisplay = new google.maps.DirectionsRenderer({
 				draggable:false,
 				map:self.map,
@@ -372,17 +370,56 @@ function main()
 		},
 		destroy:function()
 		{
-			
+			dir.directionDisplay.setMap(null);
+		    dir.directionDisplay.setPanel(null);
+			dir.hasDirection = false;
+			dir.resetRenderer();
 		},
-		calculateRoute:function(request)
+		resetRenderer:function()
 		{
+			dir.directionDisplay = null;
+			dir.directionDisplay = new google.maps.DirectionsRenderer();
+		    dir.directionDisplay.setMap(self.map);
+			dir.directionDisplay.setPanel( document.getElementById('directions-panel') );
+			dir.directionDisplay.setOptions({
+				draggable:false,
+				markerOptions:{
+				visible:false
+				}
+				});
+		},
+		calculateRoute:function(lat, lng)
+		{
+			// if a route is already prlotted please erase.
+			if( dir.hasDirection ) dir.destroy();
+	
+			var request = {
+				origin: self.me.currentLocation,
+				destination: new google.maps.LatLng(lat, lng),
+				travelMode: dir.mode
+			};
 			dir.directionsService.route(request, function(response, status) {
 			      if (status == google.maps.DirectionsStatus.OK) {
 			        dir.directionDisplay.setDirections(response);
-					
-					console.log( response );
+					dir.hasDirection = true;
+					dir.save = response;
 			      }
 			    });
+		},
+		switchMode:function(val)
+		{
+			switch(val)
+			{
+				case 0:
+			        dir.mode = google.maps.DirectionsTravelMode.BICYCLING;
+			        break;
+			    case 1:
+			        dir.mode = google.maps.DirectionsTravelMode.DRIVING;
+			        break;
+			    case 2:
+			        dir.mode = google.maps.DirectionsTravelMode.WALKING;
+			        break;
+			}
 		}
 	};
 	var DirectionsViewController = {
@@ -390,6 +427,12 @@ function main()
 		optionsSelect:null,
 		button:null,
 		isSearchingForDirection:false,
+		isBike:null,
+		isBikeSelect:null,
+		isCar:null,
+		isCarSelect:null,
+		isFeet:null,
+		isFeetSelect:null,
 		init: function()
 		{
 			dircontrol = this
@@ -399,18 +442,19 @@ function main()
 		{
 			dircontrol.addButton();
 			$('div.bt_5 span').append(dircontrol.options);
+			$('div.bt_5 div.open').append(dircontrol.isBike, dircontrol.isCar, dircontrol.isFeet);
 		},
 		addButton: function()
-		{
+		{		
 			dircontrol.options = $.ninja.drawer({
 				html: '<div class="open"></div>',
 				value: ''
 			}).select(function(){
-				dircontrol.isSearchingForDirection = true;
 				Directions.init();
+				dircontrol.isSearchingForDirection = true;
 			}).deselect(function(){
 				dircontrol.isSearchingForDirection = false;
-				Directions.destroy();
+				dir.destroy();
 			}),
 			dircontrol.optionsSelect = $.ninja.drawer({
 				html: '',
@@ -418,6 +462,40 @@ function main()
 				value: 'Selected'
 			});
 			dircontrol.options.addClass('directions-control-button');
+			
+			dircontrol.isBike = $.ninja.button({
+				html: 'Bicicletta'
+				}).select(function(){
+					dir.switchMode(0);
+				}).deselect(function(){
+					dir.switchMode(1);
+				}),
+			dircontrol.isBikeSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+			dircontrol.isCar = $.ninja.button({
+				html: 'Auto'
+				}).select(function(){
+					dir.switchMode(1);
+				}).deselect(function(){
+					dir.switchMode(1);
+				}),
+			dircontrol.isCarSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+			dircontrol.isFeet = $.ninja.button({
+				html: 'Piedi'
+				}).select(function(){
+					dir.switchMode(2);
+				}).deselect(function(){
+					dir.switchMode(1);
+				}),
+			dircontrol.isFeetSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
 		}
 	};
 	var ViewController = {
@@ -453,13 +531,13 @@ function main()
 				}
 			});
 		},
-		 hideAddressBar: function()
+		hideAddressBar: function()
 		{
 			setTimeout(function(){
 		    	window.scrollTo(0,1);
 		  	},0);
 		},
-		 addButton: function() {
+		addButton: function() {
 			/* create drawers */
 			var count = 0, cluster;
 			view.options = $.ninja.drawer({
@@ -471,6 +549,7 @@ function main()
 				select: true,
 				value: 'Selected'
 			});
+			view.options.addClass("hide-show-layers")
 			$.each(view.mngs, function(key, value){
 				self.mng[key].mng = value;
 				view.buttons[count] = {};
@@ -508,6 +587,94 @@ function main()
 				$(view.buttons[count][key].el).addClass(view.buttons[count][key].name+"-button");
 				count++;
 			});
+		}
+	};
+	var SessionStorageController = {
+		options:null,
+		optionsSelect:null,
+		saveData:null,
+		saveDataSelect:null,
+		displayData:null,
+		displayDataSelect:null,
+		init:function()
+		{
+			storecontrol = this;
+			storecontrol.setSelectLayer();
+			SessionStorage.init();
+		},
+		setSelectLayer: function()
+		{
+			storecontrol.addButton();
+			$('div.bt_3 span').append(storecontrol.options);
+			$('div.bt_3 div.open').append(storecontrol.saveData, storecontrol.displayData);
+		},
+		addButton:function()
+		{
+			storecontrol.options = $.ninja.drawer({
+				html: '<div class="open"></div>',
+				value: ''
+			}),
+			storecontrol.optionsSelect = $.ninja.drawer({
+				html: '',
+				select: true,
+				value: 'Selected'
+			});
+			storecontrol.saveData = $.ninja.button({
+				html: 'Salva'
+				}).select(function(){
+					store.saveData();
+				}).deselect(function(){
+					
+				}),
+			storecontrol.saveDataSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+			storecontrol.displayData = $.ninja.button({
+				html: 'Carica'
+				}).select(function(){
+					
+				}).deselect(function(){
+					
+				}),
+			storecontrol.displayDataSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+		}
+	};
+	//despite of the name it uses localStorage object
+	var SessionStorage = {
+		init: function()
+		{
+			store = this;
+			if( !store.has_storage() )
+			{
+				alert("i do not store things, your data won't be saved");
+				return false;
+			}
+		},
+		has_storage:function()
+		{
+			//session & local check
+			if(window.sessionStorage && window.localStorage)
+			{
+				return true;
+			}
+			return false;
+		},
+		saveData:function()
+		{
+			if( dir && dir.save )
+			{
+				//do you stuff here
+				console.log("foo");
+			}
+			else
+			{
+				alert("Build route before trying to save it!");
+				return false;
+			}
 		}
 	};
 	Program.init();

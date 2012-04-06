@@ -66,7 +66,7 @@ body {
 	display: inline-block;
 	width: 60px;
 	height: 100%;
-	background: url(../images/site/bar_buttons.png) 0 -50px no-repeat;
+	/*background: url(../images/site/bar_buttons.png) 0 -50px no-repeat;*/
 }
 #mainbar .bt_2 span {
 	background-position: -60px -50px;
@@ -100,17 +100,35 @@ body {
 }
 
 /* ui elements - nui overwrites */
-#mainbar button.nui-btn {
+#mainbar div.bt_4 button.nui-btn {
 	height: 100%;
 	background: url(../images/site/bar_buttons.png) -241px -50px no-repeat;
+	border: 0;
+	padding: 0;
+}
+#mainbar div.bt_5 button.nui-btn {
+	height: 100%;
+	background: url(../images/site/bar_buttons.png) -184px -50px no-repeat;
+	border: 0;
+	padding: 0;
+}
+#mainbar div.bt_3 button.nui-btn {
+	height: 100%;
+	background: url(../images/site/bar_buttons.png) -122px -50px no-repeat;
 	border: 0;
 	padding: 0;
 }
 #mainbar button.nui-btn img {
 	display: none;
 }
-#mainbar button.nui-slc {
+#mainbar div.bt_3 button.nui-slc {
+	background-position: -122px 0;
+}
+#mainbar div.bt_4 button.nui-slc {
 	background-position: -241px 0;
+}
+#mainbar div.bt_5 button.nui-slc {
+	background-position: -184px 0;
 }
 #mainbar div.nui-try {
 	background: #242423;
