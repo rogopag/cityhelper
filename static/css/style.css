@@ -68,6 +68,7 @@ body {
 	height: 100%;
 	/*background: url(../images/site/bar_buttons.png) 0 -50px no-repeat;*/
 }
+#mainbar .left span{width:80px;}
 #mainbar .bt_2 span {
 	background-position: -60px -50px;
 }

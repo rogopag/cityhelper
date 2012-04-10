@@ -6,13 +6,13 @@ jQuery(function($){
 
 function main()
 {
-	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null;
+	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, search = null;
 	
 	var Program = {
 		map : null,
 		d : null,
 		objects : {},
-		ZOOM: 14,
+		ZOOM: 13,
 		mng: null,
 		icons: {},
 		me: {},
@@ -39,6 +39,7 @@ function main()
 				self.manageZoom(o, self.mng);
 				DirectionsViewController.init();
 				SessionStorageController.init();
+				SearchPlaces.init();
 			});	
 		},
 		geolocate_me:function()
@@ -403,6 +404,7 @@ function main()
 			        dir.directionDisplay.setDirections(response);
 					dir.hasDirection = true;
 					dir.save = response;
+					console.log( dir.save );
 			      }
 			    });
 		},
@@ -677,5 +679,32 @@ function main()
 			}
 		}
 	};
+	var SearchPlaces ={
+		map:null,
+		service:null,
+		infowindow:null,
+		loc:null,
+		input:document.getElementById("places_search"),
+		init:function()
+		{
+			search = this;
+			search.map = self.map;
+			search.loc = self.me.currentLocation;
+			search.doSearch();
+		},
+		doSearch:function()
+		{
+			var request = {
+				location:search.loc,
+				radius: '1000',
+				type: ['veterinary_care', 'pharmacy', 'hospital', 'health']
+			};
+			var options = {
+				componentRestrictions: {country: 'it'},
+			};
+			var autocomplete = new google.maps.places.Autocomplete(search.input, options);
+			console.log( search.map.getBounds() );
+		}
+	}
 	Program.init();
 };
