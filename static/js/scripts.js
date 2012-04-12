@@ -6,7 +6,7 @@ jQuery(function($){
 
 function main()
 {
-	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, search = null;
+	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, search = null, searchController = null;
 	
 	var Program = {
 		map : null,
@@ -39,7 +39,7 @@ function main()
 				self.manageZoom(o, self.mng);
 				DirectionsViewController.init();
 				SessionStorageController.init();
-				SearchPlaces.init();
+				SearchPlacesController.init();
 			});	
 		},
 		geolocate_me:function()
@@ -348,158 +348,6 @@ function main()
 			$("div#loading-gif").show();
 		},	
 	};
-	var Directions = {
-		directionsService: new google.maps.DirectionsService(),
-		directionDisplay:null,
-		origin:null,
-		destination:null,
-		request:{},
-		hasDirection:false,
-		mode: google.maps.DirectionsTravelMode.DRIVING,
-		init:function()
-		{
-			dir = this;
-			dir.save = null;
-			dir.directionDisplay = new google.maps.DirectionsRenderer({
-				draggable:false,
-				map:self.map,
-				panel: document.getElementById('directions-panel'),
-				markerOptions:{
-					visible:false
-				}
-			});
-		},
-		destroy:function()
-		{
-			dir.directionDisplay.setMap(null);
-		    dir.directionDisplay.setPanel(null);
-			dir.hasDirection = false;
-			dir.resetRenderer();
-		},
-		resetRenderer:function()
-		{
-			dir.directionDisplay = null;
-			dir.directionDisplay = new google.maps.DirectionsRenderer();
-		    dir.directionDisplay.setMap(self.map);
-			dir.directionDisplay.setPanel( document.getElementById('directions-panel') );
-			dir.directionDisplay.setOptions({
-				draggable:false,
-				markerOptions:{
-				visible:false
-				}
-				});
-		},
-		calculateRoute:function(lat, lng)
-		{
-			// if a route is already prlotted please erase.
-			if( dir.hasDirection ) dir.destroy();
-	
-			var request = {
-				origin: self.me.currentLocation,
-				destination: new google.maps.LatLng(lat, lng),
-				travelMode: dir.mode
-			};
-			dir.directionsService.route(request, function(response, status) {
-			      if (status == google.maps.DirectionsStatus.OK) {
-			        dir.directionDisplay.setDirections(response);
-					dir.hasDirection = true;
-					dir.save = response;
-					console.log( dir.save );
-			      }
-			    });
-		},
-		switchMode:function(val)
-		{
-			switch(val)
-			{
-				case 0:
-			        dir.mode = google.maps.DirectionsTravelMode.BICYCLING;
-			        break;
-			    case 1:
-			        dir.mode = google.maps.DirectionsTravelMode.DRIVING;
-			        break;
-			    case 2:
-			        dir.mode = google.maps.DirectionsTravelMode.WALKING;
-			        break;
-			}
-		}
-	};
-	var DirectionsViewController = {
-		options: null,
-		optionsSelect:null,
-		button:null,
-		isSearchingForDirection:false,
-		isBike:null,
-		isBikeSelect:null,
-		isCar:null,
-		isCarSelect:null,
-		isFeet:null,
-		isFeetSelect:null,
-		init: function()
-		{
-			dircontrol = this
-			dircontrol.setSelectLayer();
-		},
-		setSelectLayer: function()
-		{
-			dircontrol.addButton();
-			$('div.bt_5 span').append(dircontrol.options);
-			$('div.bt_5 div.open').append(dircontrol.isBike, dircontrol.isCar, dircontrol.isFeet);
-		},
-		addButton: function()
-		{		
-			dircontrol.options = $.ninja.drawer({
-				html: '<div class="open"></div>',
-				value: ''
-			}).select(function(){
-				Directions.init();
-				dircontrol.isSearchingForDirection = true;
-			}).deselect(function(){
-				dircontrol.isSearchingForDirection = false;
-				dir.destroy();
-			}),
-			dircontrol.optionsSelect = $.ninja.drawer({
-				html: '',
-				select: true,
-				value: 'Selected'
-			});
-			dircontrol.options.addClass('directions-control-button');
-			
-			dircontrol.isBike = $.ninja.button({
-				html: 'Bicicletta'
-				}).select(function(){
-					dir.switchMode(0);
-				}).deselect(function(){
-					dir.switchMode(1);
-				}),
-			dircontrol.isBikeSelect = $.ninja.button({
-				html: 'Selected',
-				select: true
-			});
-			dircontrol.isCar = $.ninja.button({
-				html: 'Auto'
-				}).select(function(){
-					dir.switchMode(1);
-				}).deselect(function(){
-					dir.switchMode(1);
-				}),
-			dircontrol.isCarSelect = $.ninja.button({
-				html: 'Selected',
-				select: true
-			});
-			dircontrol.isFeet = $.ninja.button({
-				html: 'Piedi'
-				}).select(function(){
-					dir.switchMode(2);
-				}).deselect(function(){
-					dir.switchMode(1);
-				}),
-			dircontrol.isFeetSelect = $.ninja.button({
-				html: 'Selected',
-				select: true
-			});
-		}
-	};
 	var ViewController = {
 		options:null,
 		optionsSelect:null, 
@@ -558,8 +406,9 @@ function main()
 				view.buttons[count][key] = {};
 				view.buttons[count][key].name = key;
 				view.buttons[count][key].el = $.ninja.button({
-					html: view.buttons[count][key].name
-					}).select(function(){
+					html: view.buttons[count][key].name,
+					select:true
+					}).deselect(function(){
 						if( 'hide' in self.mng[key].mng)
 						{
 							self.mng[key].mng.hide();
@@ -570,7 +419,7 @@ function main()
 							self.mng[key].mng.clearMarkers();
 						}
 						
-					}).deselect(function(){
+					}).select(function(){
 						if( 'hide' in self.mng[key].mng)
 						{
 							self.mng[key].mng.show();
@@ -583,11 +432,179 @@ function main()
 					}),
 				view.buttons[count][key].sel = $.ninja.button({
 					html: 'Selected',
-					select: true
+					select: false
 				});
 				//console.log( view.key.el );
 				$(view.buttons[count][key].el).addClass(view.buttons[count][key].name+"-button");
 				count++;
+			});
+		}
+	};
+	var Directions = {
+		directionsService: new google.maps.DirectionsService(),
+		directionDisplay:null,
+		origin:null,
+		destination:null,
+		request:{},
+		hasDirection:false,
+		mode: google.maps.DirectionsTravelMode.DRIVING,
+		init:function()
+		{
+			dir = this;
+			dir.save = null;
+			dir.setRenderer();
+		},
+		destroy:function()
+		{
+			console.log("Called destroy");
+			dir.directionDisplay.setMap(null);
+		    dir.directionDisplay.setPanel(null);
+			dir.hasDirection = false;
+			dir.setRenderer();
+		},
+		setRenderer:function()
+		{
+			dir.directionDisplay = null;
+			dir.directionDisplay = new google.maps.DirectionsRenderer();
+		    dir.directionDisplay.setMap(self.map);
+			dir.directionDisplay.setPanel( document.getElementById('directions-panel') );
+			dir.directionDisplay.setOptions({
+				draggable:false,
+				markerOptions:{
+					visible:false
+				}
+			});
+		},
+		calculateRoute:function(lat, lng)
+		{
+			// if a route is already plotted please erase.
+			console.log("Called calculate route " + dir.hasDirection);
+			
+			if( dir.hasDirection ) dir.destroy();
+			
+			var request = {
+				origin: self.me.currentLocation,
+				destination: new google.maps.LatLng(lat, lng),
+				travelMode: dir.mode
+			};
+			dir.directionsService.route(request, function(response, status) {
+			      if (status == google.maps.DirectionsStatus.OK) {
+			        dir.directionDisplay.setDirections(response);
+					dir.hasDirection = true;
+					dir.save = response;
+					console.log( dir.save );
+			      }
+			    });
+		},
+		switchMode:function(val)
+		{
+			switch(val)
+			{
+			    case 1:
+			        dir.mode = google.maps.DirectionsTravelMode.DRIVING;
+			        break;
+			    case 2:
+			        dir.mode = google.maps.DirectionsTravelMode.WALKING;
+			        break;
+				default:
+					dir.mode = google.maps.DirectionsTravelMode.DRIVING;
+					break;
+			}
+		}
+	};
+	var DirectionsViewController = {
+		options: null,
+		optionsSelect:null,
+		button:null,
+		isSearchingForDirection:false,
+		isBike:null,
+		isBikeSelect:null,
+		isCar:null,
+		isCarSelect:null,
+		isFeet:null,
+		isFeetSelect:null,
+		init: function()
+		{
+			dircontrol = this
+			dircontrol.setSelectLayer();
+		},
+		setSelectLayer: function()
+		{
+			dircontrol.addButton();
+			$('div.bt_5 span').append(dircontrol.options);
+			$('div.bt_5 div.open').append(/*dircontrol.isBike, */dircontrol.isCar, dircontrol.isFeet);
+		},
+		addButton: function()
+		{		
+			dircontrol.options = $.ninja.drawer({
+				html: '<div class="open"></div>',
+				value: ''
+			}).select(function(){
+				Directions.init();
+				dircontrol.isSearchingForDirection = true;
+			}).deselect(function(){
+				dircontrol.isSearchingForDirection = false;
+				dir.destroy();
+			}),
+			dircontrol.optionsSelect = $.ninja.drawer({
+				html: '',
+				select: true,
+				value: 'Selected'
+			});
+			dircontrol.options.addClass('directions-control-button');
+			
+		/*	dircontrol.isBike = $.ninja.button({
+				html: 'Bicicletta'
+				}).select(function(){
+					dircontrol.purgeCssClass( dircontrol.isBike );
+					dir.switchMode(0);
+					return false;
+				}).deselect(function(){
+					dir.switchMode(1);
+					return false;
+				}),
+			dircontrol.isBikeSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});*/
+			dircontrol.isCar = $.ninja.button({
+				html: 'Auto',
+				select:true
+				}).select(function(){
+					dircontrol.purgeCssClass( dircontrol.isCar );
+					dir.switchMode(1);
+					return false;
+				}).deselect(function(){
+					dir.switchMode(1);
+					return false;
+				}),
+			dircontrol.isCarSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+			dircontrol.isFeet = $.ninja.button({
+				html: 'Piedi'
+				}).select(function(){
+					dircontrol.purgeCssClass( dircontrol.isFeet );
+					dir.switchMode(2);
+					return false;
+				}).deselect(function(){
+					dir.switchMode(1);
+					return false;
+				}),
+			dircontrol.isFeetSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+		},
+		purgeCssClass:function(el)
+		{
+			var elements = [dircontrol.isFeet, dircontrol.isCar];
+			$.each(elements, function(key, value){
+				if(value != el)
+				{
+					value.removeClass('nui-slc');
+				}
 			});
 		}
 	};
@@ -679,31 +696,98 @@ function main()
 			}
 		}
 	};
-	var SearchPlaces ={
+	var SearchPlacesController = {
+		options:null,
+		optionsSelect:null,
+		getClosestPharma:null,
+		getClosestPharmaSelect:null,
+		getClosestHospital:null,
+		getClosestHospitalSelect:null,
+		init:function()
+		{
+			searchController = this;
+			searchController.setSelectLayer();
+			SearchPlaces.init();
+		},
+		setSelectLayer: function()
+		{
+			searchController.addButton();	
+			$('div.bt_2 span').append(searchController.options);
+			$('div.bt_2 span .open').append(searchController.getClosestPharma, searchController.getClosestHospital);
+		},
+		addButton:function()
+		{
+			//add html:'<div class="open"></div>' to have a placeholder for submenu items
+			searchController.options = $.ninja.drawer({
+				html: '<div class="open"></div>',
+				value: ''
+			}),
+			searchController.optionsSelect = $.ninja.drawer({
+				html: '',
+				value: 'Selected'
+			});
+			searchController.getClosestPharma = $.ninja.button({
+				html:'Farmacie',
+				value:''
+			}).select(function(){
+				searchController.getClosestHospital.removeClass('nui-slc');
+				search.doSearch(['pharmacy']);
+			}).deselect(function(){
+				
+			}),
+			searchController.getClosestPharmaSelect = $.ninja.button({
+				html: 'Selected',
+				select:true
+			});
+			searchController.getClosestHospital = $.ninja.button({
+				html:'Ospedali',
+				value:''
+			}).select(function(){
+				searchController.getClosestPharma.removeClass('nui-slc');
+				search.doSearch(['hospital', 'health']);
+			}).deselect(function(){
+				
+			}),
+			searchController.getClosestHospitalSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+		}
+	}; 
+	var SearchPlaces = {
 		map:null,
 		service:null,
 		infowindow:null,
 		loc:null,
 		input:document.getElementById("places_search"),
+		bounds:null,
+		service:null,
 		init:function()
 		{
 			search = this;
 			search.map = self.map;
 			search.loc = self.me.currentLocation;
-			search.doSearch();
+			//search.bounds = search.map.getBounds();
 		},
-		doSearch:function()
+		doSearch:function( type )
 		{
-			var request = {
+			var t = ( type ) ? type : ['pharmacy', 'hospital'];
+			var listing = $('a[href~="paginegialle"]'), request = {
 				location:search.loc,
-				radius: '1000',
-				type: ['veterinary_care', 'pharmacy', 'hospital', 'health']
+				radius: '500',
+				types: t
 			};
-			var options = {
-				componentRestrictions: {country: 'it'},
-			};
-			var autocomplete = new google.maps.places.Autocomplete(search.input, options);
-			console.log( search.map.getBounds() );
+			console.log( listing );
+			search.service = new google.maps.places.PlacesService(search.map);
+			search.service.search(request, search.callback);
+			
+		},
+		callback:function(results, status)
+		{
+			if (status == google.maps.places.PlacesServiceStatus.OK)
+			{
+				console.log(results);
+			}
 		}
 	}
 	Program.init();

@@ -69,8 +69,9 @@ body {
 	/*background: url(../images/site/bar_buttons.png) 0 -50px no-repeat;*/
 }
 #mainbar .left span{width:80px;}
+
 #mainbar .bt_2 span {
-	background-position: -60px -50px;
+	background-position: -45px -50px;
 }
 #mainbar .bt_3 span {
 	background-position: -120px -50px;	
@@ -119,8 +120,17 @@ body {
 	border: 0;
 	padding: 0;
 }
+#mainbar div.bt_2 button.nui-btn {
+	height: 100%;
+	background: url(../images/site/bar_buttons.png) -45px -50px no-repeat;
+	border: 0;
+	padding: 0;
+}
 #mainbar button.nui-btn img {
 	display: none;
+}
+#mainbar div.bt_2 button.nui-slc {
+	background-position: -45px 0;
 }
 #mainbar div.bt_3 button.nui-slc {
 	background-position: -122px 0;
@@ -151,3 +161,5 @@ body {
 #mainbar div.nui-try button.nui-slc {
 	background: #ff9800;
 }
+/*///// A panel to show stuff to work on//////////*/
+div#working-panel{display:none;position:absolute;top:50%;left:50%;}
