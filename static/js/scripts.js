@@ -631,17 +631,20 @@ function main()
 		{
 			storecontrol.options = $.ninja.drawer({
 				html: '<div class="open"></div>',
-				value: ''
+				value: '',
+			}).deselect(function(){
+				$(this).find('button').each(function(){
+					$(this).removeClass('nui-slc');
+				});
 			}),
 			storecontrol.optionsSelect = $.ninja.drawer({
 				html: '',
-				select: true,
 				value: 'Selected'
 			});
 			storecontrol.saveData = $.ninja.button({
 				html: 'Salva'
 				}).select(function(){
-					store.saveData();
+					store.saveData(storecontrol.saveData);
 				}).deselect(function(){
 					
 				}),
@@ -652,7 +655,7 @@ function main()
 			storecontrol.displayData = $.ninja.button({
 				html: 'Carica'
 				}).select(function(){
-					
+					store.getData(storecontrol.saveData);
 				}).deselect(function(){
 					
 				}),
@@ -664,9 +667,14 @@ function main()
 	};
 	//despite of the name it uses localStorage object
 	var SessionStorage = {
+		input:null,
+		button:null,
+		has_form:false,
+		stored:[],
 		init: function()
 		{
 			store = this;
+			
 			if( !store.has_storage() )
 			{
 				alert("i do not store things, your data won't be saved");
@@ -682,18 +690,98 @@ function main()
 			}
 			return false;
 		},
-		saveData:function()
+		saveData:function(button)
 		{
 			if( dir && dir.save )
 			{
 				//do you stuff here
-				console.log("foo");
+				store.appendFormAndSave();
 			}
 			else
 			{
+				$(button).removeClass('nui-slc');
 				alert("Build route before trying to save it!");
 				return false;
 			}
+		},
+		appendFormAndSave:function()
+		{
+			store.input = $('<input type="text" name="save_path_name" value="Nome percorso" id="save_path_name" />');
+			store.saveButton = $('<button type="button" id="save_path" value="Salva" />');
+			
+			if( !store.has_form )
+			{
+				$("div#working-panel").append(store.input, store.saveButton).show(400, 
+					function(){
+						store.has_form = true;
+					});
+				store.input.click(function(){
+					$(this).val('');
+				});
+			}	
+			store.saveButton.click(function(){
+				if( store.input.val() == "Nome percorso" || store.input.val() == '')
+				{
+					alert("Dai un nome al tuo percorso "+store.input.val());
+					return false;
+				}
+				else
+				{
+					try
+					{
+						window.localStorage.setObject( store.input.val(), dir.save );
+						alert("Il percorso "+ store.input.val() + " &egrave; stato salvato");
+					}
+					catch(error)
+					{
+						alert(error);
+					}
+					finally
+					{
+						store.removePanel();
+					}	
+				}
+			});
+		},
+		getData:function(button)
+		{
+			var container = $("#working-panel"), row, shown = false;
+			
+			if( store.has_storage && window.localStorage.length)
+			{
+				var len = window.localStorage.length, objs;
+				
+				for(var i=0; i<len;i++)
+				{
+					console.log( "index::: "+i)
+					store.stored[i]={};
+					store.stored[i].key = window.localStorage.key(i);
+					store.stored[i].obj = window.localStorage.getObject( store.stored[i].key );
+					row = $('<div class="row" />');
+					if( !shown )
+					{
+						row.text(store.stored[i].key);
+						container.append( row ).fadeIn(400, function(){
+							shown = true;
+						});
+						row.click(function(){
+							Directions.init();
+							console.log( "index then " + i );
+							//dir.directionDisplay.setDirections( store.stored[i].obj );
+						});
+					}
+				}
+			}
+			else
+			{
+				alert("Non ci sono percorsi salvati");
+			}
+		},
+		removePanel:function()
+		{
+			$("div#working-panel").empty().fadeOut(400, function(){
+				store.has_form = false;
+			});
 		}
 	};
 	var SearchPlacesController = {
@@ -792,3 +880,11 @@ function main()
 	}
 	Program.init();
 };
+
+Storage.prototype.setObject = function(key, value) {
+    this.setItem(key, JSON.stringify(value));
+}
+ 
+Storage.prototype.getObject = function(key) {
+    return JSON.parse(this.getItem(key));
+}
