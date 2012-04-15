@@ -6,7 +6,7 @@ jQuery(function($){
 
 function main()
 {
-	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, search = null, searchController = null;
+	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, search = null, searchController = null, s_class = 'nui-slc';
 	
 	var Program = {
 		map : null,
@@ -203,7 +203,7 @@ function main()
 						{
 							if( dircontrol.isSearchingForDirection )
 							{
-								dir.calculateRoute(o.lat, o.lng);
+								dir.calculateRoute( o.lat, o.lng, self.me.currentLocation );
 							}
 							else
 							{
@@ -407,7 +407,7 @@ function main()
 				view.buttons[count][key].name = key;
 				view.buttons[count][key].el = $.ninja.button({
 					html: view.buttons[count][key].name,
-					select:true
+					select: true
 					}).deselect(function(){
 						if( 'hide' in self.mng[key].mng)
 						{
@@ -475,24 +475,32 @@ function main()
 				}
 			});
 		},
-		calculateRoute:function(lat, lng)
+		calculateRoute:function(l, ln, m)
 		{
 			// if a route is already plotted please erase.
 			console.log("Called calculate route " + dir.hasDirection);
 			
+			var lat = l, lng = ln, origin = m;
+			
 			if( dir.hasDirection ) dir.destroy();
 			
 			var request = {
-				origin: self.me.currentLocation,
+				origin: origin,
 				destination: new google.maps.LatLng(lat, lng),
-				travelMode: dir.mode
+				travelMode: dir.mode,
+				//provideRouteAlternatives:true
 			};
+			console.log(request);
 			dir.directionsService.route(request, function(response, status) {
 			      if (status == google.maps.DirectionsStatus.OK) {
 			        dir.directionDisplay.setDirections(response);
 					dir.hasDirection = true;
-					dir.save = response;
-					console.log( dir.save );
+					//dir.save = response;
+					dir.save = {};
+					dir.save.start_lat = response.routes[0].legs[0].start_location.lat();
+					dir.save.start_lng = response.routes[0].legs[0].start_location.lng();
+					dir.save.end_lat = response.routes[0].legs[0].end_location.lat();
+					dir.save.end_lng = response.routes[0].legs[0].end_location.lng();
 			      }
 			    });
 		},
@@ -603,7 +611,7 @@ function main()
 			$.each(elements, function(key, value){
 				if(value != el)
 				{
-					value.removeClass('nui-slc');
+					value.removeClass(s_class);
 				}
 			});
 		}
@@ -634,7 +642,7 @@ function main()
 				value: '',
 			}).deselect(function(){
 				$(this).find('button').each(function(){
-					$(this).removeClass('nui-slc');
+					$(this).removeClass(s_class);
 				});
 			}),
 			storecontrol.optionsSelect = $.ninja.drawer({
@@ -699,7 +707,7 @@ function main()
 			}
 			else
 			{
-				$(button).removeClass('nui-slc');
+				$(button).removeClass(s_class);
 				alert("Build route before trying to save it!");
 				return false;
 			}
@@ -734,7 +742,7 @@ function main()
 					}
 					catch(error)
 					{
-						alert(error);
+						alert(error.message);
 					}
 					finally
 					{
@@ -743,17 +751,17 @@ function main()
 				}
 			});
 		},
-		getData:function(button)
+		getData:function(b)
 		{
-			var container = $("#working-panel"), row, shown = false;
+			var container = $("#working-panel"), row, shown = false, button = b, len;
 			
 			if( store.has_storage && window.localStorage.length)
 			{
-				var len = window.localStorage.length, objs;
+				len = window.localStorage.length;
 				
 				for(var i=0; i<len;i++)
 				{
-					console.log( "index::: "+i)
+					var index = i;
 					store.stored[i]={};
 					store.stored[i].key = window.localStorage.key(i);
 					store.stored[i].obj = window.localStorage.getObject( store.stored[i].key );
@@ -764,10 +772,17 @@ function main()
 						container.append( row ).fadeIn(400, function(){
 							shown = true;
 						});
-						row.click(function(){
+						row.bind('click', { index:i }, function(event){
 							Directions.init();
-							console.log( "index then " + i );
-							//dir.directionDisplay.setDirections( store.stored[i].obj );
+							dir.calculateRoute(
+									store.stored[event.data.index].obj.end_lat,
+									store.stored[event.data.index].obj.end_lng,
+									new google.maps.LatLng(store.stored[event.data.index].obj.start_lat, store.stored[event.data.index].obj.start_lng)
+								);
+								$(this).parent().fadeOut(200, function(){
+									shown = true;
+									button.siblings().removeClass(s_class);
+								}).empty();
 						});
 					}
 				}
@@ -775,6 +790,7 @@ function main()
 			else
 			{
 				alert("Non ci sono percorsi salvati");
+				$(button).siblings().removeClass(s_class)
 			}
 		},
 		removePanel:function()
@@ -818,7 +834,7 @@ function main()
 				html:'Farmacie',
 				value:''
 			}).select(function(){
-				searchController.getClosestHospital.removeClass('nui-slc');
+				searchController.getClosestHospital.removeClass(s_class);
 				search.doSearch(['pharmacy']);
 			}).deselect(function(){
 				
@@ -831,7 +847,7 @@ function main()
 				html:'Ospedali',
 				value:''
 			}).select(function(){
-				searchController.getClosestPharma.removeClass('nui-slc');
+				searchController.getClosestPharma.removeClass(s_class);
 				search.doSearch(['hospital', 'health']);
 			}).deselect(function(){
 				
@@ -883,8 +899,8 @@ function main()
 
 Storage.prototype.setObject = function(key, value) {
     this.setItem(key, JSON.stringify(value));
-}
+};
  
 Storage.prototype.getObject = function(key) {
     return JSON.parse(this.getItem(key));
-}
+};
