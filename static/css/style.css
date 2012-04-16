@@ -19,9 +19,10 @@ body {
 	left: 0;
 	z-index: 999;
 	width: 100%;
-	height: 50px;
-	background: url(../images/site/bar_background.png) repeat-x;
+	height: 60px;
 	text-align: center;
+	background: #aeed63;
+//	background: url(../images/site/button_base.png) repeat-x;
 }
 #mainbar .group {
 	position: absolute;
@@ -32,44 +33,45 @@ body {
 	left: 50%;
 	width: 20%;
 	margin: 0 auto;
+	background: none;
 }
 #mainbar .center .button {
 	position: relative;
 	width: 100%;
 	height: 100%;
 	right: 50%;
-/*	background: url(../images/site/mainbutton.png) repeat-x; */
+	background: #fb6f12;
 }
 #mainbar .left {
 	width: 40%;
 	left: 0;
+//	padding-right: 1px;
 }
 #mainbar .right {
 	width: 40%;
 	right: 0;
+//	padding-left: 1px;
 }
 #mainbar .left .button,
 #mainbar .right .button  {
 	width: 50%;
 	float: left;
 	height: 100%;
-	background: url(../images/site/bar_divider.gif) 100% 0 no-repeat;
 	text-align: center;
+//	background: url(../images/site/button_topshadow.png) repeat-x;
 }
 #mainbar .right .button {
 	float: right;
-	background-position: 0 0;
 }
 #mainbar .left span,
 #mainbar .center span,
 #mainbar .right span {
 	display: inline-block;
-	width: 60px;
+	width: 100%;
 	height: 100%;
-	/*background: url(../images/site/bar_buttons.png) 0 -50px no-repeat;*/
 }
-#mainbar .left span{width:80px;}
 
+/*
 #mainbar .bt_2 span {
 	background-position: -45px -50px;
 }
@@ -82,6 +84,7 @@ body {
 #mainbar .bt_5 span {
 	background-position: -184px -50px;
 }
+*/
 
 /* footer */
 #footer {
@@ -102,44 +105,40 @@ body {
 }
 
 /* ui elements - nui overwrites */
-#mainbar div.bt_4 button.nui-btn {
+
+#mainbar button.nui-btn {
 	height: 100%;
-	background: url(../images/site/bar_buttons.png) -241px -50px no-repeat;
 	border: 0;
 	padding: 0;
-}
-#mainbar div.bt_5 button.nui-btn {
-	height: 100%;
-	background: url(../images/site/bar_buttons.png) -184px -50px no-repeat;
-	border: 0;
-	padding: 0;
-}
-#mainbar div.bt_3 button.nui-btn {
-	height: 100%;
-	background: url(../images/site/bar_buttons.png) -122px -50px no-repeat;
-	border: 0;
-	padding: 0;
-}
-#mainbar div.bt_2 button.nui-btn {
-	height: 100%;
-	background: url(../images/site/bar_buttons.png) -45px -50px no-repeat;
-	border: 0;
-	padding: 0;
+	width: 100%;
+	background: url(../images/site/bar_buttons.png) no-repeat;
 }
 #mainbar button.nui-btn img {
 	display: none;
 }
-#mainbar div.bt_2 button.nui-slc {
-	background-position: -45px 0;
+#mainbar div.bt_4 button.nui-btn {
+	background-position: 50% -420px;
 }
-#mainbar div.bt_3 button.nui-slc {
-	background-position: -122px 0;
+#mainbar div.bt_4 button.nui-slc { /* sel */
+	background-position: 50% 0;
 }
-#mainbar div.bt_4 button.nui-slc {
-	background-position: -241px 0;
+#mainbar div.bt_5 button.nui-btn {
+	background-position: 50% -300px;
 }
-#mainbar div.bt_5 button.nui-slc {
-	background-position: -184px 0;
+#mainbar div.bt_5 button.nui-slc { /* sel */
+	background-position: 50% 0;
+}
+#mainbar div.bt_3 button.nui-btn {
+	background-position: 50% -180px;
+}
+#mainbar div.bt_3 button.nui-slc { /* sel */
+	background-position: 50% 0;
+}
+#mainbar div.bt_2 button.nui-btn {
+	background-position: 50% -60px;
+}
+#mainbar div.bt_2 button.nui-slc { /* sel */
+	background-position: 50% 0;
 }
 #mainbar div.nui-try {
 	background: #242423;
