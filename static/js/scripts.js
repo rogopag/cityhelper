@@ -12,7 +12,7 @@ function main()
 		map : null,
 		d : null,
 		objects : {},
-		ZOOM: 13,
+		ZOOM: 12,
 		mng: null,
 		icons: {},
 		me: {},
@@ -234,12 +234,12 @@ function main()
 			                ,pixelOffset: new google.maps.Size(-140, 0)
 			                ,zIndex: null
 			                ,boxStyle: { 
-			                  background: "url('tipbox.gif') no-repeat"
+			                  background: "#ff6699"
 			                  ,opacity: 0.75
 			                  ,width: "280px"
 			                 }
-			                ,closeBoxMargin: "10px 2px 2px 2px"
-			                ,closeBoxURL: "http://www.google.com/intl/en_us/mapfiles/close.gif"
+			                ,closeBoxMargin: ""
+			                ,closeBoxURL: ""
 			                ,infoBoxClearance: new google.maps.Size(1, 1)
 			                ,isHidden: false
 			                ,pane: "floatPane"
@@ -267,18 +267,32 @@ function main()
 				case 'hospitals':
 				params.index = 1001;
 				params.ratio = 1.5;
+				params.cluster = 0;
+				params.icon = 0;
 				break;
 				case 'pharma':
 				params.index = 1001;
 				params.ratio = 1.5;
+				params.cluster = 54;
+				params.icon = 54;
 				break;
 				case 'parkings':
 				params.index = 1000;
 				params.ratio = 1.5;
+				params.cluster = 108;
+				params.icon = 108;
 				break;
 				case 'traffic':
 				params.index = 999;
 				params.ratio = 0.92;
+				params.cluster = 0;
+				params.icon = 108;
+				break;
+				case 'veterinarians':
+				params.index = 999;
+				params.ratio = 0.92;
+				params.cluster = 162;
+				params.icon = 162;
 				break;
 			}
 			return params;
@@ -299,34 +313,41 @@ function main()
 			{
 				var styles, params = self.switch_parameters(key);
 				
+				console.log(params.cluster)
+				
 				if( key != 'traffic')
 				{
 					styles = [{
-						url : LocalSettings.STATIC_URL+'images/'+key + "34.png",
-						height : 34,
-						width : 34,
-						anchor : [15,0],
-						textColor : '#ff0000',
-						textSize : 12
-					},
-					{
-						url : LocalSettings.STATIC_URL+'images/'+key + "44.png",
+						url : LocalSettings.STATIC_URL+'images/map_clusters.png',
 						height : 44,
 						width : 44,
-						anchor : [23,0],
+						backgroundPosition:[100,0],
+					//	anchorIcon:[200,0],
+					//	anchor : [17,0],
+						textColor : '#ff0000',
+						textSize : 12
+					},
+				/*	{
+						url : LocalSettings.STATIC_URL+'images/map_clusters.png',
+						height : 44,
+						width : 44,
+						backgroundPosition:[0,0],
+					//	anchor : [22,0],
 						textColor : '#ff0000',
 						textSize : 12
 					},
 					{
-						url : LocalSettings.STATIC_URL+'images/'+key + "54.png",
+						url : LocalSettings.STATIC_URL+'images/map_clusters.png',
 						height : 54,
 						width : 54,
-						anchor : [31,0],
+						backgroundPosition:[0,0],
+				//		anchor : [27,0],
 						textColor : '#ff0000',
 						textSize : 12
-						}];
+						}*/];
 						//sets MarkerClusters for each group 
-						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:14});
+						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:18});
+						console.log( mgr[key].getCalculator() )
 					}
 					else
 					{
@@ -342,6 +363,7 @@ function main()
 				}
 				if(key != 'traffic')
 				mgr[key].addMarkers(markers[key]);
+				
 			}
 			//set the data to data object and substitutes layer to data in obj array
 			
