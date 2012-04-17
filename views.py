@@ -73,7 +73,8 @@ class HomePage(View):
 				'lat': node.getAttribute('lat'),
 				'lng': node.getAttribute('lng'),
 				'flow' : child.getAttribute('flow'),
-				'speed' : child.getAttribute('speed')
+				'speed' : child.getAttribute('speed'),
+				'direction': node.getAttribute('direction')
 				})
 			return traffic
 		except urllib2.HTTPError, e:

@@ -409,7 +409,7 @@ function main()
 					html: view.buttons[count][key].name,
 					select:true
 					}).deselect(function(){
-						if( 'hide' in self.mng[key].mng)
+						if( 'hide' in self.mng[key].mng )
 						{
 							self.mng[key].mng.hide();
 						}
@@ -860,12 +860,11 @@ function main()
 		doSearch:function( type )
 		{
 			var t = ( type ) ? type : ['pharmacy', 'hospital'];
-			var listing = $('a[href~="paginegialle"]'), request = {
+			var listing, request = {
 				location:search.loc,
 				radius: '500',
 				types: t
 			};
-			console.log( listing );
 			search.service = new google.maps.places.PlacesService(search.map);
 			search.service.search(request, search.callback);
 			
@@ -874,7 +873,13 @@ function main()
 		{
 			if (status == google.maps.places.PlacesServiceStatus.OK)
 			{
-				console.log(results);
+				listing = $('a');
+				$.each( listing, function(key, value){
+					if( typeof $(value).attr('href') != 'undefined' && $(value).attr('href').indexOf('paginegialle') != -1 )
+					{
+						$(value).parent().remove();
+					}
+				});
 			}
 		}
 	}
