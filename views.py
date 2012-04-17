@@ -19,13 +19,14 @@ class About(View):
 		c = RequestContext(request, {'page_title':'Data Living Turin'})
 		return HttpResponse(t.render(c), content_type="text/html")
 
+
 class HomePage(View):
 	
 	parkings = []
 	traffic = []
 	#pharma = []
 	#hospitals = []
-	
+
 	def get(self, request):
 		t = loader.get_template('map.html')
 		c = RequestContext(request, {'page_title':'Data Living Turin'})
