@@ -83,10 +83,17 @@ body {
 
 #mainbar button.nui-btn {
 	height: 100%;
+	background: url(../images/site/bar_buttons.png) no-repeat;
+}
+
+#mainbar button.nui-btn,
+#mainbar div.nui-try {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
 	border: 0;
 	padding: 0;
 	width: 100%;
-	background: url(../images/site/bar_buttons.png) no-repeat;
 }
 #mainbar button.nui-btn img {
 	display: none;
@@ -110,31 +117,34 @@ body {
 	background-position: 50% -120;
 }
 #mainbar div.bt_2 button.nui-btn {
-	background-position: 50% -60px;
+	background-position: 50% -180px;
 }
 #mainbar div.bt_2 button.nui-slc { /* sel */
+	background-position: 50% -120px;
+}
+#mainbar div.bt_1 button.nui-btn {
+	background-position: 50% -60px;
+}
+#mainbar div.bt_1 button.nui-slc { /* sel */
 	background-position: 50% 0;
 }
+#mainbar button.nui-slc {
+	background-color: #301400;
+}
 #mainbar div.nui-try {
-	background: #242423;
-	border: 0;
-	padding: 0;
-	-webkit-border-radius: 0;
-	-moz-border-radius: 0;
-	border-radius: 0;
+	background-color: #301400;
 }
 #mainbar div.nui-try button.nui-btn {
 	background: none;
-	padding: 10px;
 	color: white;
+	height: 50px;
 	text-shadow: none;
-	-webkit-border-radius: 0;
-	-moz-border-radius: 0;
-	border-radius: 0;
 }
 #mainbar div.nui-try button.nui-slc {
-	background: #ff9800;
+	
 }
+
+
 
 /* 
 ** google maps //////////////////////////////////
@@ -173,11 +183,14 @@ only screen and (-webkit-min-device-pixel-ratio: 2) {
 @media
 only screen and (max-width: 960px),
 only screen and (max-device-width: 960px) {
-	div.nui-try {
+	div.right div.nui-try {
 		position: absolute;
 		right: 0;
 	}
-
+	div.left div.nui-try {
+		position: absolute;
+		left: 0;
+	}
 }
 
 /* submenu for standard screens */

@@ -673,8 +673,8 @@ function main()
 		setSelectLayer: function()
 		{
 			storecontrol.addButton();
-			$('div.bt_3 span').append(storecontrol.options);
-			$('div.bt_3 div.open').append(storecontrol.saveData, storecontrol.displayData);
+			$('div.bt_2 span').append(storecontrol.options);
+			$('div.bt_2 div.open').append(storecontrol.saveData, storecontrol.displayData);
 		},
 		addButton:function()
 		{
@@ -849,8 +849,8 @@ function main()
 		setSelectLayer: function()
 		{
 			searchController.addButton();	
-			$('div.bt_2 span').append(searchController.options);
-			$('div.bt_2 span .open').append(searchController.getClosestPharma, searchController.getClosestHospital);
+			$('div.bt_1 span').append(searchController.options);
+			$('div.bt_1 span .open').append(searchController.getClosestPharma, searchController.getClosestHospital);
 		},
 		addButton:function()
 		{
@@ -936,6 +936,14 @@ function main()
 		init:function()
 		{
 			layout = this;
+			layout.set_styles();
+		},
+		set_styles:function()
+		{
+			console.log('width: '+$(window).width());
+			if ($(window).width()<=960) {
+				$('div.nui-try').css('width',$(window).width());
+			}
 		}
 	};
 	Program.init();
