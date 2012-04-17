@@ -6,18 +6,20 @@ jQuery(function($){
 
 function main()
 {
-	ajaxurl = '/', self = null, view = null;
+	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, search = null, searchController = null, layout = null;
 	
-	var program = {
+	var Program = {
 		map : null,
 		d : null,
 		objects : {},
-		ZOOM: 12,
+		ZOOM: 13,
 		mng: null,
 		icons: {},
 		me: {},
 		touch: false,
-		is_touch: false,
+		is_not_touch: true,
+		trafficLayer:null,
+		trafficData:null,
 		init:function()
 		{
 			var o;
@@ -35,8 +37,11 @@ function main()
 			{
 				o = self.fill_objects()
 				self.mng = self.draw_markers(o);
-				viewController.init(self.mng);
+				ViewController.init(self.mng);
 				self.manageZoom(o, self.mng);
+				DirectionsViewController.init();
+				SessionStorageController.init();
+				SearchPlacesController.init();
 			});	
 		},
 		geolocate_me:function()
@@ -48,8 +53,8 @@ function main()
 					startPos = position;
 					self.me.startlat = startPos.coords.latitude;
 					self.me.startlng = startPos.coords.longitude;
-					var startLocation = new google.maps.LatLng(self.me.startlat, self.me.startlng), size = self.map.getZoom();
-					self.map.setCenter(startLocation);
+					self.me.startLocation = new google.maps.LatLng(self.me.startlat, self.me.startlng), size = self.map.getZoom();
+				//	self.map.setCenter(startLocation);
 				},
 				function(error) {
 					console.log('Error occurred. Error code: ' + error.code);
@@ -59,7 +64,8 @@ function main()
 			watch = navigator.geolocation.watchPosition(function(position) {
 				self.me.lat = position.coords.latitude;
 				self.me.lng = position.coords.longitude;
-				var currentLocation = new google.maps.LatLng(self.me.lat, self.me.lng), size = self.map.getZoom(), image, circle_options, circle;
+				self.me.currentLocation = new google.maps.LatLng(self.me.lat, self.me.lng)
+				var size = self.map.getZoom(), image, circle_options, circle;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
 				//console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
@@ -67,7 +73,7 @@ function main()
 				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
 				{
 					self.me.marker = new google.maps.Marker({
-						position: currentLocation, 
+						position: self.me.currentLocation, 
 						map: self.map, 
 						title:"Here I am",
 						icon:image
@@ -79,15 +85,15 @@ function main()
 						fillColor: "#FF0000",
 						fillOpacity: 0.2,
 						map: self.map,
-						center: currentLocation,
+						center: self.me.currentLocation,
 						radius: self.me.RADIUS / self.ZOOM
 					};
 					self.me.circle = new google.maps.Circle(circle_options);
 				}
 				else
 				{
-					self.me.marker.setPosition( currentLocation );
-					self.me.circle.setPosition( currentLocation );
+					self.me.marker.setPosition( self.me.currentLocation );
+					self.me.circle.setCenter( self.me.currentLocation );
 					self.me.circle.setRadius( self.me.RADIUS / self.map.getZoom() );
 				}
 			},
@@ -108,9 +114,9 @@ function main()
 		manageZoom: function(obj, mng)
 		{
 			google.maps.event.addListener(self.map, "zoom_changed", function() {
-				if( zoom <= self.ZOOM ) return;
-				
 				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 ), timeout;
+				if( zoom <= self.ZOOM ) return false;
+				
 				// sets the new zoom for the user's icon
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
 				self.me.circle.setRadius( self.me.RADIUS / zoom );
@@ -119,13 +125,16 @@ function main()
 				// sets the new zoom for the assets icons if not clustered
 				for(var key in obj)
 				{
-					p = self.switch_parameters(key);
-					
-					image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
-					for( var items in obj[key] )
+					if( !obj.traffic )
 					{
-						obj[key][items].marker.setIcon(image);
-					} //end for
+						p = self.switch_parameters(key);
+
+						image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
+						for( var items in obj[key] )
+						{
+							obj[key][items].marker.setIcon(image);
+						} //end for
+					}
 				} //end for
 			});
 		},
@@ -172,18 +181,18 @@ function main()
 		{
 			var index = 1, ratio = 1, size = self.map.getZoom(), p;
 			
-			for(var key in program.d)
+			for(var key in self.d)
 			{
 				//console.log( key );
 				self.objects[key] = [];
-				self.icons[key] = LocalSettings.STATIC_URL+'images/'+key + ".png";
+				self.icons[key] = LocalSettings.STATIC_URL+'images/' + key + ".png";
 				
 				p = self.switch_parameters(key);
 				image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
-				for( var items in program.d[key] )
+				for( var items in self.d[key] )
 				{
 					var current = {}, image;
-					current = ( typeof program.d[key][items].fields != 'undefined' )?program.d[key][items].fields:program.d[key][items];
+					current = ( typeof self.d[key][items].fields != 'undefined' )?self.d[key][items].fields:self.d[key][items];
 					current.type = key;
 					current.icon_url = self.icons[key];
 					current.marker = new google.maps.Marker({
@@ -193,11 +202,14 @@ function main()
 						type: current.type,
 						zIndex: p.index
 					});
+					current.has_infoBox = false;
+					
 					google.maps.event.addListener(current.marker, 'click', (function(o)
 					{
 						return function()
 						{
-							console.log(o);
+							if( !o.has_infoBox )
+							self.manage_info_box(o);
 						}
 						
 					})(current));
@@ -206,6 +218,38 @@ function main()
 				}
 			}
 			return self.objects;
+		},
+		manage_info_box:function(o)
+		{
+			var obj = o, infoBox, infoBoxOptions;
+			
+			console.log( obj );
+			
+			var boxText = document.createElement("div");
+			boxText.style.cssText = "border: 1px solid black; margin-top: 8px; background: yellow; padding: 5px;";
+			boxText.innerHTML = "City Hall, Sechelt<br>British Columbia<br>Canada";
+			
+			var infoBoxOptions = {
+			                 content: boxText
+			                ,disableAutoPan: false
+			                ,maxWidth: 0
+			                ,pixelOffset: new google.maps.Size(-140, 0)
+			                ,zIndex: null
+			                ,boxStyle: { 
+			                  background: "url('tipbox.gif') no-repeat"
+			                  ,opacity: 0.75
+			                  ,width: "280px"
+			                 }
+			                ,closeBoxMargin: "10px 2px 2px 2px"
+			                ,closeBoxURL: "http://www.google.com/intl/en_us/mapfiles/close.gif"
+			                ,infoBoxClearance: new google.maps.Size(1, 1)
+			                ,isHidden: false
+			                ,pane: "floatPane"
+			                ,enableEventPropagation: false
+			        };
+			infoBox = new InfoBox( infoBoxOptions );
+			infoBox.open(self.map, obj.marker);
+			return infoBox;
 		},
 		switch_parameters : function(key)
 		{
@@ -238,6 +282,12 @@ function main()
 			
 			if(!obj) return false;
 			
+			self.trafficLayer = new google.maps.TrafficLayer();
+			//self.trafficLayer.setMap(self.map);
+			
+			self.trafficData = obj.traffic;
+			obj.traffic = self.trafficLayer;
+			
 			for(var key in obj)
 			{
 				var styles, params = self.switch_parameters(key);
@@ -269,12 +319,12 @@ function main()
 						textSize : 12
 						}];
 						//sets MarkerClusters for each group 
-						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles});
+						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:14});
 					}
 					else
 					{
 						//sets MarkerManager for those we don't want to cluster 
-						mgr[key] = new MarkerManager( self.map );
+						mgr[key] = self.trafficLayer;
 					}
 				
 				markers[key] = [];
@@ -286,10 +336,8 @@ function main()
 				if(key != 'traffic')
 				mgr[key].addMarkers(markers[key]);
 			}
-			google.maps.event.addListener(mgr.traffic, 'loaded', function(){
-			      mgr.traffic.addMarkers(markers.traffic, self.ZOOM);
-			      mgr.traffic.refresh();
-			  });
+			//set the data to data object and substitutes layer to data in obj array
+			
 			return mgr;
 		},
 		ajax_populate: function()
@@ -319,7 +367,7 @@ function main()
 					if( response )
 					{
 						//console.log(response)
-						program.d = response;
+						self.d = response;
 					}
 				},
 				complete: function( data, textStatus )
@@ -335,10 +383,9 @@ function main()
 		loader_show:function()
 		{
 			$("div#loading-gif").show();
-		},
-		
+		},	
 	};
-	var viewController = {
+	var ViewController = {
 		options:null,
 		optionsSelect:null, 
 		traffic:null, 
@@ -367,17 +414,17 @@ function main()
 			{
 				for( var key in value)
 				{
-					$('div.bt_4 div.open').append(value[key].el);
+					$('div.bt_4 div.open').append( value[key].el );
 				}
 			});
 		},
-		 hideAddressBar: function()
+		hideAddressBar: function()
 		{
 			setTimeout(function(){
 		    	window.scrollTo(0,1);
 		  	},0);
 		},
-		 addButton: function() {
+		addButton: function() {
 			/* create drawers */
 			var count = 0, cluster;
 			view.options = $.ninja.drawer({
@@ -387,19 +434,22 @@ function main()
 			view.optionsSelect = $.ninja.drawer({
 				html: '',
 				select: true,
-				value: ''
+				value: 'Selected'
 			});
+			view.options.addClass("hide-show-layers");
+			
 			$.each(view.mngs, function(key, value){
 				self.mng[key].mng = value;
 				view.buttons[count] = {};
 				view.buttons[count][key] = {};
 				view.buttons[count][key].name = key;
 				view.buttons[count][key].el = $.ninja.button({
-					html: view.buttons[count][key].name
-					}).select(function(){
-						if( 'hide' in self.mng[key].mng)
+					html: view.buttons[count][key].name,
+					select: !( 'hide' in self.mng[key].mng )
+					}).deselect(function(){
+						if( 'hide' in self.mng[key].mng )
 						{
-							self.mng[key].mng.hide();
+							self.trafficLayer.hide();
 						}
 						else
 						{
@@ -407,10 +457,10 @@ function main()
 							self.mng[key].mng.clearMarkers();
 						}
 						
-					}).deselect(function(){
+					}).select(function(){
 						if( 'hide' in self.mng[key].mng)
 						{
-							self.mng[key].mng.show();
+							self.trafficLayer.setMap(self.map);
 						}
 						else
 						{
@@ -420,7 +470,7 @@ function main()
 					}),
 				view.buttons[count][key].sel = $.ninja.button({
 					html: 'Selected',
-					select: true
+					select: false
 				});
 				//console.log( view.key.el );
 				$(view.buttons[count][key].el).addClass(view.buttons[count][key].name+"-button");
@@ -428,5 +478,465 @@ function main()
 			});
 		}
 	};
-	program.init();
+	var Directions = {
+		directionsService: new google.maps.DirectionsService(),
+		directionDisplay:null,
+		origin:null,
+		destination:null,
+		request:{},
+		hasDirection:false,
+		mode: google.maps.DirectionsTravelMode.DRIVING,
+		init:function()
+		{
+			dir = this;
+			dir.save = null;
+			dir.setRenderer();
+		},
+		destroy:function()
+		{
+			console.log("Called destroy");
+			dir.directionDisplay.setMap(null);
+		    dir.directionDisplay.setPanel(null);
+			dir.hasDirection = false;
+			dir.setRenderer();
+		},
+		setRenderer:function()
+		{
+			dir.directionDisplay = null;
+			dir.directionDisplay = new google.maps.DirectionsRenderer();
+		    dir.directionDisplay.setMap(self.map);
+			dir.directionDisplay.setPanel( document.getElementById('directions-panel') );
+			dir.directionDisplay.setOptions({
+				draggable:false,
+				markerOptions:{
+					visible:false
+				}
+			});
+		},
+		calculateRoute:function(lat, lng)
+		{
+			// if a route is already plotted please erase.
+			console.log("Called calculate route " + dir.hasDirection);
+			
+			if( dir.hasDirection ) dir.destroy();
+			
+			var request = {
+				origin: self.me.currentLocation,
+				destination: new google.maps.LatLng(lat, lng),
+				travelMode: dir.mode,
+				provideRouteAlternatives:true
+			};
+			dir.directionsService.route(request, function(response, status) {
+			      if (status == google.maps.DirectionsStatus.OK) {
+			        dir.directionDisplay.setDirections(response);
+					dir.hasDirection = true;
+					dir.save = response;
+					console.log( dir.save );
+			      }
+			    });
+		},
+		switchMode:function(val)
+		{
+			switch(val)
+			{
+			    case 1:
+			        dir.mode = google.maps.DirectionsTravelMode.DRIVING;
+			        break;
+			    case 2:
+			        dir.mode = google.maps.DirectionsTravelMode.WALKING;
+			        break;
+				default:
+					dir.mode = google.maps.DirectionsTravelMode.DRIVING;
+					break;
+			}
+		}
+	};
+	var DirectionsViewController = {
+		options: null,
+		optionsSelect:null,
+		button:null,
+		isSearchingForDirection:false,
+		isBike:null,
+		isBikeSelect:null,
+		isCar:null,
+		isCarSelect:null,
+		isFeet:null,
+		isFeetSelect:null,
+		init: function()
+		{
+			dircontrol = this
+			dircontrol.setSelectLayer();
+		},
+		setSelectLayer: function()
+		{
+			dircontrol.addButton();
+			$('div.bt_5 span').append(dircontrol.options);
+			$('div.bt_5 div.open').append(/*dircontrol.isBike, */dircontrol.isCar, dircontrol.isFeet);
+		},
+		addButton: function()
+		{		
+			dircontrol.options = $.ninja.drawer({
+				html: '<div class="open"></div>',
+				value: ''
+			}).select(function(){
+				Directions.init();
+				dircontrol.isSearchingForDirection = true;
+			}).deselect(function(){
+				dircontrol.isSearchingForDirection = false;
+				dir.destroy();
+			}),
+			dircontrol.optionsSelect = $.ninja.drawer({
+				html: '',
+				select: true,
+				value: 'Selected'
+			});
+			dircontrol.options.addClass('directions-control-button');
+			
+		/*	dircontrol.isBike = $.ninja.button({
+				html: 'Bicicletta'
+				}).select(function(){
+					dircontrol.purgeCssClass( dircontrol.isBike );
+					dir.switchMode(0);
+					return false;
+				}).deselect(function(){
+					dir.switchMode(1);
+					return false;
+				}),
+			dircontrol.isBikeSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});*/
+			dircontrol.isCar = $.ninja.button({
+				html: 'Auto',
+				select:true
+				}).select(function(){
+					dircontrol.purgeCssClass( dircontrol.isCar );
+					dir.switchMode(1);
+					return false;
+				}).deselect(function(){
+					dir.switchMode(1);
+					return false;
+				}),
+			dircontrol.isCarSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+			dircontrol.isFeet = $.ninja.button({
+				html: 'Piedi'
+				}).select(function(){
+					dircontrol.purgeCssClass( dircontrol.isFeet );
+					dir.switchMode(2);
+					return false;
+				}).deselect(function(){
+					dir.switchMode(1);
+					return false;
+				}),
+			dircontrol.isFeetSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+		},
+		purgeCssClass:function(el)
+		{
+			var elements = [dircontrol.isFeet, dircontrol.isCar];
+			$.each(elements, function(key, value){
+				if(value != el)
+				{
+					value.removeClass('nui-slc');
+				}
+			});
+		}
+	};
+	var SessionStorageController = {
+		options:null,
+		optionsSelect:null,
+		saveData:null,
+		saveDataSelect:null,
+		displayData:null,
+		displayDataSelect:null,
+		init:function()
+		{
+			storecontrol = this;
+			storecontrol.setSelectLayer();
+			SessionStorage.init();
+		},
+		setSelectLayer: function()
+		{
+			storecontrol.addButton();
+			$('div.bt_3 span').append(storecontrol.options);
+			$('div.bt_3 div.open').append(storecontrol.saveData, storecontrol.displayData);
+		},
+		addButton:function()
+		{
+			storecontrol.options = $.ninja.drawer({
+				html: '<div class="open"></div>',
+				value: '',
+			}).deselect(function(){
+				$(this).find('button').each(function(){
+					$(this).removeClass('nui-slc');
+				});
+			}),
+			storecontrol.optionsSelect = $.ninja.drawer({
+				html: '',
+				value: 'Selected'
+			});
+			storecontrol.saveData = $.ninja.button({
+				html: 'Salva'
+				}).select(function(){
+					store.saveData(storecontrol.saveData);
+				}).deselect(function(){
+					
+				}),
+			storecontrol.saveDataSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+			storecontrol.displayData = $.ninja.button({
+				html: 'Carica'
+				}).select(function(){
+					store.getData(storecontrol.saveData);
+				}).deselect(function(){
+					
+				}),
+			storecontrol.displayDataSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+		}
+	};
+	//despite of the name it uses localStorage object
+	var SessionStorage = {
+		input:null,
+		button:null,
+		has_form:false,
+		stored:[],
+		init: function()
+		{
+			store = this;
+			
+			if( !store.has_storage() )
+			{
+				alert("i do not store things, your data won't be saved");
+				return false;
+			}
+		},
+		has_storage:function()
+		{
+			//session & local check
+			if(window.sessionStorage && window.localStorage)
+			{
+				return true;
+			}
+			return false;
+		},
+		saveData:function(button)
+		{
+			if( dir && dir.save )
+			{
+				//do you stuff here
+				store.appendFormAndSave();
+			}
+			else
+			{
+				$(button).removeClass('nui-slc');
+				alert("Build route before trying to save it!");
+				return false;
+			}
+		},
+		appendFormAndSave:function()
+		{
+			store.input = $('<input type="text" name="save_path_name" value="Nome percorso" id="save_path_name" />');
+			store.saveButton = $('<button type="button" id="save_path" value="Salva" />');
+			
+			if( !store.has_form )
+			{
+				$("div#working-panel").append(store.input, store.saveButton).show(400, 
+					function(){
+						store.has_form = true;
+					});
+				store.input.click(function(){
+					$(this).val('');
+				});
+			}	
+			store.saveButton.click(function(){
+				if( store.input.val() == "Nome percorso" || store.input.val() == '')
+				{
+					alert("Dai un nome al tuo percorso "+store.input.val());
+					return false;
+				}
+				else
+				{
+					try
+					{
+						window.localStorage.setObject( store.input.val(), dir.save );
+						alert("Il percorso "+ store.input.val() + " &egrave; stato salvato");
+					}
+					catch(error)
+					{
+						alert(error);
+					}
+					finally
+					{
+						store.removePanel();
+					}	
+				}
+			});
+		},
+		getData:function(button)
+		{
+			var container = $("#working-panel"), row, shown = false;
+			
+			if( store.has_storage && window.localStorage.length)
+			{
+				var len = window.localStorage.length, objs;
+				
+				for(var i=0; i<len;i++)
+				{
+					console.log( "index::: "+i)
+					store.stored[i]={};
+					store.stored[i].key = window.localStorage.key(i);
+					store.stored[i].obj = window.localStorage.getObject( store.stored[i].key );
+					row = $('<div class="row" />');
+					if( !shown )
+					{
+						row.text(store.stored[i].key);
+						container.append( row ).fadeIn(400, function(){
+							shown = true;
+						});
+						row.click(function(){
+							Directions.init();
+							console.log( "index then " + i );
+							//dir.directionDisplay.setDirections( store.stored[i].obj );
+						});
+					}
+				}
+			}
+			else
+			{
+				alert("Non ci sono percorsi salvati");
+			}
+		},
+		removePanel:function()
+		{
+			$("div#working-panel").empty().fadeOut(400, function(){
+				store.has_form = false;
+			});
+		}
+	};
+	var SearchPlacesController = {
+		options:null,
+		optionsSelect:null,
+		getClosestPharma:null,
+		getClosestPharmaSelect:null,
+		getClosestHospital:null,
+		getClosestHospitalSelect:null,
+		init:function()
+		{
+			searchController = this;
+			searchController.setSelectLayer();
+			SearchPlaces.init();
+		},
+		setSelectLayer: function()
+		{
+			searchController.addButton();	
+			$('div.bt_2 span').append(searchController.options);
+			$('div.bt_2 span .open').append(searchController.getClosestPharma, searchController.getClosestHospital);
+		},
+		addButton:function()
+		{
+			//add html:'<div class="open"></div>' to have a placeholder for submenu items
+			searchController.options = $.ninja.drawer({
+				html: '<div class="open"></div>',
+				value: ''
+			}),
+			searchController.optionsSelect = $.ninja.drawer({
+				html: '',
+				value: 'Selected'
+			});
+			searchController.getClosestPharma = $.ninja.button({
+				html:'Farmacie',
+				value:''
+			}).select(function(){
+				searchController.getClosestHospital.removeClass('nui-slc');
+				search.doSearch(['pharmacy']);
+			}).deselect(function(){
+				
+			}),
+			searchController.getClosestPharmaSelect = $.ninja.button({
+				html: 'Selected',
+				select:true
+			});
+			searchController.getClosestHospital = $.ninja.button({
+				html:'Ospedali',
+				value:''
+			}).select(function(){
+				searchController.getClosestPharma.removeClass('nui-slc');
+				search.doSearch(['hospital', 'health']);
+			}).deselect(function(){
+				
+			}),
+			searchController.getClosestHospitalSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+		}
+	}; 
+	var SearchPlaces = {
+		map:null,
+		service:null,
+		infowindow:null,
+		loc:null,
+		input:document.getElementById("places_search"),
+		bounds:null,
+		service:null,
+		init:function()
+		{
+			search = this;
+			search.map = self.map;
+			search.loc = self.me.currentLocation;
+			//search.bounds = search.map.getBounds();
+		},
+		doSearch:function( type )
+		{
+			var t = ( type ) ? type : ['pharmacy', 'hospital'];
+			var listing, request = {
+				location:search.loc,
+				radius: '500',
+				types: t
+			};
+			search.service = new google.maps.places.PlacesService(search.map);
+			search.service.search(request, search.callback);
+			
+		},
+		callback:function(results, status)
+		{
+			if (status == google.maps.places.PlacesServiceStatus.OK)
+			{
+				listing = $('a');
+				$.each( listing, function(key, value){
+					if( typeof $(value).attr('href') != 'undefined' && $(value).attr('href').indexOf('paginegialle') != -1 )
+					{
+						$(value).parent().remove();
+					}
+				});
+			}
+		}
+	};
+	var layoutFixes = {
+		init:function()
+		{
+			layout = this;
+		}
+	}
+	Program.init();
+};
+Storage.prototype.setObject = function(key, value) {
+    this.setItem(key, JSON.stringify(value));
+};
+Storage.prototype.getObject = function(key) {
+    return JSON.parse(this.getItem(key));
+};
+google.maps.TrafficLayer.prototype.hide = function()
+{
+	this.setMap(null);
 };
