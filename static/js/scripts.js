@@ -6,7 +6,7 @@ jQuery(function($){
 
 function main()
 {
-	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, search = null, searchController = null;
+	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, search = null, searchController = null, layout = null;
 	
 	var Program = {
 		map : null,
@@ -18,6 +18,8 @@ function main()
 		me: {},
 		touch: false,
 		is_not_touch: true,
+		trafficLayer:null,
+		trafficData:null,
 		init:function()
 		{
 			var o;
@@ -123,13 +125,16 @@ function main()
 				// sets the new zoom for the assets icons if not clustered
 				for(var key in obj)
 				{
-					p = self.switch_parameters(key);
-					
-					image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
-					for( var items in obj[key] )
+					if( !obj.traffic )
 					{
-						obj[key][items].marker.setIcon(image);
-					} //end for
+						p = self.switch_parameters(key);
+
+						image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
+						for( var items in obj[key] )
+						{
+							obj[key][items].marker.setIcon(image);
+						} //end for
+					}
 				} //end for
 			});
 		},
@@ -197,18 +202,14 @@ function main()
 						type: current.type,
 						zIndex: p.index
 					});
+					current.has_infoBox = false;
+					
 					google.maps.event.addListener(current.marker, 'click', (function(o)
 					{
 						return function()
 						{
-							if( dircontrol.isSearchingForDirection )
-							{
-								dir.calculateRoute(o.lat, o.lng);
-							}
-							else
-							{
-								console.log(o);
-							}
+							if( !o.has_infoBox )
+							self.manage_info_box(o);
 						}
 						
 					})(current));
@@ -217,6 +218,38 @@ function main()
 				}
 			}
 			return self.objects;
+		},
+		manage_info_box:function(o)
+		{
+			var obj = o, infoBox, infoBoxOptions;
+			
+			console.log( obj );
+			
+			var boxText = document.createElement("div");
+			boxText.style.cssText = "border: 1px solid black; margin-top: 8px; background: yellow; padding: 5px;";
+			boxText.innerHTML = "City Hall, Sechelt<br>British Columbia<br>Canada";
+			
+			var infoBoxOptions = {
+			                 content: boxText
+			                ,disableAutoPan: false
+			                ,maxWidth: 0
+			                ,pixelOffset: new google.maps.Size(-140, 0)
+			                ,zIndex: null
+			                ,boxStyle: { 
+			                  background: "url('tipbox.gif') no-repeat"
+			                  ,opacity: 0.75
+			                  ,width: "280px"
+			                 }
+			                ,closeBoxMargin: "10px 2px 2px 2px"
+			                ,closeBoxURL: "http://www.google.com/intl/en_us/mapfiles/close.gif"
+			                ,infoBoxClearance: new google.maps.Size(1, 1)
+			                ,isHidden: false
+			                ,pane: "floatPane"
+			                ,enableEventPropagation: false
+			        };
+			infoBox = new InfoBox( infoBoxOptions );
+			infoBox.open(self.map, obj.marker);
+			return infoBox;
 		},
 		switch_parameters : function(key)
 		{
@@ -248,6 +281,12 @@ function main()
 			var mgr = {}, markers = {};
 			
 			if(!obj) return false;
+			
+			self.trafficLayer = new google.maps.TrafficLayer();
+			//self.trafficLayer.setMap(self.map);
+			
+			self.trafficData = obj.traffic;
+			obj.traffic = self.trafficLayer;
 			
 			for(var key in obj)
 			{
@@ -285,7 +324,7 @@ function main()
 					else
 					{
 						//sets MarkerManager for those we don't want to cluster 
-						mgr[key] = new MarkerManager( self.map );
+						mgr[key] = self.trafficLayer;
 					}
 				
 				markers[key] = [];
@@ -297,10 +336,8 @@ function main()
 				if(key != 'traffic')
 				mgr[key].addMarkers(markers[key]);
 			}
-			google.maps.event.addListener(mgr.traffic, 'loaded', function(){
-			      mgr.traffic.addMarkers(markers.traffic, self.ZOOM);
-			      mgr.traffic.refresh();
-			  });
+			//set the data to data object and substitutes layer to data in obj array
+			
 			return mgr;
 		},
 		ajax_populate: function()
@@ -399,7 +436,8 @@ function main()
 				select: true,
 				value: 'Selected'
 			});
-			view.options.addClass("hide-show-layers")
+			view.options.addClass("hide-show-layers");
+			
 			$.each(view.mngs, function(key, value){
 				self.mng[key].mng = value;
 				view.buttons[count] = {};
@@ -407,11 +445,11 @@ function main()
 				view.buttons[count][key].name = key;
 				view.buttons[count][key].el = $.ninja.button({
 					html: view.buttons[count][key].name,
-					select:true
+					select: !( 'hide' in self.mng[key].mng )
 					}).deselect(function(){
 						if( 'hide' in self.mng[key].mng )
 						{
-							self.mng[key].mng.hide();
+							self.trafficLayer.hide();
 						}
 						else
 						{
@@ -422,7 +460,7 @@ function main()
 					}).select(function(){
 						if( 'hide' in self.mng[key].mng)
 						{
-							self.mng[key].mng.show();
+							self.trafficLayer.setMap(self.map);
 						}
 						else
 						{
@@ -485,7 +523,8 @@ function main()
 			var request = {
 				origin: self.me.currentLocation,
 				destination: new google.maps.LatLng(lat, lng),
-				travelMode: dir.mode
+				travelMode: dir.mode,
+				provideRouteAlternatives:true
 			};
 			dir.directionsService.route(request, function(response, status) {
 			      if (status == google.maps.DirectionsStatus.OK) {
@@ -882,14 +921,22 @@ function main()
 				});
 			}
 		}
+	};
+	var layoutFixes = {
+		init:function()
+		{
+			layout = this;
+		}
 	}
 	Program.init();
 };
-
 Storage.prototype.setObject = function(key, value) {
     this.setItem(key, JSON.stringify(value));
-}
- 
+};
 Storage.prototype.getObject = function(key) {
     return JSON.parse(this.getItem(key));
-}
+};
+google.maps.TrafficLayer.prototype.hide = function()
+{
+	this.setMap(null);
+};
