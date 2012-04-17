@@ -42,6 +42,7 @@ function main()
 				DirectionsViewController.init();
 				SessionStorageController.init();
 				SearchPlacesController.init();
+				LayoutFixes.init();
 			});	
 		},
 		geolocate_me:function()
@@ -249,6 +250,15 @@ function main()
 			        };
 			infoBox = new InfoBox( infoBoxOptions );
 			infoBox.open(self.map, obj.marker);
+			obj.has_infoBox = true;
+			
+			google.maps.event.addListener(infoBox, 'closeclick', (function(o){
+				return function()
+				{
+					o.has_infoBox = false;
+				}
+			})(obj));
+			
 			return infoBox;
 		},
 		switch_parameters : function(key)
@@ -922,12 +932,12 @@ function main()
 			}
 		}
 	};
-	var layoutFixes = {
+	var LayoutFixes = {
 		init:function()
 		{
 			layout = this;
 		}
-	}
+	};
 	Program.init();
 };
 Storage.prototype.setObject = function(key, value) {
