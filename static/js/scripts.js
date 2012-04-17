@@ -222,11 +222,8 @@ function main()
 		},
 		manage_info_box:function(o)
 		{
-			var obj = o, infoBox, infoBoxOptions;
-			
-			console.log( obj );
-			
-			var boxText = document.createElement("div");
+			var obj = o, infoBox, infoBoxOptions, boxText = document.createElement("div");
+		
 			boxText.style.cssText = "border: 1px solid black; margin-top: 8px; background: yellow; padding: 5px;";
 			boxText.innerHTML = "City Hall, Sechelt<br>British Columbia<br>Canada";
 			
@@ -397,13 +394,15 @@ function main()
 	};
 	var ViewController = {
 		options:null,
-		optionsSelect:null, 
+		optionsSelect:null,
+		disabled:null, 
 		traffic:null, 
 		trafficSelect:null, 
 		parkings:null,
 		mngs:null,
 		buttons:null,
 		mng:{},
+		dialogs_open:[],
 		init: function(mng)
 		{
 			view = this;
@@ -439,8 +438,12 @@ function main()
 			var count = 0, cluster;
 			view.options = $.ninja.drawer({
 				html: '<div class="open"></div>',
-				value: ''
-			}),
+				value: '',
+			}).select(function(){
+					view.controlOtherDrawers(this);
+				}).deselect(function(){
+					view.controlOtherDrawers(this);
+				}),
 			view.optionsSelect = $.ninja.drawer({
 				html: '',
 				select: true,
@@ -486,6 +489,30 @@ function main()
 				$(view.buttons[count][key].el).addClass(view.buttons[count][key].name+"-button");
 				count++;
 			});
+		},
+		controlOtherDrawers:function( d )
+		{
+			var drawer = d;
+			
+			if( view.dialogs_open.length > 0 )
+			{
+				if( view.dialogs_open[0] == drawer )
+				{
+					view.dialogs_open = [];
+				}
+				else
+				{
+					$( view.dialogs_open[0] ).children(".nui-try").slideUp('fast', function(){
+						$(this).prev().removeClass('nui-slc')
+						view.dialogs_open = [];
+						view.dialogs_open.push( drawer );
+					});
+				}
+			}
+			else
+			{
+				view.dialogs_open.push( drawer );
+			}	
 		}
 	};
 	var Directions = {
@@ -591,9 +618,11 @@ function main()
 			}).select(function(){
 				Directions.init();
 				dircontrol.isSearchingForDirection = true;
+				view.controlOtherDrawers(this);
 			}).deselect(function(){
 				dircontrol.isSearchingForDirection = false;
 				dir.destroy();
+				view.controlOtherDrawers(this);
 			}),
 			dircontrol.optionsSelect = $.ninja.drawer({
 				html: '',
@@ -680,11 +709,14 @@ function main()
 		{
 			storecontrol.options = $.ninja.drawer({
 				html: '<div class="open"></div>',
-				value: '',
+				value: ''
 			}).deselect(function(){
+				view.controlOtherDrawers(this);
 				$(this).find('button').each(function(){
 					$(this).removeClass('nui-slc');
-				});
+				});	
+			}).select(function(){
+				view.controlOtherDrawers(this);
 			}),
 			storecontrol.optionsSelect = $.ninja.drawer({
 				html: '',
@@ -858,6 +890,10 @@ function main()
 			searchController.options = $.ninja.drawer({
 				html: '<div class="open"></div>',
 				value: ''
+			}).select(function(){
+				view.controlOtherDrawers(this);
+			}).deselect(function(){
+				view.controlOtherDrawers(this);
 			}),
 			searchController.optionsSelect = $.ninja.drawer({
 				html: '',
