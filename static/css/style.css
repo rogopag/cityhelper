@@ -149,6 +149,10 @@ body {
 #mainbar div.nui-try button.nui-btn:first-child {
 	border-top-color: #301300;
 }
+#mainbar div.bt_5 div.nui-try button.nui-btn:last-child {
+	background: #ff565e;
+	border-bottom-color: #e03d45;
+}
 #mainbar div.nui-try button.nui-slc {
 	border-left: 10px solid #aeed63;
 	text-indent: 10px;
