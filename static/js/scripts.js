@@ -21,6 +21,7 @@ function main()
 		is_not_touch: true,
 		trafficLayer:null,
 		trafficData:null,
+		has_infobox_open:false,
 		init:function()
 		{
 			var o;
@@ -181,7 +182,7 @@ function main()
 		},
 		fill_objects : function()
 		{
-			var index = 1, ratio = 1, size = 54/*self.map.getZoom()*/, p;
+			var index = 1, ratio = 1, size = 54, p;
 			
 			for(var key in self.d)
 			{
@@ -230,22 +231,19 @@ function main()
 		},
 		manage_info_box:function(o)
 		{
-			var obj = o, infoBox, infoBoxOptions, boxText = document.createElement("div");
-		
-			boxText.style.cssText = "border: 1px solid black; margin-top: 8px; background: yellow; padding: 5px;";
-			boxText.innerHTML = "City Hall, Sechelt<br>British Columbia<br>Canada";
+			var obj = o, infoBox, infoBoxOptions, boxBox = document.createElement("div"), info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>');
+			
+			console.log(obj);
+			info.text(obj.name);
+			action.text("foo");
+			$(boxBox).append(info, action);
 			
 			var infoBoxOptions = {
-			                 content: boxText
+			                 content: boxBox
 			                ,disableAutoPan: false
 			                ,maxWidth: 0
 			                ,pixelOffset: new google.maps.Size(-140, 0)
 			                ,zIndex: null
-			                ,boxStyle: { 
-			                  background: "#ff6699"
-			                  ,opacity: 0.75
-			                  ,width: "280px"
-			                 }
 			                ,closeBoxMargin: ""
 			                ,closeBoxURL: ""
 			                ,infoBoxClearance: new google.maps.Size(1, 1)
@@ -253,16 +251,23 @@ function main()
 			                ,pane: "floatPane"
 			                ,enableEventPropagation: false
 			        };
-			infoBox = new InfoBox( infoBoxOptions );
-			infoBox.open(self.map, obj.marker);
-			obj.has_infoBox = true;
 			
-			google.maps.event.addListener(infoBox, 'closeclick', (function(o){
-				return function()
-				{
-					o.has_infoBox = false;
-				}
-			})(obj));
+			if( !obj.has_infoBox && !self.has_infobox_open )
+			{
+				infoBox = new InfoBox( infoBoxOptions );
+				infoBox.open(self.map, obj.marker);
+				obj.has_infoBox = true;
+				self.has_infobox_open = true;
+				google.maps.event.addListener(self.map, 'click', (function(o, i){
+					return function()
+					{
+						console.log( "tapped "+obj.has_infoBox+" "+i );
+						i.close();
+						o.has_infoBox = false;
+						self.has_infobox_open = false;
+					}
+				})(obj, infoBox));
+			}
 			
 			return infoBox;
 		},

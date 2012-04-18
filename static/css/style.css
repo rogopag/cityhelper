@@ -199,8 +199,8 @@ only screen and (min-width: 960px),
 only screen and (max-device-width: 960px) {
 }
 
-
-
 /*///// A panel to show stuff to work on//////////*/
 div#working-panel{display:none;position:absolute;top:50%;left:50%;background:url(../images/site/bar_background.png) repeat;color:white;}
 .row{padding:5px;cursor:pointer;}
+/*/////// INFO BOX /////////////////////////////*/
+.infoBox{border: 1px solid black; margin-top: 8px; background: yellow; padding: 5px;opacity:0.75;width:280px;}
