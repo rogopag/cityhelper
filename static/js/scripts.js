@@ -240,17 +240,15 @@ function main()
 		manage_info_box:function(o)
 		{
 			var obj = o, infoBox, infoBoxOptions, boxBox = document.createElement("div"), info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect;
-			
-			
 			button = $.ninja.button({
 				html: 'Percorso',
-				select:true
+				select:( null == dir ) ? false : true
 				}).select(function(){
-					Direction.init();
-					
+					Directions.init();
+					dir.calculateRoute(obj.lat, obj.lng);
 					return false;
 				}).deselect(function(){
-					console.log("Deselect");
+					dir.destroy();
 					return false;
 				}),
 			buttonSelect = $.ninja.button({
@@ -617,15 +615,17 @@ function main()
 				}
 			});
 		},
-		calculateRoute:function(lat, lng)
+		calculateRoute:function(lat, lng, org)
 		{
 			// if a route is already plotted please erase.
 			console.log("Called calculate route " + dir.hasDirection);
 			
 			if( dir.hasDirection ) dir.destroy();
 			
+			var origin = ( org ) ? org : self.me.currentLocation;
+			
 			var request = {
-				origin: self.me.currentLocation,
+				origin: origin,
 				destination: new google.maps.LatLng(lat, lng),
 				travelMode: dir.mode,
 				provideRouteAlternatives:true
@@ -960,15 +960,22 @@ function main()
 		},
 		getData:function(button)
 		{
-			var container = $("#working-panel"), row, shown = false;
+			var container, row, shown = false;
+			
+			container = $.ninja.dialog({
+				html: ''
+			}).detach(function () {
+				
+			});
 			
 			if( store.has_storage && window.localStorage.length)
 			{
 				var len = window.localStorage.length, objs;
 				
+				container.attach().hide();
+				
 				for(var i=0; i<len;i++)
 				{
-					console.log( "index::: "+i)
 					store.stored[i]={};
 					store.stored[i].key = window.localStorage.key(i);
 					store.stored[i].obj = window.localStorage.getObject( store.stored[i].key );
@@ -979,10 +986,11 @@ function main()
 						container.append( row ).fadeIn(400, function(){
 							shown = true;
 						});
-						row.click(function(){
-							Directions.init();
-							console.log( "index then " + i );
-							//dir.directionDisplay.setDirections( store.stored[i].obj );
+						row.bind('click', {index:i}, function(event){
+							//Directions.init();
+							var i = event.data.index;
+							console.log( store.stored[i].obj );
+							//dir.calculateRoute( latFine, lngFine, latLng(origin, origin) );
 						});
 					}
 				}
