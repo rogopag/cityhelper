@@ -43,7 +43,7 @@ function main()
 				ViewController.init(self.mng);
 				self.manageZoom(o, self.mng);
 				MainViewController.init();
-				DirectionsViewController.init();
+				DirectionsViewController.init(self.mng);
 				SessionStorageController.init();
 				SetCenterOnMe.init();
 				LayoutFixes.init();
@@ -82,7 +82,8 @@ function main()
 						position: self.me.currentLocation, 
 						map: self.map, 
 						title:"Here I am",
-						icon:image
+						icon:image,
+						zIndex:google.maps.Marker.MAX_ZINDEX
 					});
 					circle_options = {
 						strokeColor: "#FF0000",
@@ -573,6 +574,12 @@ function main()
 			{
 				view.dialogs_open.push( drawer );
 			}	
+		},
+		purge_open:function(el)
+		{
+			$(el).children(".nui-try").slideUp('fast', function(){
+				$(this).prev().removeClass('nui-slc')
+			});
 		}
 	};
 	var Directions = {
@@ -652,16 +659,20 @@ function main()
 		optionsSelect:null,
 		button:null,
 		isSearchingForDirection:false,
-		isBike:null,
-		isBikeSelect:null,
 		isCar:null,
 		isCarSelect:null,
 		isFeet:null,
 		isFeetSelect:null,
-		init: function()
+		dialog:null,
+		mngs:null,
+		buttons:[],
+		mng:{},
+		init: function(mng)
 		{
-			dircontrol = this
+			dircontrol = this;
+			dircontrol.mngs = mng;
 			dircontrol.setSelectLayer();
+			dircontrol.enableDisableLayerView();
 		},
 		setSelectLayer: function()
 		{
@@ -723,11 +734,11 @@ function main()
 			dircontrol.isMore = $.ninja.button({
 				html: 'Opzioni percorso'
 				}).select(function(){
-					dircontrol.purgeCssClass( dircontrol.isMore );
-					dir.switchMode(2);
+					$(this).removeClass('nui-slc');
+					view.purge_open( dircontrol.options );
+					dircontrol.dialog.attach();
 					return false;
 				}).deselect(function(){
-					dir.switchMode(1);
 					return false;
 				}),
 			dircontrol.isMoreSelect = $.ninja.button({
@@ -736,9 +747,71 @@ function main()
 			});	
 			
 		},
+		enableDisableLayerView:function()
+		{
+			dircontrol.dialog = $.ninja.dialog({
+				html: ''
+			}).detach(function () {
+				
+			});
+			
+			dircontrol.addButtons();
+			
+			$.each(dircontrol.buttons, function(key, value)
+			{
+				for( var key in value)
+				{
+					
+					$(dircontrol.dialog).append( value[key].el );
+				}
+			});
+		},
+		addButtons:function()
+		{
+			var count = 0, cluster;
+
+			$.each(dircontrol.mngs, function(key, value){
+				self.mng[key].mng = value;
+				dircontrol.buttons[count] = {};
+				dircontrol.buttons[count][key] = {};
+				dircontrol.buttons[count][key].name = key;
+				dircontrol.buttons[count][key].el = $.ninja.button({
+					html: dircontrol.buttons[count][key].name,
+					select: !( 'hide' in self.mng[key].mng )
+					}).deselect(function(){
+						if( 'hide' in self.mng[key].mng )
+						{
+							self.trafficLayer.hide();
+						}
+						else
+						{
+							self.mng[key].cluster = self.mng[key].mng.getMarkers()
+							self.mng[key].mng.clearMarkers();
+						}
+
+					}).select(function(){
+						if( 'hide' in self.mng[key].mng)
+						{
+							self.trafficLayer.setMap(self.map);
+						}
+						else
+						{
+							self.mng[key].mng.addMarkers(self.mng[key].cluster);
+							self.mng[key].mng.repaint();
+						}
+					}),
+				dircontrol.buttons[count][key].sel = $.ninja.button({
+					html: 'Selected',
+					select: false
+				});
+				//console.log( dircontrol.key.el );
+				$(dircontrol.buttons[count][key].el).addClass(dircontrol.buttons[count][key].name+"-button");
+				count++;
+			});
+		},
 		purgeCssClass:function(el)
 		{
-			var elements = [dircontrol.isFeet, dircontrol.isCar];
+			var elements = [dircontrol.isFeet, dircontrol.isCar, dircontrol.isMore];
 			$.each(elements, function(key, value){
 				if(value != el)
 				{
@@ -982,16 +1055,17 @@ function main()
 				html: '<div class="open"></div>',
 				value: ''
 			}).deselect(function(){
-				
+				view.controlOtherDrawers(this);
 			}).select(function(){
-			
+				view.controlOtherDrawers(this);
 			}),
 			mainview.optionsSelect = $.ninja.drawer({
 				html: '',
 				value: 'Selected'
 			});
 			mainview.displayMap = $.ninja.button({
-				html: 'Salva'
+				html: 'Mappa',
+				select:true
 				}).select(function(){
 					
 				}).deselect(function(){
@@ -1002,7 +1076,7 @@ function main()
 				select: true
 			});
 			mainview.displayList = $.ninja.button({
-				html: 'Carica'
+				html: 'Lista'
 				}).select(function(){
 					
 				}).deselect(function(){
@@ -1013,7 +1087,7 @@ function main()
 				select: true
 			});
 			mainview.displayTwin = $.ninja.button({
-				html: 'Carica'
+				html: 'Combined'
 				}).select(function(){
 					
 				}).deselect(function(){
