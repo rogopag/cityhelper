@@ -2,6 +2,8 @@
 ** to do: add resets
 */
 
+@import "reset.css";
+
 /* 
 ** general //////////////////////////////////////
 */
@@ -137,11 +139,19 @@ body {
 #mainbar div.nui-try button.nui-btn {
 	background: none;
 	color: white;
-	height: 50px;
+	height: 48px;
 	text-shadow: none;
+	font: bold .9em/1em "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+	text-indent: 20px;
+	border-top: 1px solid #3b210a;
+	border-bottom: 1px solid #220d00;
+}
+#mainbar div.nui-try button.nui-btn:first-child {
+	border-top-color: #301300;
 }
 #mainbar div.nui-try button.nui-slc {
-	background: #473f12;
+	border-left: 10px solid #aeed63;
+	text-indent: 10px;
 }
 
 
@@ -169,6 +179,9 @@ div#loading-gif {
 	height:100px;
 	overflow:hidden;
 }
+
+
+
 
 /* 
 ** media calls //////////////////////////////////

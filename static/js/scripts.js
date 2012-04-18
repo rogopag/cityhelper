@@ -478,7 +478,8 @@ function main()
 				html: '',
 				select: true,
 				value: 'Selected'
-			});
+			});		
+			
 			view.options.addClass("hide-show-layers");
 			
 			$.each(view.mngs, function(key, value){
@@ -638,7 +639,7 @@ function main()
 		{
 			dircontrol.addButton();
 			$('div.bt_5 span').append(dircontrol.options);
-			$('div.bt_5 div.open').append(/*dircontrol.isBike, */dircontrol.isCar, dircontrol.isFeet);
+			$('div.bt_5 div.open').append(/*dircontrol.isBike, */dircontrol.isCar, dircontrol.isFeet, dircontrol.isMore);
 		},
 		addButton: function()
 		{		
@@ -704,6 +705,22 @@ function main()
 				html: 'Selected',
 				select: true
 			});
+			
+			dircontrol.isMore = $.ninja.button({
+				html: 'Opzioni percorso'
+				}).select(function(){
+					dircontrol.purgeCssClass( dircontrol.isMore );
+					dir.switchMode(2);
+					return false;
+				}).deselect(function(){
+					dir.switchMode(1);
+					return false;
+				}),
+			dircontrol.isMoreSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});	
+			
 		},
 		purgeCssClass:function(el)
 		{
