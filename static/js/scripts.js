@@ -6,7 +6,7 @@ jQuery(function($){
 
 function main()
 {
-	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, search = null, searchController = null, layout = null;
+	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, search = null, searchController = null, layout = null, mainview = null;
 	
 	var Program = {
 		map : null,
@@ -22,6 +22,7 @@ function main()
 		trafficLayer:null,
 		trafficData:null,
 		has_infobox_open:false,
+		center_on_me:false,
 		init:function()
 		{
 			var o;
@@ -41,9 +42,10 @@ function main()
 				self.mng = self.draw_markers(o);
 				ViewController.init(self.mng);
 				self.manageZoom(o, self.mng);
+				MainViewController.init();
 				DirectionsViewController.init();
 				SessionStorageController.init();
-				SearchPlacesController.init();
+				SetCenterOnMe.init();
 				LayoutFixes.init();
 			});	
 		},
@@ -57,6 +59,7 @@ function main()
 					self.me.startlat = startPos.coords.latitude;
 					self.me.startlng = startPos.coords.longitude;
 					self.me.startLocation = new google.maps.LatLng(self.me.startlat, self.me.startlng), size = self.map.getZoom();
+				
 				//	self.map.setCenter(startLocation);
 				},
 				function(error) {
@@ -71,8 +74,8 @@ function main()
 				var size = self.map.getZoom(), image, circle_options, circle;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
-				//console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
-
+				console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
+				
 				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
 				{
 					self.me.marker = new google.maps.Marker({
@@ -98,6 +101,10 @@ function main()
 					self.me.marker.setPosition( self.me.currentLocation );
 					self.me.circle.setCenter( self.me.currentLocation );
 					self.me.circle.setRadius( self.me.RADIUS / self.map.getZoom() );
+				}
+				if( self.center_on_me )
+				{
+					self.map.setCenter( self.me.currentLocation );
 				}
 			},
 				function(error) 
@@ -231,11 +238,28 @@ function main()
 		},
 		manage_info_box:function(o)
 		{
-			var obj = o, infoBox, infoBoxOptions, boxBox = document.createElement("div"), info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>');
+			var obj = o, infoBox, infoBoxOptions, boxBox = document.createElement("div"), info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect;
 			
-			console.log(obj);
+			
+			button = $.ninja.button({
+				html: 'Percorso',
+				select:true
+				}).select(function(){
+					Direction.init();
+					
+					return false;
+				}).deselect(function(){
+					console.log("Deselect");
+					return false;
+				}),
+			buttonSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+			
 			info.text(obj.name);
-			action.text("foo");
+			action.append(button);
+			
 			$(boxBox).append(info, action);
 			
 			var infoBoxOptions = {
@@ -603,7 +627,6 @@ function main()
 			        dir.directionDisplay.setDirections(response);
 					dir.hasDirection = true;
 					dir.save = response;
-					console.log( dir.save );
 			      }
 			    });
 		},
@@ -665,21 +688,7 @@ function main()
 				value: 'Selected'
 			});
 			dircontrol.options.addClass('directions-control-button');
-			
-		/*	dircontrol.isBike = $.ninja.button({
-				html: 'Bicicletta'
-				}).select(function(){
-					dircontrol.purgeCssClass( dircontrol.isBike );
-					dir.switchMode(0);
-					return false;
-				}).deselect(function(){
-					dir.switchMode(1);
-					return false;
-				}),
-			dircontrol.isBikeSelect = $.ninja.button({
-				html: 'Selected',
-				select: true
-			});*/
+
 			dircontrol.isCar = $.ninja.button({
 				html: 'Auto',
 				select:true
@@ -900,7 +909,107 @@ function main()
 			});
 		}
 	};
-	var SearchPlacesController = {
+	var SetCenterOnMe = {
+		options:null,
+		optionsSelect:null,
+		init:function()
+		{
+			setcenteronme = this;
+			setcenteronme.setSelectLayer();
+		},
+		setSelectLayer: function()
+		{
+			setcenteronme.addButton();	
+			$('div.bt_1 span').append(setcenteronme.options);
+		},
+		addButton:function()
+		{
+			//add html:'<div class="open"></div>' to have a placeholder for submenu items
+			setcenteronme.options = $.ninja.button({
+				html: '',
+				value: ''
+			}).select(function(){
+				self.center_on_me = true;
+			}).deselect(function(){
+				self.center_on_me = false;
+			}),
+			setcenteronme.optionsSelect = $.ninja.button({
+				html: '',
+				value: 'Selected'
+			});
+		}
+	};
+	var MainViewController = {
+		options:null,
+		optionsSelect:null,
+		displayMap:null,
+		displayMapSelect:null,
+		displayList:null,
+		displayListSelect:null,
+		displayTwin:null,
+		displayTwinSelect:null,
+		init:function()
+		{
+			mainview = this;
+			mainview.setSelectLayer();
+		},
+		setSelectLayer: function()
+		{
+			mainview.addButton();
+			$('div.bt_3 span').append(mainview.options);
+			$('div.bt_3 div.open').append(mainview.displayMap, mainview.displayList, mainview.displayTwin);
+		},
+		addButton:function()
+		{
+			mainview.options = $.ninja.drawer({
+				html: '<div class="open"></div>',
+				value: ''
+			}).deselect(function(){
+				
+			}).select(function(){
+			
+			}),
+			mainview.optionsSelect = $.ninja.drawer({
+				html: '',
+				value: 'Selected'
+			});
+			mainview.displayMap = $.ninja.button({
+				html: 'Salva'
+				}).select(function(){
+					
+				}).deselect(function(){
+					
+				}),
+			mainview.displayMapSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+			mainview.displayList = $.ninja.button({
+				html: 'Carica'
+				}).select(function(){
+					
+				}).deselect(function(){
+					
+				}),
+			mainview.displayListSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+			mainview.displayTwin = $.ninja.button({
+				html: 'Carica'
+				}).select(function(){
+					
+				}).deselect(function(){
+					
+				}),
+			mainview.displayTwinSelect = $.ninja.button({
+				html: 'Selected',
+				select: true
+			});
+		}	
+	};
+	
+	/*var SearchPlacesController = {
 		options:null,
 		optionsSelect:null,
 		getClosestPharma:null,
@@ -1002,7 +1111,7 @@ function main()
 				});
 			}
 		}
-	};
+	};*/
 	var LayoutFixes = {
 		init:function()
 		{
@@ -1017,6 +1126,7 @@ function main()
 			}
 		}
 	};
+
 	Program.init();
 };
 Storage.prototype.setObject = function(key, value) {
