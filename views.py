@@ -40,7 +40,7 @@ class HomePage(View):
 		self.pharma = serializers.serialize('python', Pharma.objects.all())
 		self.hospitals = serializers.serialize('python', Hospital.objects.all())
 		self.veterinarians = serializers.serialize('python', Veterinarian.objects.all())
-		print >> sys.stderr, '%s' % self.parkings		
+		#print >> sys.stderr, '%s' % self.parkings		
 		response = {'pharma' : self.pharma, 'parkings' : self.parkings, 'traffic' : self.traffic, 'hospitals' : self.hospitals, 'veterinarians':self.veterinarians}
 		return HttpResponse( json.dumps(response), content_type="application/json", mimetype='application/json' )
 	

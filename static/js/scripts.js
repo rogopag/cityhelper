@@ -12,7 +12,8 @@ function main()
 		map : null,
 		d : null,
 		objects : {},
-		ZOOM: 12,
+		ZOOM: 13,
+		clusterMaxZoom:16,
 		mng: null,
 		icons: {},
 		me: {},
@@ -124,7 +125,7 @@ function main()
 				self.me.marker.setIcon(image);
 				
 				// sets the new zoom for the assets icons if not clustered
-				for(var key in obj)
+			/*	for(var key in obj)
 				{
 					if( !obj.traffic )
 					{
@@ -136,7 +137,7 @@ function main()
 							obj[key][items].marker.setIcon(image);
 						} //end for
 					}
-				} //end for
+				} *///end for
 			});
 		},
 		hide_managers:function(m)
@@ -180,16 +181,23 @@ function main()
 		},
 		fill_objects : function()
 		{
-			var index = 1, ratio = 1, size = self.map.getZoom(), p;
+			var index = 1, ratio = 1, size = 54/*self.map.getZoom()*/, p;
 			
 			for(var key in self.d)
 			{
 				//console.log( key );
 				self.objects[key] = [];
-				self.icons[key] = LocalSettings.STATIC_URL+'images/' + key + ".png";
+				self.icons[key] = LocalSettings.STATIC_URL+'images/map_icons.png';
 				
 				p = self.switch_parameters(key);
-				image = new google.maps.MarkerImage(self.icons[key],null, null, null, new google.maps.Size(size, size*p.ratio));
+				console.log( )
+				image = new google.maps.MarkerImage(
+					self.icons[key],
+					new google.maps.Size(size, size), 
+					new google.maps.Point(p.icon,0), 
+					new google.maps.Point(0,0)
+					//new google.maps.Size(size, size*p.ratio)
+					);
 				for( var items in self.d[key] )
 				{
 					var current = {}, image;
@@ -273,13 +281,13 @@ function main()
 				case 'pharma':
 				params.index = 1001;
 				params.ratio = 1.5;
-				params.cluster = 54;
+				params.cluster = 38;
 				params.icon = 54;
 				break;
 				case 'parkings':
 				params.index = 1000;
 				params.ratio = 1.5;
-				params.cluster = 108;
+				params.cluster = 76;
 				params.icon = 108;
 				break;
 				case 'traffic':
@@ -291,7 +299,7 @@ function main()
 				case 'veterinarians':
 				params.index = 999;
 				params.ratio = 0.92;
-				params.cluster = 162;
+				params.cluster = 114;
 				params.icon = 162;
 				break;
 			}
@@ -313,15 +321,15 @@ function main()
 			{
 				var styles, params = self.switch_parameters(key);
 				
-				console.log(params.cluster)
+		//		console.log(params.cluster)
 				
 				if( key != 'traffic')
 				{
 					styles = [{
 						url : LocalSettings.STATIC_URL+'images/map_clusters.png',
-						height : 44,
-						width : 44,
-						backgroundPosition:[100,0],
+						height : 38,
+						width : 38,
+						backgroundPosition:[params.cluster,0],
 					//	anchorIcon:[200,0],
 					//	anchor : [17,0],
 						textColor : '#ff0000',
@@ -346,8 +354,8 @@ function main()
 						textSize : 12
 						}*/];
 						//sets MarkerClusters for each group 
-						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:18});
-						console.log( mgr[key].getCalculator() )
+						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:self.clusterMaxZoom});
+				//		console.log( mgr[key].getCalculator() )
 					}
 					else
 					{
