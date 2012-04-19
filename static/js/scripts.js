@@ -6,9 +6,9 @@ jQuery(function($){
 
 function main()
 {
-	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, search = null, searchController = null, layout = null, mainview = null;
+	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, /*search = null, searchController = null,*/ layout = null, mainview = null, Program, ViewController, Directions, DirectionsViewController, SessionStorageController, SessionStorage, SetCenterOnMe, LayoutFixes;
 	
-	var Program = {
+	Program = {
 		map : null,
 		d : null,
 		objects : {},
@@ -16,6 +16,7 @@ function main()
 		clusterMaxZoom:16,
 		mng: null,
 		icons: {},
+		icons_default_size:54,
 		me: {},
 		touch: false,
 		is_not_touch: true,
@@ -38,7 +39,7 @@ function main()
 			self.ajax_populate();
 			self.map = self.drawMap();
 			self.geolocate_me();
-			$('#map_canvas').ajaxComplete(function(event)
+			jQuery("#map_canvas").ajaxComplete(function(event)
 			{
 				o = self.fill_objects()
 				self.mng = self.draw_markers(o);
@@ -73,7 +74,7 @@ function main()
 				self.me.lat = position.coords.latitude;
 				self.me.lng = position.coords.longitude;
 				self.me.currentLocation = new google.maps.LatLng(self.me.lat, self.me.lng)
-				var size = self.map.getZoom(), image, circle_options, circle;
+				var size = self.map.getZoom(), image, circle_options;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
 				//console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
@@ -127,7 +128,7 @@ function main()
 		manageZoom: function(obj, mng)
 		{
 			google.maps.event.addListener(self.map, "zoom_changed", function() {
-				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 ), timeout;
+				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 );
 				if( zoom <= self.ZOOM ) return false;
 				
 				// sets the new zoom for the user's icon
@@ -192,7 +193,7 @@ function main()
 		},
 		fill_objects : function()
 		{
-			var index = 1, ratio = 1, size = 54, p;
+			var index = 1, /*ratio = 1,*/ size = self.icons_default_size, p;
 			
 			for(var key in self.d)
 			{
@@ -400,7 +401,7 @@ function main()
 		},
 		ajax_populate: function()
 		{
-			obj = {'do' : 'something'};
+			var obj = {'do' : 'something'};
 			
 			$.ajax({  
 				type: 'post',
@@ -449,17 +450,13 @@ function main()
 		  	},0);
 		},	
 	};
-	var ViewController = {
+	ViewController = {
 		options:null,
 		optionsSelect:null,
 		disabled:null, 
-		traffic:null, 
-		trafficSelect:null, 
-		parkings:null,
-		mngs:null,
-		buttons:null,
-		mng:{},
 		dialogs_open:[],
+		clear_button:null,
+		rows_selected:[], // push menu elements here if you want them to be deselected when another element is selected
 		init: function(mng)
 		{
 			view = this;
@@ -470,14 +467,14 @@ function main()
 		},
 		setSelectLayer: function()
 		{
-			// create elements and their otions
+			// create elements and their options
 			view.addButton();
 			//append elements created to buttons
 			$('div.bt_4 span').append(view.options);
+			$('div.bt_4 span .open').append(view.clear_button);
 		},
 		addButton: function() {
 			/* create drawers */
-			var count = 0, cluster;
 			view.options = $.ninja.drawer({
 				html: '<div class="open"></div>',
 				value: '',
@@ -491,8 +488,16 @@ function main()
 				select: true,
 				value: 'Selected'
 			});		
-			
 			view.options.addClass("hide-show-layers");
+			
+			view.clear_button = $.ninja.button({
+				html: 'Svuota'
+			}).select(function(){
+				if( dir && dir.hasDirection ) dir.destroy();
+				view.purge_open( view.options );
+				view.purgeCssClass( $(this) );
+			});
+			view.rows_selected.push( view.clear_button );
 		},
 		controlOtherDrawers:function( d )
 		{
@@ -523,9 +528,19 @@ function main()
 			$(el).children(".nui-try").slideUp('fast', function(){
 				$(this).prev().removeClass('nui-slc')
 			});
+		},
+		purgeCssClass:function(el)
+		{
+			var elements = view.rows_selected;
+			$.each(elements, function(key, value){
+				if(value != el)
+				{
+					value.removeClass('nui-slc');
+				}
+			});
 		}
 	};
-	var Directions = {
+	Directions = {
 		directionsService: new google.maps.DirectionsService(),
 		directionDisplay:null,
 		origin:null,
@@ -562,15 +577,14 @@ function main()
 		},
 		calculateRoute:function(lat, lng, org)
 		{
+			var origin, request;
 			// if a route is already plotted please erase.
 			
 			if( dir.hasDirection ) dir.destroy();
 			
-			var origin = ( org ) ? org : self.me.currentLocation;
+			origin = ( org ) ? org : self.me.currentLocation;
 			
-			console.log( lat, lng, org );
-			
-			var request = {
+			request = {
 				origin: origin,
 				destination: new google.maps.LatLng(lat, lng),
 				travelMode: dir.mode,
@@ -604,7 +618,7 @@ function main()
 			}
 		}
 	};
-	var DirectionsViewController = {
+	DirectionsViewController = {
 		options: null,
 		optionsSelect:null,
 		button:null,
@@ -655,7 +669,7 @@ function main()
 				html: 'Auto',
 				select:true
 				}).select(function(){
-					dircontrol.purgeCssClass( dircontrol.isCar );
+					view.purgeCssClass( dircontrol.isCar );
 					dir.switchMode(1);
 					return false;
 				}).deselect(function(){
@@ -666,10 +680,13 @@ function main()
 				html: 'Selected',
 				select: true
 			});
+			
+			view.rows_selected.push( dircontrol.isCar );
+			
 			dircontrol.isFeet = $.ninja.button({
 				html: 'Piedi'
 				}).select(function(){
-					dircontrol.purgeCssClass( dircontrol.isFeet );
+					view.purgeCssClass( dircontrol.isFeet );
 					dir.switchMode(2);
 					return false;
 				}).deselect(function(){
@@ -680,6 +697,8 @@ function main()
 				html: 'Selected',
 				select: true
 			});
+			
+			view.rows_selected.push( dircontrol.isFeet );
 			
 			dircontrol.isMore = $.ninja.button({
 				html: 'Opzioni percorso'
@@ -696,6 +715,7 @@ function main()
 				select: true
 			});	
 			
+			view.rows_selected.push( dircontrol.isMore );
 		},
 		enableDisableLayerView:function()
 		{
@@ -718,7 +738,7 @@ function main()
 		},
 		addButtons:function()
 		{
-			var count = 0, cluster;
+			var count = 0/*, cluster*/;
 
 			$.each(dircontrol.mngs, function(key, value){
 				self.mng[key].mng = value;
@@ -759,18 +779,8 @@ function main()
 				count++;
 			});
 		},
-		purgeCssClass:function(el)
-		{
-			var elements = [dircontrol.isFeet, dircontrol.isCar, dircontrol.isMore];
-			$.each(elements, function(key, value){
-				if(value != el)
-				{
-					value.removeClass('nui-slc');
-				}
-			});
-		}
 	};
-	var SessionStorageController = {
+	SessionStorageController = {
 		options:null,
 		optionsSelect:null,
 		saveData:null,
@@ -831,7 +841,7 @@ function main()
 		}
 	};
 	//despite of the name it uses localStorage object
-	var SessionStorage = {
+	SessionStorage = {
 		input:null,
 		button:null,
 		has_form:false,
@@ -920,7 +930,7 @@ function main()
 			
 			if( store.has_storage && window.localStorage.length)
 			{
-				var len = window.localStorage.length, objs;
+				var len = window.localStorage.length;
 				
 				container.attach().hide();
 				
@@ -962,7 +972,7 @@ function main()
 			});
 		}
 	};
-	var SetCenterOnMe = {
+	SetCenterOnMe = {
 		options:null,
 		optionsSelect:null,
 		init:function()
@@ -992,7 +1002,7 @@ function main()
 			});
 		}
 	};
-	var MainViewController = {
+	MainViewController = {
 		options:null,
 		optionsSelect:null,
 		displayMap:null,
@@ -1001,10 +1011,13 @@ function main()
 		displayListSelect:null,
 		displayTwin:null,
 		displayTwinSelect:null,
+		listDialog:null,
+		dialog_open:null,
 		init:function()
 		{
 			mainview = this;
 			mainview.setSelectLayer();
+			mainview.listView();
 		},
 		setSelectLayer: function()
 		{
@@ -1030,7 +1043,8 @@ function main()
 				html: 'Mappa',
 				select:true
 				}).select(function(){
-					
+					view.purgeCssClass( mainview.displayMap );
+					mainview.closeDialog();
 				}).deselect(function(){
 					
 				}),
@@ -1038,10 +1052,13 @@ function main()
 				html: 'Selected',
 				select: true
 			});
+			view.rows_selected.push( mainview.displayMap );
+			
 			mainview.displayList = $.ninja.button({
 				html: 'Lista'
 				}).select(function(){
-					
+					view.purgeCssClass( mainview.displayList );
+					mainview.listDialog.attach();
 				}).deselect(function(){
 					
 				}),
@@ -1049,10 +1066,13 @@ function main()
 				html: 'Selected',
 				select: true
 			});
+			view.rows_selected.push( mainview.displayList );
+			
 			mainview.displayTwin = $.ninja.button({
 				html: 'Combined'
 				}).select(function(){
-					
+					view.purgeCssClass( mainview.displayTwin );
+					mainview.closeDialog();
 				}).deselect(function(){
 					
 				}),
@@ -1060,9 +1080,31 @@ function main()
 				html: 'Selected',
 				select: true
 			});
+			view.rows_selected.push( mainview.displayTwin );
+		},
+		closeDialog:function()
+		{
+			if( mainview.dialog_open )
+			{
+				mainview.listDialog.detach();
+			}
+		},
+		listView:function()
+		{
+			mainview.listDialog = $.ninja.dialog({
+				html:''
+			}).detach(function(){
+				mainview.dialog_open = false;
+			}).attach(function(){
+				mainview.dialog_open = true;
+				if( dir && dir.hasDirection )
+				{
+					dir.directionDisplay.setPanel(this);
+				}
+			});
 		}	
 	};
-	var LayoutFixes = {
+	LayoutFixes = {
 		init:function()
 		{
 			layout = this;
