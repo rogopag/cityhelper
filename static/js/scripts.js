@@ -1100,6 +1100,8 @@ function main()
 				if( dir && dir.hasDirection )
 				{
 					dir.directionDisplay.setPanel(this);
+					view.purge_open( mainview.options );
+					view.purgeCssClass( $(this) );
 				}
 			});
 		}	
