@@ -23,10 +23,12 @@ function main()
 		trafficData:null,
 		has_infobox_open:false,
 		center_on_me:false,
+		infoBox:null,
 		init:function()
 		{
 			var o;
 			self = this;
+			self.hideAddressBar();
 			self.touch = ( typeof window.Touch != 'undefined' ) ? window.Touch : false;
 			self.is_not_touch = ( self.touch ) ?  false : true;
 			self.me.RATIO = 2.07;
@@ -63,7 +65,7 @@ function main()
 				//	self.map.setCenter(startLocation);
 				},
 				function(error) {
-					console.log('Error occurred. Error code: ' + error.code);
+					alert('Error occurred. Error code: ' + error.code);
 				}
 			);
 			/*and then watch it change*/
@@ -74,7 +76,7 @@ function main()
 				var size = self.map.getZoom(), image, circle_options, circle;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
-				console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
+				//console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
 				
 				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
 				{
@@ -110,7 +112,7 @@ function main()
 			},
 				function(error) 
 				{
-					console.log('Error occurred. Error code: ' + error.code);
+					alert('Error occurred. Error code: ' + error.code);
 				}, 
 				{
 					enableHighAccuracy:true, 
@@ -119,7 +121,7 @@ function main()
 				});
 			}
 			else {
-				console.log('Geolocation is not supported for this Browser/OS version yet.');
+				alert('Geolocation is not supported for this Browser/OS version yet.');
 			}
 		},
 		manageZoom: function(obj, mng)
@@ -194,12 +196,12 @@ function main()
 			
 			for(var key in self.d)
 			{
-				//console.log( key );
+				////console.log( key );
 				self.objects[key] = [];
 				self.icons[key] = LocalSettings.STATIC_URL+'images/map_icons.png';
 				
 				p = self.switch_parameters(key);
-				console.log( )
+				//console.log( )
 				image = new google.maps.MarkerImage(
 					self.icons[key],
 					new google.maps.Size(size, size), 
@@ -239,7 +241,8 @@ function main()
 		},
 		manage_info_box:function(o)
 		{
-			var obj = o, infoBox, infoBoxOptions, boxBox = document.createElement("div"), info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect;
+			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect;
+			//we create and append some html
 			button = $.ninja.button({
 				html: 'Percorso',
 				select:( null == dir ) ? false : true
@@ -249,6 +252,7 @@ function main()
 					return false;
 				}).deselect(function(){
 					dir.destroy();
+					if( !obj.has_infoBox && !self.has_infobox_open ) self.infoBox.close();
 					return false;
 				}),
 			buttonSelect = $.ninja.button({
@@ -261,6 +265,7 @@ function main()
 			
 			$(boxBox).append(info, action);
 			
+			//some options for our infoBox
 			var infoBoxOptions = {
 			                 content: boxBox
 			                ,disableAutoPan: false
@@ -274,25 +279,32 @@ function main()
 			                ,pane: "floatPane"
 			                ,enableEventPropagation: false
 			        };
-			
+			//and action!
 			if( !obj.has_infoBox && !self.has_infobox_open )
 			{
-				infoBox = new InfoBox( infoBoxOptions );
-				infoBox.open(self.map, obj.marker);
+				self.infoBox = new InfoBox( infoBoxOptions );
+				self.infoBox.open(self.map, obj.marker);
 				obj.has_infoBox = true;
 				self.has_infobox_open = true;
 				google.maps.event.addListener(self.map, 'click', (function(o, i){
 					return function()
 					{
-						console.log( "tapped "+obj.has_infoBox+" "+i );
+						//console.log( "tapped "+obj.has_infoBox+" "+i );
 						i.close();
 						o.has_infoBox = false;
 						self.has_infobox_open = false;
 					}
-				})(obj, infoBox));
+				})(obj, self.infoBox));
 			}
 			
-			return infoBox;
+			return self.infoBox;
+		},
+		close_info_box:function()
+		{
+			if( self.has_infobox_open )
+			{
+				self.infoBox.close();
+			}
 		},
 		switch_parameters : function(key)
 		{
@@ -349,7 +361,7 @@ function main()
 			{
 				var styles, params = self.switch_parameters(key);
 				
-		//		console.log(params.cluster)
+		//		//console.log(params.cluster)
 				
 				if( key != 'traffic')
 				{
@@ -362,28 +374,10 @@ function main()
 					//	anchor : [17,0],
 						textColor : '#ff0000',
 						textSize : 12
-					},
-				/*	{
-						url : LocalSettings.STATIC_URL+'images/map_clusters.png',
-						height : 44,
-						width : 44,
-						backgroundPosition:[0,0],
-					//	anchor : [22,0],
-						textColor : '#ff0000',
-						textSize : 12
-					},
-					{
-						url : LocalSettings.STATIC_URL+'images/map_clusters.png',
-						height : 54,
-						width : 54,
-						backgroundPosition:[0,0],
-				//		anchor : [27,0],
-						textColor : '#ff0000',
-						textSize : 12
-						}*/];
+					}];
 						//sets MarkerClusters for each group 
 						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:self.clusterMaxZoom});
-				//		console.log( mgr[key].getCalculator() )
+				//		//console.log( mgr[key].getCalculator() )
 					}
 					else
 					{
@@ -402,7 +396,6 @@ function main()
 				
 			}
 			//set the data to data object and substitutes layer to data in obj array
-			
 			return mgr;
 		},
 		ajax_populate: function()
@@ -417,7 +410,7 @@ function main()
 				dataType: 'json',
 				error: function(XMLHttpRequest, textStatus, errorThrown)
 				{  
-					////console.log( textStatus, errorThrown );
+					//////console.log( textStatus, errorThrown );
 				},
 				beforeSend: function(XMLHttpRequest) 
 				{ 
@@ -428,10 +421,10 @@ function main()
 				}, 
 				success: function( response, textStatus, jqXHR )
 				{
-					//////console.log( XMLHttpRequest, textStatus, jqXHR );
+					////////console.log( XMLHttpRequest, textStatus, jqXHR );
 					if( response )
 					{
-						//console.log(response)
+						////console.log(response)
 						self.d = response;
 					}
 				},
@@ -448,6 +441,12 @@ function main()
 		loader_show:function()
 		{
 			$("div#loading-gif").show();
+		},
+		hideAddressBar: function()
+		{
+			setTimeout(function(){
+		    	window.scrollTo(0,1);
+		  	},0);
 		},	
 	};
 	var ViewController = {
@@ -466,9 +465,8 @@ function main()
 			view = this;
 			view.mngs = mng;
 			view.buttons = [];
-			view.hideAddressBar();
 			view.setSelectLayer();
-			//console.log(view.mngs);
+			////console.log(view.mngs);
 		},
 		setSelectLayer: function()
 		{
@@ -476,20 +474,6 @@ function main()
 			view.addButton();
 			//append elements created to buttons
 			$('div.bt_4 span').append(view.options);
-			
-			$.each(view.buttons, function(key, value)
-			{
-				for( var key in value)
-				{
-					$('div.bt_4 div.open').append( value[key].el );
-				}
-			});
-		},
-		hideAddressBar: function()
-		{
-			setTimeout(function(){
-		    	window.scrollTo(0,1);
-		  	},0);
 		},
 		addButton: function() {
 			/* create drawers */
@@ -509,45 +493,6 @@ function main()
 			});		
 			
 			view.options.addClass("hide-show-layers");
-			
-			$.each(view.mngs, function(key, value){
-				self.mng[key].mng = value;
-				view.buttons[count] = {};
-				view.buttons[count][key] = {};
-				view.buttons[count][key].name = key;
-				view.buttons[count][key].el = $.ninja.button({
-					html: view.buttons[count][key].name,
-					select: !( 'hide' in self.mng[key].mng )
-					}).deselect(function(){
-						if( 'hide' in self.mng[key].mng )
-						{
-							self.trafficLayer.hide();
-						}
-						else
-						{
-							self.mng[key].cluster = self.mng[key].mng.getMarkers()
-							self.mng[key].mng.clearMarkers();
-						}
-						
-					}).select(function(){
-						if( 'hide' in self.mng[key].mng)
-						{
-							self.trafficLayer.setMap(self.map);
-						}
-						else
-						{
-							self.mng[key].mng.addMarkers(self.mng[key].cluster);
-							self.mng[key].mng.repaint();
-						}
-					}),
-				view.buttons[count][key].sel = $.ninja.button({
-					html: 'Selected',
-					select: false
-				});
-				//console.log( view.key.el );
-				$(view.buttons[count][key].el).addClass(view.buttons[count][key].name+"-button");
-				count++;
-			});
 		},
 		controlOtherDrawers:function( d )
 		{
@@ -596,7 +541,7 @@ function main()
 		},
 		destroy:function()
 		{
-			console.log("Called destroy");
+			//console.log("Called destroy");
 			dir.directionDisplay.setMap(null);
 		    dir.directionDisplay.setPanel(null);
 			dir.hasDirection = false;
@@ -618,11 +563,12 @@ function main()
 		calculateRoute:function(lat, lng, org)
 		{
 			// if a route is already plotted please erase.
-			console.log("Called calculate route " + dir.hasDirection);
 			
 			if( dir.hasDirection ) dir.destroy();
 			
 			var origin = ( org ) ? org : self.me.currentLocation;
+			
+			console.log( lat, lng, org );
 			
 			var request = {
 				origin: origin,
@@ -634,7 +580,11 @@ function main()
 			      if (status == google.maps.DirectionsStatus.OK) {
 			        dir.directionDisplay.setDirections(response);
 					dir.hasDirection = true;
-					dir.save = response;
+					dir.save = {};
+					dir.save.start_lat = response.routes[0].legs[0].start_location.lat();
+					dir.save.start_lng = response.routes[0].legs[0].start_location.lng();
+					dir.save.end_lat = response.routes[0].legs[0].end_location.lat();
+					dir.save.end_lng = response.routes[0].legs[0].end_location.lng();
 			      }
 			    });
 		},
@@ -804,7 +754,7 @@ function main()
 					html: 'Selected',
 					select: false
 				});
-				//console.log( dircontrol.key.el );
+				////console.log( dircontrol.key.el );
 				$(dircontrol.buttons[count][key].el).addClass(dircontrol.buttons[count][key].name+"-button");
 				count++;
 			});
@@ -987,10 +937,15 @@ function main()
 							shown = true;
 						});
 						row.bind('click', {index:i}, function(event){
-							//Directions.init();
-							var i = event.data.index;
-							console.log( store.stored[i].obj );
-							//dir.calculateRoute( latFine, lngFine, latLng(origin, origin) );
+							if(!dir) Directions.init();
+							var i = event.data.index, o = new google.maps.LatLng(store.stored[i].obj.start_lat, store.stored[i].obj.start_lng);
+							
+							dir.calculateRoute( 
+								store.stored[i].obj.end_lat, 
+								store.stored[i].obj.end_lng, 
+								o
+								);
+								console.log("Clicked")
 						});
 					}
 				}
@@ -1107,110 +1062,6 @@ function main()
 			});
 		}	
 	};
-	
-	/*var SearchPlacesController = {
-		options:null,
-		optionsSelect:null,
-		getClosestPharma:null,
-		getClosestPharmaSelect:null,
-		getClosestHospital:null,
-		getClosestHospitalSelect:null,
-		init:function()
-		{
-			searchController = this;
-			searchController.setSelectLayer();
-			SearchPlaces.init();
-		},
-		setSelectLayer: function()
-		{
-			searchController.addButton();	
-			$('div.bt_1 span').append(searchController.options);
-			$('div.bt_1 span .open').append(searchController.getClosestPharma, searchController.getClosestHospital);
-		},
-		addButton:function()
-		{
-			//add html:'<div class="open"></div>' to have a placeholder for submenu items
-			searchController.options = $.ninja.drawer({
-				html: '<div class="open"></div>',
-				value: ''
-			}).select(function(){
-				view.controlOtherDrawers(this);
-			}).deselect(function(){
-				view.controlOtherDrawers(this);
-			}),
-			searchController.optionsSelect = $.ninja.drawer({
-				html: '',
-				value: 'Selected'
-			});
-			searchController.getClosestPharma = $.ninja.button({
-				html:'Farmacie',
-				value:''
-			}).select(function(){
-				searchController.getClosestHospital.removeClass('nui-slc');
-				search.doSearch(['pharmacy']);
-			}).deselect(function(){
-				
-			}),
-			searchController.getClosestPharmaSelect = $.ninja.button({
-				html: 'Selected',
-				select:true
-			});
-			searchController.getClosestHospital = $.ninja.button({
-				html:'Ospedali',
-				value:''
-			}).select(function(){
-				searchController.getClosestPharma.removeClass('nui-slc');
-				search.doSearch(['hospital', 'health']);
-			}).deselect(function(){
-				
-			}),
-			searchController.getClosestHospitalSelect = $.ninja.button({
-				html: 'Selected',
-				select: true
-			});
-		}
-	}; 
-	var SearchPlaces = {
-		map:null,
-		service:null,
-		infowindow:null,
-		loc:null,
-		input:document.getElementById("places_search"),
-		bounds:null,
-		service:null,
-		init:function()
-		{
-			search = this;
-			search.map = self.map;
-			search.loc = self.me.currentLocation;
-			//search.bounds = search.map.getBounds();
-		},
-		doSearch:function( type )
-		{
-			var t = ( type ) ? type : ['pharmacy', 'hospital'];
-			var listing, request = {
-				location:search.loc,
-				radius: '500',
-				types: t
-			};
-			search.service = new google.maps.places.PlacesService(search.map);
-			search.service.search(request, search.callback);
-			
-		},
-		callback:function(results, status)
-		{
-			if (status == google.maps.places.PlacesServiceStatus.OK)
-			{
-				listing = $('a');
-				$.each( listing, function(key, value){
-					if( typeof $(value).attr('href') != 'undefined' && $(value).attr('href').indexOf('paginegialle') != -1 )
-					{
-						$(value).parent().remove();
-					}
-				});
-			}
-		}
-	};*/
 	var LayoutFixes = {
 		init:function()
 		{
@@ -1219,7 +1070,7 @@ function main()
 		},
 		set_styles:function()
 		{
-			console.log('width: '+$(window).width());
+			//console.log('width: '+$(window).width());
 			if ($(window).width()<=960) {
 				$('div.nui-try').css('width',$(window).width());
 			}
@@ -1228,6 +1079,7 @@ function main()
 
 	Program.init();
 };
+
 Storage.prototype.setObject = function(key, value) {
     this.setItem(key, JSON.stringify(value));
 };
