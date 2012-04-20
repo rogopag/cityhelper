@@ -19,12 +19,12 @@ body {
 	position: fixed;
 	top: 0;
 	left: 0;
-	z-index: 999;
+	z-index: 99;
 	width: 100%;
 	height: 60px;
 	text-align: center;
 	background: #aeed63;
-/*	background: url(../images/site/button_base.png) repeat-x; */
+/*	background: url('../images/site/button_base.png') repeat-x; */
 }
 #mainbar .group {
 	position: absolute;
@@ -60,7 +60,7 @@ body {
 	float: left;
 	height: 100%;
 	text-align: center;
-/*	background: url(../images/site/button_topshadow.png) repeat-x; */
+/*	background: url('../images/site/button_topshadow.png') repeat-x; */
 }
 #mainbar .right .button {
 	float: right;
@@ -87,7 +87,7 @@ body {
 
 #mainbar button.nui-btn {
 	height: 100%;
-	background: url(../images/site/bar_buttons.png) no-repeat;
+	background: url('../images/site/bar_buttons.png') no-repeat;
 }
 #mainbar button.nui-btn,
 #mainbar div.nui-try {
@@ -161,8 +161,59 @@ body {
 
 /* options dialog */
 
-
-
+span.nui-dlg {
+	z-index: 100;
+	border: 0;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	padding: 0;
+}
+span.nui-dlg .title {
+	width: 100%;
+	display: table;
+	height: 50px;
+	text-align: center;
+	background-color: #fff;
+	border-top-left-radius: .4em;
+	border-top-right-radius: .4em;
+	color: #ff6666;
+}
+span.nui-dlg .title h2 {
+	display: table-cell;
+	vertical-align: middle;
+	font-size: .9em;
+	background: url('../images/site/title_shadow.png') no-repeat 50% bottom;
+}
+.nui-dlg .nui-icn {
+	bottom: 0;
+	left: 0;
+	top: auto !important;
+}
+span.nui-dlg button.nui-btn {
+	border: 0;
+	padding: 0;
+	width: 100%;
+	display: block;
+	float: none;
+	height: 48px;
+	background: #ebeaea url('../images/site/list_sel.png') 100% -1px no-repeat;
+	border-top: 1px solid #f5f5f5;
+	border-bottom: 1px solid #e4e3e2;
+	-webkit-border-radius: 0;
+	border-radius: 0;
+	text-shadow: none;
+	text-align: left;
+	text-indent: 20px;
+	color: #2d1500;
+	font-size: .9em;
+	font-weight: bold;
+}
+span.nui-dlg img + button.nui-btn {
+	border-top-color: #ebeaea;
+}
+span.nui-dlg button.nui-slc {
+	background-position: 100% -51px;
+}
 
 
 /* 

@@ -705,20 +705,10 @@ function main()
 			dircontrol.isMore = $.ninja.button({
 				html: 'Opzioni percorso'
 				}).select(function(){			
-				
 					$(this).removeClass('nui-slc');
 					view.purge_open( dircontrol.options );
 					dircontrol.dialog.attach();
-					
-					setTimeout(function(){$('.nui-dlg').css({
-						'width':$(window).width()-50,
-						'height':$(window).height()-50,
-						'top':'10',
-						'background':'red'});
-					}, 2000) 
-					
 					return false;		
-					
 				}).deselect(function(){
 					return false;
 				}),
@@ -732,10 +722,19 @@ function main()
 		enableDisableLayerView:function()
 		{
 			dircontrol.dialog = $.ninja.dialog({
-				html: ''
-			}).detach(function () {
-				
-			});
+               html: ''
+           }).detach(function () {
+	       		$('.nui-dlg span.title').remove();
+
+           }).attach(function(){
+               $('.nui-dlg').css({
+	               	'width':$(window).width()-20,
+	               	'height':$(window).height()-20,
+	               	'top':'10',
+	               	'left':'10',
+	               	'background':'red'
+	              	}).prepend('<span class="title"><h2>Opzioni percorso<h/h2></span>');
+           });
 			
 			dircontrol.addButtons();
 			
