@@ -6,9 +6,9 @@ jQuery(function($){
 
 function main()
 {
-	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, search = null, searchController = null, layout = null, mainview = null;
+	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, /*search = null, searchController = null,*/ layout = null, mainview = null, Program, ViewController, Directions, DirectionsViewController, SessionStorageController, SessionStorage, SetCenterOnMe, LayoutFixes;
 	
-	var Program = {
+	Program = {
 		map : null,
 		d : null,
 		objects : {},
@@ -16,6 +16,7 @@ function main()
 		clusterMaxZoom:16,
 		mng: null,
 		icons: {},
+		icons_default_size:54,
 		me: {},
 		touch: false,
 		is_not_touch: true,
@@ -23,10 +24,12 @@ function main()
 		trafficData:null,
 		has_infobox_open:false,
 		center_on_me:false,
+		infoBox:null,
 		init:function()
 		{
 			var o;
 			self = this;
+			self.hideAddressBar();
 			self.touch = ( typeof window.Touch != 'undefined' ) ? window.Touch : false;
 			self.is_not_touch = ( self.touch ) ?  false : true;
 			self.me.RATIO = 2.07;
@@ -36,14 +39,14 @@ function main()
 			self.ajax_populate();
 			self.map = self.drawMap();
 			self.geolocate_me();
-			$('#map_canvas').ajaxComplete(function(event)
+			jQuery("#map_canvas").ajaxComplete(function(event)
 			{
 				o = self.fill_objects()
 				self.mng = self.draw_markers(o);
 				ViewController.init(self.mng);
 				self.manageZoom(o, self.mng);
 				MainViewController.init();
-				DirectionsViewController.init();
+				DirectionsViewController.init(self.mng);
 				SessionStorageController.init();
 				SetCenterOnMe.init();
 				LayoutFixes.init();
@@ -63,7 +66,7 @@ function main()
 				//	self.map.setCenter(startLocation);
 				},
 				function(error) {
-					console.log('Error occurred. Error code: ' + error.code);
+					alert('Error occurred. Error code: ' + error.code);
 				}
 			);
 			/*and then watch it change*/
@@ -71,10 +74,10 @@ function main()
 				self.me.lat = position.coords.latitude;
 				self.me.lng = position.coords.longitude;
 				self.me.currentLocation = new google.maps.LatLng(self.me.lat, self.me.lng)
-				var size = self.map.getZoom(), image, circle_options, circle;
+				var size = self.map.getZoom(), image, circle_options;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
-				console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
+				//console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
 				
 				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
 				{
@@ -82,7 +85,8 @@ function main()
 						position: self.me.currentLocation, 
 						map: self.map, 
 						title:"Here I am",
-						icon:image
+						icon:image,
+						zIndex:google.maps.Marker.MAX_ZINDEX
 					});
 					circle_options = {
 						strokeColor: "#FF0000",
@@ -109,7 +113,7 @@ function main()
 			},
 				function(error) 
 				{
-					console.log('Error occurred. Error code: ' + error.code);
+					alert('Error occurred. Error code: ' + error.code);
 				}, 
 				{
 					enableHighAccuracy:true, 
@@ -118,13 +122,13 @@ function main()
 				});
 			}
 			else {
-				console.log('Geolocation is not supported for this Browser/OS version yet.');
+				alert('Geolocation is not supported for this Browser/OS version yet.');
 			}
 		},
 		manageZoom: function(obj, mng)
 		{
 			google.maps.event.addListener(self.map, "zoom_changed", function() {
-				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 ), timeout;
+				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 );
 				if( zoom <= self.ZOOM ) return false;
 				
 				// sets the new zoom for the user's icon
@@ -189,16 +193,16 @@ function main()
 		},
 		fill_objects : function()
 		{
-			var index = 1, ratio = 1, size = 54, p;
+			var index = 1, /*ratio = 1,*/ size = self.icons_default_size, p;
 			
 			for(var key in self.d)
 			{
-				//console.log( key );
+				////console.log( key );
 				self.objects[key] = [];
 				self.icons[key] = LocalSettings.STATIC_URL+'images/map_icons.png';
 				
 				p = self.switch_parameters(key);
-				console.log( )
+				//console.log( )
 				image = new google.maps.MarkerImage(
 					self.icons[key],
 					new google.maps.Size(size, size), 
@@ -238,18 +242,18 @@ function main()
 		},
 		manage_info_box:function(o)
 		{
-			var obj = o, infoBox, infoBoxOptions, boxBox = document.createElement("div"), info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect;
-			
-			
+			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect;
+			//we create and append some html
 			button = $.ninja.button({
 				html: 'Percorso',
-				select:true
+				select:( null == dir ) ? false : true
 				}).select(function(){
-					Direction.init();
-					
+					Directions.init();
+					dir.calculateRoute(obj.lat, obj.lng);
 					return false;
 				}).deselect(function(){
-					console.log("Deselect");
+					dir.destroy();
+					if( !obj.has_infoBox && !self.has_infobox_open ) self.infoBox.close();
 					return false;
 				}),
 			buttonSelect = $.ninja.button({
@@ -262,6 +266,7 @@ function main()
 			
 			$(boxBox).append(info, action);
 			
+			//some options for our infoBox
 			var infoBoxOptions = {
 			                 content: boxBox
 			                ,disableAutoPan: false
@@ -275,25 +280,32 @@ function main()
 			                ,pane: "floatPane"
 			                ,enableEventPropagation: false
 			        };
-			
+			//and action!
 			if( !obj.has_infoBox && !self.has_infobox_open )
 			{
-				infoBox = new InfoBox( infoBoxOptions );
-				infoBox.open(self.map, obj.marker);
+				self.infoBox = new InfoBox( infoBoxOptions );
+				self.infoBox.open(self.map, obj.marker);
 				obj.has_infoBox = true;
 				self.has_infobox_open = true;
 				google.maps.event.addListener(self.map, 'click', (function(o, i){
 					return function()
 					{
-						console.log( "tapped "+obj.has_infoBox+" "+i );
+						//console.log( "tapped "+obj.has_infoBox+" "+i );
 						i.close();
 						o.has_infoBox = false;
 						self.has_infobox_open = false;
 					}
-				})(obj, infoBox));
+				})(obj, self.infoBox));
 			}
 			
-			return infoBox;
+			return self.infoBox;
+		},
+		close_info_box:function()
+		{
+			if( self.has_infobox_open )
+			{
+				self.infoBox.close();
+			}
 		},
 		switch_parameters : function(key)
 		{
@@ -350,7 +362,7 @@ function main()
 			{
 				var styles, params = self.switch_parameters(key);
 				
-		//		console.log(params.cluster)
+		//		//console.log(params.cluster)
 				
 				if( key != 'traffic')
 				{
@@ -363,28 +375,10 @@ function main()
 					//	anchor : [17,0],
 						textColor : '#ff0000',
 						textSize : 12
-					},
-				/*	{
-						url : LocalSettings.STATIC_URL+'images/map_clusters.png',
-						height : 44,
-						width : 44,
-						backgroundPosition:[0,0],
-					//	anchor : [22,0],
-						textColor : '#ff0000',
-						textSize : 12
-					},
-					{
-						url : LocalSettings.STATIC_URL+'images/map_clusters.png',
-						height : 54,
-						width : 54,
-						backgroundPosition:[0,0],
-				//		anchor : [27,0],
-						textColor : '#ff0000',
-						textSize : 12
-						}*/];
+					}];
 						//sets MarkerClusters for each group 
 						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:self.clusterMaxZoom});
-				//		console.log( mgr[key].getCalculator() )
+				//		//console.log( mgr[key].getCalculator() )
 					}
 					else
 					{
@@ -403,12 +397,11 @@ function main()
 				
 			}
 			//set the data to data object and substitutes layer to data in obj array
-			
 			return mgr;
 		},
 		ajax_populate: function()
 		{
-			obj = {'do' : 'something'};
+			var obj = {'do' : 'something'};
 			
 			$.ajax({  
 				type: 'post',
@@ -418,7 +411,7 @@ function main()
 				dataType: 'json',
 				error: function(XMLHttpRequest, textStatus, errorThrown)
 				{  
-					////console.log( textStatus, errorThrown );
+					//////console.log( textStatus, errorThrown );
 				},
 				beforeSend: function(XMLHttpRequest) 
 				{ 
@@ -429,10 +422,10 @@ function main()
 				}, 
 				success: function( response, textStatus, jqXHR )
 				{
-					//////console.log( XMLHttpRequest, textStatus, jqXHR );
+					////////console.log( XMLHttpRequest, textStatus, jqXHR );
 					if( response )
 					{
-						//console.log(response)
+						////console.log(response)
 						self.d = response;
 					}
 				},
@@ -449,112 +442,70 @@ function main()
 		loader_show:function()
 		{
 			$("div#loading-gif").show();
-		},	
-	};
-	var ViewController = {
-		options:null,
-		optionsSelect:null,
-		disabled:null, 
-		traffic:null, 
-		trafficSelect:null, 
-		parkings:null,
-		mngs:null,
-		buttons:null,
-		mng:{},
-		dialogs_open:[],
-		init: function(mng)
-		{
-			view = this;
-			view.mngs = mng;
-			view.buttons = [];
-			view.hideAddressBar();
-			view.setSelectLayer();
-			//console.log(view.mngs);
-		},
-		setSelectLayer: function()
-		{
-			// create elements and their otions
-			view.addButton();
-			//append elements created to buttons
-			$('div.bt_4 span').append(view.options);
-			
-			$.each(view.buttons, function(key, value)
-			{
-				for( var key in value)
-				{
-					$('div.bt_4 div.open').append( value[key].el );
-				}
-			});
 		},
 		hideAddressBar: function()
 		{
 			setTimeout(function(){
 		    	window.scrollTo(0,1);
 		  	},0);
+		},	
+	};
+	ViewController = {
+		options:null,
+		optionsSelect:null,
+		disabled:null, 
+		dialogs_open:[],
+		clear_button:null,
+		rows_selected:[], // push menu elements here if you want them to be deselected when another element is selected
+		init: function(mng)
+		{
+			view = this;
+			view.mngs = mng;
+			view.buttons = [];
+			view.setSelectLayer();
+			////console.log(view.mngs);
+		},
+		setSelectLayer: function()
+		{
+			// create elements and their options
+			view.addButton();
+			//append elements created to buttons
+			$('div.bt_4 span').append(view.options);
+			$('div.bt_4 span .open').append(view.clear_button);
 		},
 		addButton: function() {
 			/* create drawers */
-			var count = 0, cluster;
 			view.options = $.ninja.drawer({
 				html: '<div class="open"></div>',
 				value: '',
 			}).select(function(){
-					view.controlOtherDrawers(this);
+					view.controlOtherDrawers(this,  event.target);
 				}).deselect(function(){
-					view.controlOtherDrawers(this);
+					view.controlOtherDrawers(this,  event.target);
 				}),
 			view.optionsSelect = $.ninja.drawer({
 				html: '',
 				select: true,
 				value: 'Selected'
 			});		
-			
 			view.options.addClass("hide-show-layers");
 			
-			$.each(view.mngs, function(key, value){
-				self.mng[key].mng = value;
-				view.buttons[count] = {};
-				view.buttons[count][key] = {};
-				view.buttons[count][key].name = key;
-				view.buttons[count][key].el = $.ninja.button({
-					html: view.buttons[count][key].name,
-					select: !( 'hide' in self.mng[key].mng )
-					}).deselect(function(){
-						if( 'hide' in self.mng[key].mng )
-						{
-							self.trafficLayer.hide();
-						}
-						else
-						{
-							self.mng[key].cluster = self.mng[key].mng.getMarkers()
-							self.mng[key].mng.clearMarkers();
-						}
-						
-					}).select(function(){
-						if( 'hide' in self.mng[key].mng)
-						{
-							self.trafficLayer.setMap(self.map);
-						}
-						else
-						{
-							self.mng[key].mng.addMarkers(self.mng[key].cluster);
-							self.mng[key].mng.repaint();
-						}
-					}),
-				view.buttons[count][key].sel = $.ninja.button({
-					html: 'Selected',
-					select: false
-				});
-				//console.log( view.key.el );
-				$(view.buttons[count][key].el).addClass(view.buttons[count][key].name+"-button");
-				count++;
+			view.clear_button = $.ninja.button({
+				html: 'Svuota'
+			}).select(function(){
+				if( dir && dir.hasDirection ) dir.destroy();
+				view.purge_open( view.options );
+				view.purgeCssClass( $(this) );
 			});
+			view.rows_selected.push( view.clear_button );
 		},
-		controlOtherDrawers:function( d )
+		controlOtherDrawers:function( d, t )
 		{
-			var drawer = d;
+			var drawer = d, target = t;
 			
-			if( view.dialogs_open.length > 0 )
+			if( $(target).parent().attr('class') != $(drawer).attr('class') ) return;
+			
+			if( view.dialogs_open.length == 1 )
 			{
 				if( view.dialogs_open[0] == drawer )
 				{
@@ -563,7 +514,7 @@ function main()
 				else
 				{
 					$( view.dialogs_open[0] ).children(".nui-try").slideUp('fast', function(){
-						$(this).prev().removeClass('nui-slc')
+						$(this).prev().removeClass('nui-slc');
 						view.dialogs_open = [];
 						view.dialogs_open.push( drawer );
 					});
@@ -573,9 +524,25 @@ function main()
 			{
 				view.dialogs_open.push( drawer );
 			}	
+		},
+		purge_open:function(el)
+		{
+			$(el).children(".nui-try").slideUp('fast', function(){
+				$(this).prev().removeClass('nui-slc')
+			});
+		},
+		purgeCssClass:function(el)
+		{
+			var elements = view.rows_selected;
+			$.each(elements, function(key, value){
+				if(value != el)
+				{
+					value.removeClass('nui-slc');
+				}
+			});
 		}
 	};
-	var Directions = {
+	Directions = {
 		directionsService: new google.maps.DirectionsService(),
 		directionDisplay:null,
 		origin:null,
@@ -591,7 +558,7 @@ function main()
 		},
 		destroy:function()
 		{
-			console.log("Called destroy");
+			//console.log("Called destroy");
 			dir.directionDisplay.setMap(null);
 		    dir.directionDisplay.setPanel(null);
 			dir.hasDirection = false;
@@ -610,15 +577,17 @@ function main()
 				}
 			});
 		},
-		calculateRoute:function(lat, lng)
+		calculateRoute:function(lat, lng, org)
 		{
+			var origin, request;
 			// if a route is already plotted please erase.
-			console.log("Called calculate route " + dir.hasDirection);
 			
 			if( dir.hasDirection ) dir.destroy();
 			
-			var request = {
-				origin: self.me.currentLocation,
+			origin = ( org ) ? org : self.me.currentLocation;
+			
+			request = {
+				origin: origin,
 				destination: new google.maps.LatLng(lat, lng),
 				travelMode: dir.mode,
 				provideRouteAlternatives:true
@@ -627,7 +596,11 @@ function main()
 			      if (status == google.maps.DirectionsStatus.OK) {
 			        dir.directionDisplay.setDirections(response);
 					dir.hasDirection = true;
-					dir.save = response;
+					dir.save = {};
+					dir.save.start_lat = response.routes[0].legs[0].start_location.lat();
+					dir.save.start_lng = response.routes[0].legs[0].start_location.lng();
+					dir.save.end_lat = response.routes[0].legs[0].end_location.lat();
+					dir.save.end_lng = response.routes[0].legs[0].end_location.lng();
 			      }
 			    });
 		},
@@ -647,21 +620,25 @@ function main()
 			}
 		}
 	};
-	var DirectionsViewController = {
+	DirectionsViewController = {
 		options: null,
 		optionsSelect:null,
 		button:null,
 		isSearchingForDirection:false,
-		isBike:null,
-		isBikeSelect:null,
 		isCar:null,
 		isCarSelect:null,
 		isFeet:null,
 		isFeetSelect:null,
-		init: function()
+		dialog:null,
+		mngs:null,
+		buttons:[],
+		mng:{},
+		init: function(mng)
 		{
-			dircontrol = this
+			dircontrol = this;
+			dircontrol.mngs = mng;
 			dircontrol.setSelectLayer();
+			dircontrol.enableDisableLayerView();
 		},
 		setSelectLayer: function()
 		{
@@ -677,11 +654,11 @@ function main()
 			}).select(function(){
 				Directions.init();
 				dircontrol.isSearchingForDirection = true;
-				view.controlOtherDrawers(this);
+				view.controlOtherDrawers(this,  event.target);
 			}).deselect(function(){
 				dircontrol.isSearchingForDirection = false;
 				dir.destroy();
-				view.controlOtherDrawers(this);
+				view.controlOtherDrawers(this,  event.target);
 			}),
 			dircontrol.optionsSelect = $.ninja.drawer({
 				html: '',
@@ -694,7 +671,7 @@ function main()
 				html: 'Auto',
 				select:true
 				}).select(function(){
-					dircontrol.purgeCssClass( dircontrol.isCar );
+					view.purgeCssClass( dircontrol.isCar );
 					dir.switchMode(1);
 					return false;
 				}).deselect(function(){
@@ -705,10 +682,13 @@ function main()
 				html: 'Selected',
 				select: true
 			});
+			
+			view.rows_selected.push( dircontrol.isCar );
+			
 			dircontrol.isFeet = $.ninja.button({
 				html: 'Piedi'
 				}).select(function(){
-					dircontrol.purgeCssClass( dircontrol.isFeet );
+					view.purgeCssClass( dircontrol.isFeet );
 					dir.switchMode(2);
 					return false;
 				}).deselect(function(){
@@ -720,14 +700,16 @@ function main()
 				select: true
 			});
 			
+			view.rows_selected.push( dircontrol.isFeet );
+			
 			dircontrol.isMore = $.ninja.button({
 				html: 'Opzioni percorso'
 				}).select(function(){
-					dircontrol.purgeCssClass( dircontrol.isMore );
-					dir.switchMode(2);
+					$(this).removeClass('nui-slc');
+					view.purge_open( dircontrol.options );
+					dircontrol.dialog.attach();
 					return false;
 				}).deselect(function(){
-					dir.switchMode(1);
 					return false;
 				}),
 			dircontrol.isMoreSelect = $.ninja.button({
@@ -735,19 +717,72 @@ function main()
 				select: true
 			});	
 			
+			view.rows_selected.push( dircontrol.isMore );
 		},
-		purgeCssClass:function(el)
+		enableDisableLayerView:function()
 		{
-			var elements = [dircontrol.isFeet, dircontrol.isCar];
-			$.each(elements, function(key, value){
-				if(value != el)
+			dircontrol.dialog = $.ninja.dialog({
+				html: ''
+			}).detach(function () {
+				
+			});
+			
+			dircontrol.addButtons();
+			
+			$.each(dircontrol.buttons, function(key, value)
+			{
+				for( var key in value)
 				{
-					value.removeClass('nui-slc');
+					
+					$(dircontrol.dialog).append( value[key].el );
 				}
 			});
-		}
+		},
+		addButtons:function()
+		{
+			var count = 0/*, cluster*/;
+
+			$.each(dircontrol.mngs, function(key, value){
+				self.mng[key].mng = value;
+				dircontrol.buttons[count] = {};
+				dircontrol.buttons[count][key] = {};
+				dircontrol.buttons[count][key].name = key;
+				dircontrol.buttons[count][key].el = $.ninja.button({
+					html: dircontrol.buttons[count][key].name,
+					select: !( 'hide' in self.mng[key].mng )
+					}).deselect(function(){
+						if( 'hide' in self.mng[key].mng )
+						{
+							self.trafficLayer.hide();
+						}
+						else
+						{
+							self.mng[key].cluster = self.mng[key].mng.getMarkers()
+							self.mng[key].mng.clearMarkers();
+						}
+
+					}).select(function(){
+						if( 'hide' in self.mng[key].mng)
+						{
+							self.trafficLayer.setMap(self.map);
+						}
+						else
+						{
+							self.mng[key].mng.addMarkers(self.mng[key].cluster);
+							self.mng[key].mng.repaint();
+						}
+					}),
+				dircontrol.buttons[count][key].sel = $.ninja.button({
+					html: 'Selected',
+					select: false
+				});
+				////console.log( dircontrol.key.el );
+				$(dircontrol.buttons[count][key].el).addClass(dircontrol.buttons[count][key].name+"-button");
+				count++;
+			});
+		},
 	};
-	var SessionStorageController = {
+	SessionStorageController = {
 		options:null,
 		optionsSelect:null,
 		saveData:null,
@@ -772,12 +807,12 @@ function main()
 				html: '<div class="open"></div>',
 				value: ''
 			}).deselect(function(){
-				view.controlOtherDrawers(this);
+				view.controlOtherDrawers(this,  event.target);
 				$(this).find('button').each(function(){
 					$(this).removeClass('nui-slc');
 				});	
 			}).select(function(){
-				view.controlOtherDrawers(this);
+				view.controlOtherDrawers(this,  event.target);
 			}),
 			storecontrol.optionsSelect = $.ninja.drawer({
 				html: '',
@@ -808,7 +843,7 @@ function main()
 		}
 	};
 	//despite of the name it uses localStorage object
-	var SessionStorage = {
+	SessionStorage = {
 		input:null,
 		button:null,
 		has_form:false,
@@ -887,15 +922,22 @@ function main()
 		},
 		getData:function(button)
 		{
-			var container = $("#working-panel"), row, shown = false;
+			var container, row, shown = false;
+			
+			container = $.ninja.dialog({
+				html: ''
+			}).detach(function () {
+				
+			});
 			
 			if( store.has_storage && window.localStorage.length)
 			{
-				var len = window.localStorage.length, objs;
+				var len = window.localStorage.length;
+				
+				container.attach().hide();
 				
 				for(var i=0; i<len;i++)
 				{
-					console.log( "index::: "+i)
 					store.stored[i]={};
 					store.stored[i].key = window.localStorage.key(i);
 					store.stored[i].obj = window.localStorage.getObject( store.stored[i].key );
@@ -906,10 +948,16 @@ function main()
 						container.append( row ).fadeIn(400, function(){
 							shown = true;
 						});
-						row.click(function(){
-							Directions.init();
-							console.log( "index then " + i );
-							//dir.directionDisplay.setDirections( store.stored[i].obj );
+						row.bind('click', {index:i}, function(event){
+							if(!dir) Directions.init();
+							var i = event.data.index, o = new google.maps.LatLng(store.stored[i].obj.start_lat, store.stored[i].obj.start_lng);
+							
+							dir.calculateRoute( 
+								store.stored[i].obj.end_lat, 
+								store.stored[i].obj.end_lng, 
+								o
+								);
+								console.log("Clicked")
 						});
 					}
 				}
@@ -926,7 +974,7 @@ function main()
 			});
 		}
 	};
-	var SetCenterOnMe = {
+	SetCenterOnMe = {
 		options:null,
 		optionsSelect:null,
 		init:function()
@@ -956,7 +1004,7 @@ function main()
 			});
 		}
 	};
-	var MainViewController = {
+	MainViewController = {
 		options:null,
 		optionsSelect:null,
 		displayMap:null,
@@ -965,10 +1013,13 @@ function main()
 		displayListSelect:null,
 		displayTwin:null,
 		displayTwinSelect:null,
+		listDialog:null,
+		dialog_open:null,
 		init:function()
 		{
 			mainview = this;
 			mainview.setSelectLayer();
+			mainview.listView();
 		},
 		setSelectLayer: function()
 		{
@@ -981,19 +1032,21 @@ function main()
 			mainview.options = $.ninja.drawer({
 				html: '<div class="open"></div>',
 				value: ''
-			}).deselect(function(){
-				
-			}).select(function(){
-			
+			}).deselect(function(event){
+				view.controlOtherDrawers(this,  event.target);
+			}).select(function(event){
+				view.controlOtherDrawers(this,  event.target);
 			}),
 			mainview.optionsSelect = $.ninja.drawer({
 				html: '',
 				value: 'Selected'
 			});
 			mainview.displayMap = $.ninja.button({
-				html: 'Salva'
+				html: 'Mappa',
+				select:true
 				}).select(function(){
-					
+					view.purgeCssClass( mainview.displayMap );
+					mainview.closeDialog();
 				}).deselect(function(){
 					
 				}),
@@ -1001,10 +1054,21 @@ function main()
 				html: 'Selected',
 				select: true
 			});
+			view.rows_selected.push( mainview.displayMap );
+			
 			mainview.displayList = $.ninja.button({
-				html: 'Carica'
+				html: 'Lista'
 				}).select(function(){
-					
+					if( dir && dir.hasDirection )
+					{
+						view.purgeCssClass( mainview.displayList );
+						mainview.listDialog.attach();
+					}
+					else
+					{
+						alert("Crea un percorso per visualizzarne i passi");
+						$(this).removeClass('nui-slc');
+					}
 				}).deselect(function(){
 					
 				}),
@@ -1012,10 +1076,13 @@ function main()
 				html: 'Selected',
 				select: true
 			});
+			view.rows_selected.push( mainview.displayList );
+			
 			mainview.displayTwin = $.ninja.button({
-				html: 'Carica'
+				html: 'Combined'
 				}).select(function(){
-					
+					view.purgeCssClass( mainview.displayTwin );
+					mainview.closeDialog();
 				}).deselect(function(){
 					
 				}),
@@ -1023,113 +1090,33 @@ function main()
 				html: 'Selected',
 				select: true
 			});
+			view.rows_selected.push( mainview.displayTwin );
+		},
+		closeDialog:function()
+		{
+			if( mainview.dialog_open )
+			{
+				mainview.listDialog.detach();
+			}
+		},
+		listView:function()
+		{
+			mainview.listDialog = $.ninja.dialog({
+				html:''
+			}).detach(function(){
+				mainview.dialog_open = false;
+			}).attach(function(){
+				mainview.dialog_open = true;
+				if( dir && dir.hasDirection )
+				{
+					dir.directionDisplay.setPanel(this);
+					view.purge_open( mainview.options );
+					view.purgeCssClass( $(this) );
+				}
+			});
 		}	
 	};
-	
-	/*var SearchPlacesController = {
-		options:null,
-		optionsSelect:null,
-		getClosestPharma:null,
-		getClosestPharmaSelect:null,
-		getClosestHospital:null,
-		getClosestHospitalSelect:null,
-		init:function()
-		{
-			searchController = this;
-			searchController.setSelectLayer();
-			SearchPlaces.init();
-		},
-		setSelectLayer: function()
-		{
-			searchController.addButton();	
-			$('div.bt_1 span').append(searchController.options);
-			$('div.bt_1 span .open').append(searchController.getClosestPharma, searchController.getClosestHospital);
-		},
-		addButton:function()
-		{
-			//add html:'<div class="open"></div>' to have a placeholder for submenu items
-			searchController.options = $.ninja.drawer({
-				html: '<div class="open"></div>',
-				value: ''
-			}).select(function(){
-				view.controlOtherDrawers(this);
-			}).deselect(function(){
-				view.controlOtherDrawers(this);
-			}),
-			searchController.optionsSelect = $.ninja.drawer({
-				html: '',
-				value: 'Selected'
-			});
-			searchController.getClosestPharma = $.ninja.button({
-				html:'Farmacie',
-				value:''
-			}).select(function(){
-				searchController.getClosestHospital.removeClass('nui-slc');
-				search.doSearch(['pharmacy']);
-			}).deselect(function(){
-				
-			}),
-			searchController.getClosestPharmaSelect = $.ninja.button({
-				html: 'Selected',
-				select:true
-			});
-			searchController.getClosestHospital = $.ninja.button({
-				html:'Ospedali',
-				value:''
-			}).select(function(){
-				searchController.getClosestPharma.removeClass('nui-slc');
-				search.doSearch(['hospital', 'health']);
-			}).deselect(function(){
-				
-			}),
-			searchController.getClosestHospitalSelect = $.ninja.button({
-				html: 'Selected',
-				select: true
-			});
-		}
-	}; 
-	var SearchPlaces = {
-		map:null,
-		service:null,
-		infowindow:null,
-		loc:null,
-		input:document.getElementById("places_search"),
-		bounds:null,
-		service:null,
-		init:function()
-		{
-			search = this;
-			search.map = self.map;
-			search.loc = self.me.currentLocation;
-			//search.bounds = search.map.getBounds();
-		},
-		doSearch:function( type )
-		{
-			var t = ( type ) ? type : ['pharmacy', 'hospital'];
-			var listing, request = {
-				location:search.loc,
-				radius: '500',
-				types: t
-			};
-			search.service = new google.maps.places.PlacesService(search.map);
-			search.service.search(request, search.callback);
-			
-		},
-		callback:function(results, status)
-		{
-			if (status == google.maps.places.PlacesServiceStatus.OK)
-			{
-				listing = $('a');
-				$.each( listing, function(key, value){
-					if( typeof $(value).attr('href') != 'undefined' && $(value).attr('href').indexOf('paginegialle') != -1 )
-					{
-						$(value).parent().remove();
-					}
-				});
-			}
-		}
-	};*/
-	var LayoutFixes = {
+	LayoutFixes = {
 		init:function()
 		{
 			layout = this;
@@ -1137,7 +1124,7 @@ function main()
 		},
 		set_styles:function()
 		{
-			console.log('width: '+$(window).width());
+			//console.log('width: '+$(window).width());
 			if ($(window).width()<=960) {
 				$('div.nui-try').css('width',$(window).width());
 			}
@@ -1146,6 +1133,7 @@ function main()
 
 	Program.init();
 };
+
 Storage.prototype.setObject = function(key, value) {
     this.setItem(key, JSON.stringify(value));
 };
