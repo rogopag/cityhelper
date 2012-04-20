@@ -6,7 +6,7 @@ jQuery(function($){
 
 function main()
 {
-	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, /*search = null, searchController = null,*/ layout = null, mainview = null, Program, ViewController, Directions, DirectionsViewController, SessionStorageController, SessionStorage, SetCenterOnMe, LayoutFixes;
+	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, /*search = null, searchController = null,*/ layout = null, mainview = null, Program, ViewController, Directions, DirectionsViewController, SessionStorageController, SessionStorage, SetCenterOnMe, LayoutFixes, CombinedView, combined = null;
 	
 	Program = {
 		map : null,
@@ -50,6 +50,7 @@ function main()
 				SessionStorageController.init();
 				SetCenterOnMe.init();
 				LayoutFixes.init();
+				CombinedView.init();
 			});	
 		},
 		geolocate_me:function()
@@ -651,11 +652,11 @@ function main()
 			dircontrol.options = $.ninja.drawer({
 				html: '<div class="open"></div>',
 				value: ''
-			}).select(function(){
+			}).select(function(event){
 				Directions.init();
 				dircontrol.isSearchingForDirection = true;
 				view.controlOtherDrawers(this,  event.target);
-			}).deselect(function(){
+			}).deselect(function(event){
 				dircontrol.isSearchingForDirection = false;
 				dir.destroy();
 				view.controlOtherDrawers(this,  event.target);
@@ -1015,6 +1016,9 @@ function main()
 		displayTwinSelect:null,
 		listDialog:null,
 		dialog_open:null,
+		div:$("#working-panel"),
+		map_div:$("#map_canvas"),
+		is_combined: false,
 		init:function()
 		{
 			mainview = this;
@@ -1045,6 +1049,7 @@ function main()
 				html: 'Mappa',
 				select:true
 				}).select(function(){
+					if( mainview.is_combined) mainview.combinedHide();
 					view.purgeCssClass( mainview.displayMap );
 					mainview.closeDialog();
 				}).deselect(function(){
@@ -1061,6 +1066,7 @@ function main()
 				}).select(function(){
 					if( dir && dir.hasDirection )
 					{
+						if( mainview.is_combined) mainview.combinedHide();
 						view.purgeCssClass( mainview.displayList );
 						mainview.listDialog.attach();
 					}
@@ -1083,8 +1089,9 @@ function main()
 				}).select(function(){
 					view.purgeCssClass( mainview.displayTwin );
 					mainview.closeDialog();
+					mainview.combinedView();
 				}).deselect(function(){
-					
+					mainview.combinedHide();
 				}),
 			mainview.displayTwinSelect = $.ninja.button({
 				html: 'Selected',
@@ -1097,6 +1104,37 @@ function main()
 			if( mainview.dialog_open )
 			{
 				mainview.listDialog.detach();
+			}
+		},
+		combinedShow:function(w)
+		{
+			var what = w;
+			mainview.div.slideDown(function(){
+				mainview.map_div.css('height', '50%');
+				mainview.is_combined = true;
+				if( what )
+				{
+					dir.directionDisplay.setPanel(this);
+				}
+			});
+		},
+		combinedHide:function()
+		{
+			mainview.div.slideUp(function(what){
+				mainview.map_div.css('height', '100%');
+				mainview.is_combined = false;
+				mainview.displayTwin.removeClass('nui-slc');
+			});
+		},
+		combinedView:function()
+		{
+			if( dir && dir.hasDirection )
+			{
+				mainview.combinedShow(true);
+			}
+			else
+			{
+				mainview.combinedShow(false);
 			}
 		},
 		listView:function()
@@ -1116,6 +1154,18 @@ function main()
 			});
 		}	
 	};
+	CombinedView = {
+		origin:null,
+		dstination:null,
+		o_input:null,
+		d_input:null,
+		w_inputs:[],
+		init:function()
+		{
+			combined = this;
+		},
+		
+	};	
 	LayoutFixes = {
 		init:function()
 		{
