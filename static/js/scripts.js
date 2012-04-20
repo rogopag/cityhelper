@@ -479,9 +479,9 @@ function main()
 				html: '<div class="open"></div>',
 				value: '',
 			}).select(function(){
-					view.controlOtherDrawers(this);
+					view.controlOtherDrawers(this,  event.target);
 				}).deselect(function(){
-					view.controlOtherDrawers(this);
+					view.controlOtherDrawers(this,  event.target);
 				}),
 			view.optionsSelect = $.ninja.drawer({
 				html: '',
@@ -499,11 +499,13 @@ function main()
 			});
 			view.rows_selected.push( view.clear_button );
 		},
-		controlOtherDrawers:function( d )
+		controlOtherDrawers:function( d, t )
 		{
-			var drawer = d;
+			var drawer = d, target = t;
 			
-			if( view.dialogs_open.length > 0 )
+			if( $(target).parent().attr('class') != $(drawer).attr('class') ) return;
+			
+			if( view.dialogs_open.length == 1 )
 			{
 				if( view.dialogs_open[0] == drawer )
 				{
@@ -512,7 +514,7 @@ function main()
 				else
 				{
 					$( view.dialogs_open[0] ).children(".nui-try").slideUp('fast', function(){
-						$(this).prev().removeClass('nui-slc')
+						$(this).prev().removeClass('nui-slc');
 						view.dialogs_open = [];
 						view.dialogs_open.push( drawer );
 					});
@@ -652,11 +654,11 @@ function main()
 			}).select(function(){
 				Directions.init();
 				dircontrol.isSearchingForDirection = true;
-				view.controlOtherDrawers(this);
+				view.controlOtherDrawers(this,  event.target);
 			}).deselect(function(){
 				dircontrol.isSearchingForDirection = false;
 				dir.destroy();
-				view.controlOtherDrawers(this);
+				view.controlOtherDrawers(this,  event.target);
 			}),
 			dircontrol.optionsSelect = $.ninja.drawer({
 				html: '',
@@ -805,12 +807,12 @@ function main()
 				html: '<div class="open"></div>',
 				value: ''
 			}).deselect(function(){
-				view.controlOtherDrawers(this);
+				view.controlOtherDrawers(this,  event.target);
 				$(this).find('button').each(function(){
 					$(this).removeClass('nui-slc');
 				});	
 			}).select(function(){
-				view.controlOtherDrawers(this);
+				view.controlOtherDrawers(this,  event.target);
 			}),
 			storecontrol.optionsSelect = $.ninja.drawer({
 				html: '',
@@ -1030,10 +1032,10 @@ function main()
 			mainview.options = $.ninja.drawer({
 				html: '<div class="open"></div>',
 				value: ''
-			}).deselect(function(){
-				view.controlOtherDrawers(this);
-			}).select(function(){
-				view.controlOtherDrawers(this);
+			}).deselect(function(event){
+				view.controlOtherDrawers(this,  event.target);
+			}).select(function(event){
+				view.controlOtherDrawers(this,  event.target);
 			}),
 			mainview.optionsSelect = $.ninja.drawer({
 				html: '',
@@ -1057,8 +1059,16 @@ function main()
 			mainview.displayList = $.ninja.button({
 				html: 'Lista'
 				}).select(function(){
-					view.purgeCssClass( mainview.displayList );
-					mainview.listDialog.attach();
+					if( dir && dir.hasDirection )
+					{
+						view.purgeCssClass( mainview.displayList );
+						mainview.listDialog.attach();
+					}
+					else
+					{
+						alert("Crea un percorso per visualizzarne i passi");
+						$(this).removeClass('nui-slc');
+					}
 				}).deselect(function(){
 					
 				}),
