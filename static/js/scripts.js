@@ -704,11 +704,21 @@ function main()
 			
 			dircontrol.isMore = $.ninja.button({
 				html: 'Opzioni percorso'
-				}).select(function(){
+				}).select(function(){			
+				
 					$(this).removeClass('nui-slc');
 					view.purge_open( dircontrol.options );
 					dircontrol.dialog.attach();
-					return false;
+					
+					setTimeout(function(){$('.nui-dlg').css({
+						'width':$(window).width()-50,
+						'height':$(window).height()-50,
+						'top':'10',
+						'background':'red'});
+					}, 2000) 
+					
+					return false;		
+					
 				}).deselect(function(){
 					return false;
 				}),
@@ -1124,10 +1134,10 @@ function main()
 		},
 		set_styles:function()
 		{
-			//console.log('width: '+$(window).width());
 			if ($(window).width()<=960) {
 				$('div.nui-try').css('width',$(window).width());
-			}
+			}		
+			
 		}
 	};
 
