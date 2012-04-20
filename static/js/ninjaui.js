@@ -398,7 +398,7 @@
           }
           event.stopImmediatePropagation();
         },
-        'deselect.ninja': function () {
+        'deselect.ninja': function (event) {
           $button.removeClass('nui-slc');
         },
         'disable.ninja': function () {
@@ -411,7 +411,7 @@
             disabled: false
           });
         },
-        'select.ninja': function () {
+        'select.ninja': function (event) {
           $button.addClass('nui-slc');
         }
       });
@@ -490,13 +490,13 @@
           select: options.select,
           html: options.value
         })).bind({
-          'deselect.ninja': function () {
+          'deselect.ninja': function (event) {
             $tray.slideUp('fast', function () {
               $arrowDown.remove();
               $arrowRight.prependTo($handle);
             });
           },
-          'select.ninja': function () {
+          'select.ninja': function (event) {
             $arrowRight.remove();
             $arrowDown.prependTo($handle);
             $tray.slideDown('fast');
