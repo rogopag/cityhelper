@@ -214,6 +214,7 @@ function main()
 				for( var items in self.d[key] )
 				{
 					var current = {}, image;
+					//make sure fields prperty is gone forever and doesn't bother anymore
 					current = ( typeof self.d[key][items].fields != 'undefined' )?self.d[key][items].fields:self.d[key][items];
 					current.type = key;
 					current.icon_url = self.icons[key];
@@ -402,7 +403,7 @@ function main()
 		},
 		ajax_populate: function()
 		{
-			var obj = {'do' : 'something'};
+			var obj = {'do' : 'something'}, tmp;
 			
 			$.ajax({  
 				type: 'post',
@@ -427,7 +428,23 @@ function main()
 					if( response )
 					{
 						////console.log(response)
-						self.d = response;
+						var inner = {};
+						tmp = $.extend(true, {}, response);
+						for(var key in tmp){
+								inner[key] = $.map(tmp[key], function(v, k){
+								if( v.hasOwnProperty('fields') )
+								{
+									return v.fields;
+								}
+								else
+								{
+									return v;
+								}
+							});
+						};
+						self.d = inner;
+						delete inner, tmp;
+						return self.d;
 					}
 				},
 				complete: function( data, textStatus )
