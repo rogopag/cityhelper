@@ -1106,22 +1106,26 @@ function main()
 				mainview.listDialog.detach();
 			}
 		},
-		combinedShow:function(w)
+		combinedShow:function(d)
 		{
-			var what = w;
+			var has_dir = d;
 			mainview.div.slideDown(function(){
 				mainview.map_div.css('height', '50%');
 				mainview.is_combined = true;
-				if( what )
+				if( has_dir )
 				{
 					dir.directionDisplay.setPanel(this);
+				}
+				else
+				{
+					combined.makeForm();
 				}
 			});
 		},
 		combinedHide:function()
 		{
-			mainview.div.slideUp(function(what){
-				mainview.map_div.css('height', '100%');
+			mainview.map_div.css('height', '100%');
+			mainview.div.slideUp(function(){
 				mainview.is_combined = false;
 				mainview.displayTwin.removeClass('nui-slc');
 			});
@@ -1156,15 +1160,56 @@ function main()
 	};
 	CombinedView = {
 		origin:null,
-		dstination:null,
+		destination:null,
 		o_input:null,
 		d_input:null,
 		w_inputs:[],
+		wrp:null,
+		add_button:null,
+		add_buttons:[],
+		b_count:0,
 		init:function()
 		{
 			combined = this;
 		},
-		
+		makeForm:function()
+		{
+			var working_panel = $('#working-panel'); 
+			//combined.o_input = $('<input type="text" name="c_dest" value="" id="c_origin" />');
+			combined.o_input = combined.printInput( combined.o_input );
+			combined.d_input = $('<input type="text" name="c_dest" value="" id="c_dest" />');
+			combined.add_button = $('<input type="button" id="add_input" name="add_input" />');
+			combined.wrp = $('<div id="wrap_combined_inputs"></div>');
+			
+			combined.wrp.append( combined.o_input, combined.add_button, combined.d_input );
+			working_panel.append(combined.wrp);
+			combined.wrp.fadeIn(function(){
+				
+			});
+		},
+		printInput:function(me)
+		{
+			var data = $.extend(true, {}, self.d), my = me;
+			delete data.traffic;
+			delete data.hospitals;
+			delete data.pharma;
+			delete data.veterinarians;
+			my = $.ninja.autocomplete({
+			  placeholder: 'Cerca servizio'
+			}).values(function (event) {
+			      my.list({
+			        values: $.map(data.parkings, function (item, i) {
+					console.log( item.name.startsWith(event.query) );
+			          return {
+			            html: item.name,
+			            value: item.name
+			          };
+			        }),
+			        query: event.query
+			      });
+			});
+			return my;
+		}	
 	};	
 	LayoutFixes = {
 		init:function()
@@ -1193,4 +1238,7 @@ Storage.prototype.getObject = function(key) {
 google.maps.TrafficLayer.prototype.hide = function()
 {
 	this.setMap(null);
+};
+String.prototype.startsWith = function(pattern) {
+  return this.slice(0, pattern.length).toLowerCase() == pattern.toLowerCase();
 };
