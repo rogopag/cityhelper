@@ -1191,18 +1191,24 @@ function main()
 		{
 			var data = $.extend(true, {}, self.d), my = me;
 			delete data.traffic;
-			delete data.hospitals;
+			data.hospitals = data.hospitals.fields;
+			
 			delete data.pharma;
 			delete data.veterinarians;
+			
 			my = $.ninja.autocomplete({
 			  placeholder: 'Cerca servizio'
 			}).values(function (event) {
 			      my.list({
 			        values: $.map(data.parkings, function (item, i) {
-					console.log( item.name.startsWith(event.query) );
+					if( item.name.startsWith(event.query) )
 			          return {
 			            html: item.name,
-			            value: item.name
+			            value: item.name,
+						select:function()
+						{
+							console.log(item);
+						}
 			          };
 			        }),
 			        query: event.query
