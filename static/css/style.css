@@ -224,6 +224,6 @@ div#working-panel{display:none;background:transparent;color:white;height:50%;wid
 .infoBox{border: 1px solid black; margin-top: 8px; background: yellow; padding: 5px;opacity:0.75;width:280px;}
 
 /*/////COMBINED///////////*/
-div#wrap_combined_inputs{display:none;position:relative;top:50%;left:40%;width:15%;padding:10px;}
+div#wrap_combined_inputs{display:none;position:relative;top:15%;left:40%;width:auto;max-width:25%;padding:10px;overflow:auto;}
 div#wrap_combined_inputs input{float:left;clear:both;}
 .nui-lst{position:relative;top:20px;}

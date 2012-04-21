@@ -1187,6 +1187,7 @@ function main()
 		save_buton:null,
 		b_count:0,
 		values:false,
+		items:null,
 		init:function()
 		{
 			combined = this;
@@ -1197,7 +1198,7 @@ function main()
 			
 			combined.values = [];
 			
-			combined.o_input = combined.printInput( combined.o_input );
+			combined.o_input = combined.w_inputs[0] = combined.printInput( combined.o_input );
 			combined.d_input = combined.printInput( combined.d_input );
 			combined.add_button = $('<input type="button" id="add_input" name="add_input" value="add" />');
 			combined.save_buton = $('<input type="button" id="save_input" name="save_input" value="save" />');
@@ -1213,16 +1214,20 @@ function main()
 		},
 		addInput:function()
 		{
-			var len = combined.w_inputs.length;
-			combined.add_button.bind('click',{d:null}, function(){
+			combined.add_button.bind('click',{d:null}, function(event){
+				var len = combined.w_inputs.length;
 				combined.w_inputs[len] = combined.printInput( combined.w_inputs[len] );
-				combined.d_input.prepend( combined.w_inputs[len] );	
+				combined.w_inputs[len-1].after( combined.w_inputs[len] );	
 			});
 		},
 		save:function()
 		{
-			combined.save_buton.bind('click', {d:null}, function(){
-				console.log( combined.values )
+			combined.save_buton.bind('click', {d:null}, function(event){
+				combined.w_inputs.push(combined.d_input);
+				$.each(combined.w_inputs, function(key, value){
+					console.log(value.data)
+				});
+				combined.w_inputs.pop();
 			});
 		},
 		printInput:function(me)
@@ -1243,7 +1248,7 @@ function main()
 			            value: item.name,
 						select:function()
 						{
-							comined.values.push(item);
+							this.data = item;
 						}
 			          };
 			        }),
