@@ -725,15 +725,16 @@ function main()
                html: ''
            }).detach(function () {
 	       		$('.nui-dlg span.title').remove();
-
+	       		$('.nui-dlg').prepend($('.nui-dlg .close .nui-icn'));
+       		   	$('.nui-dlg .close').remove();
            }).attach(function(){
-               $('.nui-dlg').css({
+               	$('.nui-dlg').css({
 	               	'width':$(window).width()-20,
-	               	'height':$(window).height()-20,
 	               	'top':'10',
-	               	'left':'10',
-	               	'background':'red'
+	               	'left':'10'
 	              	}).prepend('<span class="title"><h2>Opzioni percorso<h/h2></span>');
+	           	$('.nui-dlg').append('<span class="close"><span>Chiudi</span></span>');
+	           	$('.nui-dlg .close').prepend($('.nui-dlg img.nui-icn'));
            });
 			
 			dircontrol.addButtons();
