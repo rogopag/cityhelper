@@ -1157,6 +1157,7 @@ function main()
 			{
 				mainview.combinedShow(false);
 			}
+			view.purge_open(mainview.options);
 		},
 		listView:function()
 		{
@@ -1183,54 +1184,73 @@ function main()
 		w_inputs:[],
 		wrp:null,
 		add_button:null,
-		add_buttons:[],
+		save_buton:null,
 		b_count:0,
+		values:false,
 		init:function()
 		{
 			combined = this;
 		},
 		makeForm:function()
 		{
-			var working_panel = $('#working-panel'); 
-			//combined.o_input = $('<input type="text" name="c_dest" value="" id="c_origin" />');
+			var working_panel = $('#working-panel');
+			
+			combined.values = [];
+			
 			combined.o_input = combined.printInput( combined.o_input );
-			combined.d_input = $('<input type="text" name="c_dest" value="" id="c_dest" />');
-			combined.add_button = $('<input type="button" id="add_input" name="add_input" />');
+			combined.d_input = combined.printInput( combined.d_input );
+			combined.add_button = $('<input type="button" id="add_input" name="add_input" value="add" />');
+			combined.save_buton = $('<input type="button" id="save_input" name="save_input" value="save" />');
 			combined.wrp = $('<div id="wrap_combined_inputs"></div>');
 			
-			combined.wrp.append( combined.o_input, combined.add_button, combined.d_input );
+			combined.wrp.append( combined.o_input, combined.add_button, combined.d_input, combined.save_buton );
 			working_panel.append(combined.wrp);
+			
 			combined.wrp.fadeIn(function(){
-				
+				combined.addInput();
+				combined.save();
+			});
+		},
+		addInput:function()
+		{
+			var len = combined.w_inputs.length;
+			combined.add_button.bind('click',{d:null}, function(){
+				combined.w_inputs[len] = combined.printInput( combined.w_inputs[len] );
+				combined.d_input.prepend( combined.w_inputs[len] );	
+			});
+		},
+		save:function()
+		{
+			combined.save_buton.bind('click', {d:null}, function(){
+				console.log( combined.values )
 			});
 		},
 		printInput:function(me)
 		{
-			var data = $.extend(true, {}, self.d), my = me;
+			var data = $.extend(true, {}, self.d), my = me, tmp = [], arr;
 			delete data.traffic;
-			data.hospitals = data.hospitals.fields;
-			
-			delete data.pharma;
-			delete data.veterinarians;
-			
+			arr = $.map(data, function (item, i){
+				return $.merge(tmp, data[i]);
+			});
 			my = $.ninja.autocomplete({
 			  placeholder: 'Cerca servizio'
 			}).values(function (event) {
 			      my.list({
-			        values: $.map(data.parkings, function (item, i) {
+			        values: $.map(arr, function (item, i) {
 					if( item.name.startsWith(event.query) )
 			          return {
 			            html: item.name,
 			            value: item.name,
 						select:function()
 						{
-							console.log(item);
+							comined.values.push(item);
 						}
 			          };
 			        }),
 			        query: event.query
 			      });
 			});
+			delete tmp, arr, data;
 			return my;
 		}	
 	};	
