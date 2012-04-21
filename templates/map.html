@@ -14,6 +14,7 @@
 	{% endblock %}
 	
 	{% block content %}
+	<div id="working-panel"></div>
 	<div id="map_canvas"></div>
 	<div id="token">{{ csrf_token }}</div>
 	<div id="loading-gif"><img src="{{STATIC_URL}}images/site/ajax-loader.gif" alt="loading" /></div>
@@ -30,6 +31,4 @@
 			<div class="button bt_5"><span></span></div>
 		</div>
 	</div>
-	
-	<div id="working-panel"></div>
 	{% endblock %}
