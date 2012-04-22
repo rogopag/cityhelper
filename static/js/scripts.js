@@ -630,7 +630,7 @@ function main()
 		},
 		markers_printer:function( wp )
 		{
-			var w = wp, marker[];
+			var w = wp, marker = [];
 			
 			if( !w || w.length == 0 ) return;
 			
