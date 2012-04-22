@@ -1198,7 +1198,8 @@ function main()
 			
 			combined.values = [];
 			
-			combined.o_input = combined.w_inputs[0] = combined.printInput( combined.o_input );
+			combined.o_input = {};
+			combined.o_input = combined.w_inputs[0] = combined.printInput( combined.o_input, true );
 			combined.d_input = combined.printInput( combined.d_input );
 			combined.add_button = $('<input type="button" id="add_input" name="add_input" value="add" />');
 			combined.save_buton = $('<input type="button" id="save_input" name="save_input" value="save" />');
@@ -1230,16 +1231,19 @@ function main()
 				combined.w_inputs.pop();
 			});
 		},
-		printInput:function(me)
+		printInput:function( me, d )
 		{
-			var data = $.extend(true, {}, self.d), my = me, tmp = [], arr;
+			var data = $.extend(true, {}, self.d), my = me, tmp = [], arr, def = ( typeof d == 'undefined' ) ? false : d;
 			delete data.traffic;
 			arr = $.map(data, function (item, i){
 				return $.merge(tmp, data[i]);
 			});
 			
+			if( def )
+			my.data  = self.me.currentLocation;
+			
 			my = $.ninja.autocomplete({
-			  placeholder: 'Cerca servizio'
+			  placeholder: ( !def ) ? 'Cerca servizio' : 'Current location'
 			}).values(function (event) {
 			      my.list({
 			        values: $.map(arr, function (item, i) {
