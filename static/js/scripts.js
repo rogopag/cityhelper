@@ -630,16 +630,17 @@ function main()
 		},
 		markers_printer:function( wp )
 		{
-			var w = wp, marker;
+			var w = wp, marker[];
 			
 			if( !w || w.length == 0 ) return;
 			
 			for( var i in w )
 			{
 				console.log( i, w[i] );
-				marker = new google.maps.Marker({
+				marker[i] = new google.maps.Marker({
 					position: w[i].location,
-					title: "stop"
+					title: "stop",
+					map:self.map
 				});
 			}
 		},
