@@ -568,6 +568,7 @@ function main()
 		request:{},
 		hasDirection:false,
 		mode: google.maps.DirectionsTravelMode.DRIVING,
+		waypoints:[],
 		init:function()
 		{
 			dir = this;
@@ -595,20 +596,24 @@ function main()
 				}
 			});
 		},
-		calculateRoute:function(lat, lng, org)
+		calculateRoute:function(lat, lng, org, w)
 		{
-			var origin, request;
+			var origin, request, waypoints;
 			// if a route is already plotted please erase.
 			
 			if( dir.hasDirection ) dir.destroy();
 			
 			origin = ( org ) ? org : self.me.currentLocation;
 			
+			waypoints = ( w ) ? w : [];
+			
 			request = {
 				origin: origin,
 				destination: new google.maps.LatLng(lat, lng),
 				travelMode: dir.mode,
-				provideRouteAlternatives:true
+				provideRouteAlternatives:true,
+				waypoints:waypoints,
+				optimizeWaypoints:true
 			};
 			dir.directionsService.route(request, function(response, status) {
 			      if (status == google.maps.DirectionsStatus.OK) {
@@ -1186,8 +1191,9 @@ function main()
 		add_button:null,
 		save_buton:null,
 		b_count:0,
-		values:false,
+		waypoints:false,
 		items:null,
+		request:false,
 		init:function()
 		{
 			combined = this;
@@ -1196,10 +1202,10 @@ function main()
 		{
 			var working_panel = $('#working-panel');
 			
-			combined.values = [];
+			combined.waypoints = [];
+			combined.request = {};
 			
-			combined.o_input = {};
-			combined.o_input = combined.w_inputs[0] = combined.printInput( combined.o_input, true );
+			combined.o_input = combined.printInput( combined.o_input, true );
 			combined.d_input = combined.printInput( combined.d_input );
 			combined.add_button = $('<input type="button" id="add_input" name="add_input" value="add" />');
 			combined.save_buton = $('<input type="button" id="save_input" name="save_input" value="save" />');
@@ -1218,17 +1224,56 @@ function main()
 			combined.add_button.bind('click',{d:null}, function(event){
 				var len = combined.w_inputs.length;
 				combined.w_inputs[len] = combined.printInput( combined.w_inputs[len] );
-				combined.w_inputs[len-1].after( combined.w_inputs[len] );	
+				if( len == 0 )
+				{
+					combined.o_input.after( combined.w_inputs[len] );
+				}
+				else
+				{
+					
+					combined.w_inputs[len-1].after( combined.w_inputs[len] );
+				}
+					
 			});
 		},
 		save:function()
 		{
 			combined.save_buton.bind('click', {d:null}, function(event){
-				combined.w_inputs.push(combined.d_input);
+				combined.request.origin = ( 'name' in combined.o_input.data ) ? new google.maps.LatLng( combined.o_input.data.lat, combined.o_input.data.lng ) : combined.o_input.data;
+				combined.request.destination = ( typeof combined.d_input.data == 'object' ) ? new google.maps.LatLng( combined.d_input.data.lat, combined.d_input.data.lng ) : false;
+				if( !combined.request.destination )
+				{
+					alert("Seleziona una destinazione!");
+					return false;
+				}
 				$.each(combined.w_inputs, function(key, value){
-					console.log(value.data)
+						if( typeof value.data == 'object' )
+						{
+							combined.waypoints.push({ 
+									'location':new google.maps.LatLng( value.data.lat, value.data.lng ),
+									'stopover':true,
+								});
+						}
+						else
+						{
+							combined.waypoints = [];
+							alert("Completa la compilazione dei waypoints!");
+							return false;
+						}
 				});
-				combined.w_inputs.pop();
+				combined.request.waypoints = combined.waypoints;
+				if(!dir) Directions.init();
+				dir.calculateRoute(
+					combined.request.destination.lat(),
+					combined.request.destination.lng(),
+					combined.request.origin,
+					combined.waypoints
+				 );
+				google.maps.event.addListener(dir.directionDisplay, 'directions_changed', function()
+				{
+					console.log("We have direction now!");
+					mainview.combinedHide();
+				});
 			});
 		},
 		printInput:function( me, d )
@@ -1238,9 +1283,6 @@ function main()
 			arr = $.map(data, function (item, i){
 				return $.merge(tmp, data[i]);
 			});
-			
-			if( def )
-			my.data  = self.me.currentLocation;
 			
 			my = $.ninja.autocomplete({
 			  placeholder: ( !def ) ? 'Cerca servizio' : 'Current location'
@@ -1260,6 +1302,12 @@ function main()
 			        query: event.query
 			      });
 			});
+			
+			if( def )
+			{
+				my.data = self.me.currentLocation;
+			}
+			
 			delete tmp, arr, data;
 			return my;
 		}	
@@ -1281,17 +1329,21 @@ function main()
 
 	Program.init();
 };
-
+// the next to extend Storage object to save JS Object in LocalStorage object
 Storage.prototype.setObject = function(key, value) {
     this.setItem(key, JSON.stringify(value));
 };
 Storage.prototype.getObject = function(key) {
     return JSON.parse(this.getItem(key));
 };
+// adds a hide method to TrafficLayerObject
 google.maps.TrafficLayer.prototype.hide = function()
 {
 	this.setMap(null);
 };
+//Adds startsWith method to string Object
 String.prototype.startsWith = function(pattern) {
   return this.slice(0, pattern.length).toLowerCase() == pattern.toLowerCase();
 };
+//Adds a data Object to autocomplete Object
+$.ninja.autocomplete.prototype.data = {};
