@@ -592,7 +592,7 @@ function main()
 			dir.directionDisplay.setOptions({
 				draggable:false,
 				markerOptions:{
-					visible:false
+					visible:true
 				}
 			});
 		},
