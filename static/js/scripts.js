@@ -1237,6 +1237,7 @@ function main()
 			arr = $.map(data, function (item, i){
 				return $.merge(tmp, data[i]);
 			});
+			
 			my = $.ninja.autocomplete({
 			  placeholder: 'Cerca servizio'
 			}).values(function (event) {
@@ -1248,7 +1249,7 @@ function main()
 			            value: item.name,
 						select:function()
 						{
-							this.data = item;
+							my.data = item;
 						}
 			          };
 			        }),
