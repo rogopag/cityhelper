@@ -722,11 +722,11 @@ function main()
 			
 			dircontrol.isMore = $.ninja.button({
 				html: 'Opzioni percorso'
-				}).select(function(){
+				}).select(function(){			
 					$(this).removeClass('nui-slc');
 					view.purge_open( dircontrol.options );
 					dircontrol.dialog.attach();
-					return false;
+					return false;		
 				}).deselect(function(){
 					return false;
 				}),
@@ -740,10 +740,20 @@ function main()
 		enableDisableLayerView:function()
 		{
 			dircontrol.dialog = $.ninja.dialog({
-				html: ''
-			}).detach(function () {
-				
-			});
+               html: ''
+           }).detach(function () {
+	       		$('.nui-dlg span.title').remove();
+	       		$('.nui-dlg').prepend($('.nui-dlg .close .nui-icn'));
+       		   	$('.nui-dlg .close').remove();
+           }).attach(function(){
+               	$('.nui-dlg').css({
+	               	'width':$(window).width()-20,
+	               	'top':'10',
+	               	'left':'10'
+	              	}).prepend('<span class="title"><h2>Opzioni percorso<h/h2></span>');
+	           	$('.nui-dlg').append('<span class="close"><span>Chiudi</span></span>');
+	           	$('.nui-dlg .close').prepend($('.nui-dlg img.nui-icn'));
+           });
 			
 			dircontrol.addButtons();
 			
@@ -1268,10 +1278,10 @@ function main()
 		},
 		set_styles:function()
 		{
-			//console.log('width: '+$(window).width());
 			if ($(window).width()<=960) {
 				$('div.nui-try').css('width',$(window).width());
-			}
+			}		
+			
 		}
 	};
 
