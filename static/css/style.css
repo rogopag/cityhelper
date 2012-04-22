@@ -183,7 +183,7 @@ span.nui-dlg .title h2 {
 	display: table-cell;
 	vertical-align: middle;
 	font-size: .9em;
-	background: url('../images/site/title_shadow.png') no-repeat 50% bottom;
+	background: url('../images/site/h_shadow.png') no-repeat 50% 42px;
 }
 .nui-dlg .nui-icn {
 	position: absolute;
@@ -295,8 +295,35 @@ only screen and (max-device-width: 960px) {
 }
 
 /*///// A panel to show stuff to work on//////////*/
-div#working-panel{display:none;background:transparent;color:white;height:50%;width:100%;position:relative;}
+div#working-panel {
+	display: none;
+	background: transparent;
+	color: white;
+	height: 50%;
+	width: 100%;
+	position: relative;
+}
+div#working-panel div.division1 {
+	position: absolute;
+	height: 23px;
+	width: 100%;
+	bottom: -5px;
+	background: url('../images/site/h_shadow.png') no-repeat 50% bottom;
+	z-index: 50;
+}
+/*
+div#working-panel span.division2 {
+	position: absolute;
+	height: 3px;
+	width: 100%;
+	bottom: 0;
+	background: url('../images/site/list_sel.png') repeat-x 50% bottom;	
+}
+*/
 .row{padding:5px;cursor:pointer;}
+
+
+
 /*/////// INFO BOX /////////////////////////////*/
 .infoBox{border: 1px solid black; margin-top: 8px; background: yellow; padding: 5px;opacity:0.75;width:280px;}
 
