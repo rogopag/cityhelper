@@ -626,6 +626,25 @@ function main()
 					dir.save.end_lng = response.routes[0].legs[0].end_location.lng();
 			      }
 			    });
+			dir.markers_printer(waypoints);
+		},
+		markers_printer:function( wp )
+		{
+			var w = wp;
+			
+			if( !w || w.length == 0 ) return;
+			
+			for( var i in w )
+			{
+				console.log( i, w[i] );
+				/*current.marker = new google.maps.Marker({
+					position: new google.maps.LatLng(current.lat, current.lng),
+					title: current.name,
+					icon: image,
+					type: current.type,
+					zIndex: p.index
+				});*/
+			}
 		},
 		switchMode:function(val)
 		{
@@ -1150,6 +1169,7 @@ function main()
 			mainview.div.slideUp(function(){
 				mainview.is_combined = false;
 				mainview.displayTwin.removeClass('nui-slc');
+				$(this).empty();
 			});
 		},
 		combinedView:function()
@@ -1271,7 +1291,6 @@ function main()
 				 );
 				google.maps.event.addListener(dir.directionDisplay, 'directions_changed', function()
 				{
-					console.log("We have direction now!");
 					mainview.combinedHide();
 				});
 			});
