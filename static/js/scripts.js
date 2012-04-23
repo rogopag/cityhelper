@@ -6,7 +6,7 @@ jQuery(function($){
 
 function main()
 {
-	var ajaxurl = '/', self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, /*search = null, searchController = null,*/ layout = null, mainview = null, Program, ViewController, Directions, DirectionsViewController, SessionStorageController, SessionStorage, SetCenterOnMe, LayoutFixes, CombinedView, combined = null;
+	var ajaxurl = LocalSettings.WEBSITE_URL, self = null, view = null, dir = null, dircontrol = null, store = null, storecontrol = null, /*search = null, searchController = null,*/ layout = null, mainview = null, Program, ViewController, Directions, DirectionsViewController, SessionStorageController, SessionStorage, SetCenterOnMe, LayoutFixes, CombinedView, combined = null;
 	
 	Program = {
 		map : null,
@@ -1195,6 +1195,7 @@ function main()
 			mainview.div.slideUp(function(){
 				mainview.is_combined = false;
 				mainview.displayTwin.removeClass('nui-slc');
+				if( combined.has_sortable) combined.sortable.sortable("destroy");
 				$(this).empty();
 			});
 		},
@@ -1240,6 +1241,8 @@ function main()
 		waypoints:false,
 		items:null,
 		request:false,
+		has_sortables:false,
+		sortable:null,
 		init:function()
 		{
 			combined = this;
@@ -1248,11 +1251,14 @@ function main()
 		{
 			var working_panel = $('#working-panel');
 			
+			combined.has_sortables = false;
 			combined.waypoints = [];
 			combined.request = {};
 			
 			combined.o_input = combined.printInput( combined.o_input, true );
+			combined.o_input.children('input').attr('id', 'o_origin');
 			combined.d_input = combined.printInput( combined.d_input );
+			combined.d_input.children('input').attr('id', 'd_destination').addClass('ui-state-default');
 			combined.add_button = $('<input type="button" id="add_input" name="add_input" value="add" />');
 			combined.save_buton = $('<input type="button" id="save_input" name="save_input" value="save" />');
 			combined.wrp = $('<div id="wrap_combined_inputs"></div>');
@@ -1278,10 +1284,31 @@ function main()
 				{
 					
 					combined.w_inputs[len-1].after( combined.w_inputs[len] );
-				}	
+				}
+				combined.sortable = combined.makeWayPointsSortable( combined.w_inputs[len] );
+				$( combined.w_inputs[len] ).addClass('ui-state-default')	
 			});
-			
 			$('#working-panel').css('display','table');
+		},
+		makeWayPointsSortable:function(element, container)
+		{
+			var c = ( typeof container == 'undefined' ) ? combined.wrp : container, el = element;
+			//check if container is sortable already, if not make it so
+			if( !$(c+':data(sortable)').length )
+			{
+				c.sortable({
+				   create: function(event, ui) { 
+						combined.has_sortables = true;
+					}
+				});
+			}
+			c.sortable( "option", {
+				'items':'span.ui-state-default',
+				'cursor':'pointer',
+				'placeholder': 'ui-state-highlight'
+			}).disableSelection();
+			c.sortable('refresh');
+			return c;
 		},
 		save:function()
 		{
@@ -1324,7 +1351,7 @@ function main()
 		},
 		printInput:function( me, d )
 		{
-			var data = $.extend(true, {}, self.d), my = me, tmp = [], arr, def = ( typeof d == 'undefined' ) ? false : d;
+			var data = $.extend(true, {}, self.d), my = me, tmp = [], arr, def = ( typeof d == 'undefined' || d == false ) ? false : d;
 			delete data.traffic;
 			arr = $.map(data, function (item, i){
 				return $.merge(tmp, data[i]);
