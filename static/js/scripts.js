@@ -1353,7 +1353,7 @@ function main()
 			if ($(window).width()<=960) {
 				$('div.nui-try').css('width',$(window).width());
 			}		
-			
+			$('#working-panel').append('<div class="division1"><span class="division2"></span></div>')
 		}
 	};
 
