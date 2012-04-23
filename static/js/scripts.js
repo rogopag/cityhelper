@@ -626,9 +626,10 @@ function main()
 					dir.save.start_lng = response.routes[0].legs[0].start_location.lng();
 					dir.save.end_lat = response.routes[0].legs[0].end_location.lat();
 					dir.save.end_lng = response.routes[0].legs[0].end_location.lng();
+					console.log( dir.save );
 			      }
 			    });
-			dir.markers_printer(waypoints);
+			//dir.markers_printer(waypoints);
 		},
 		markers_printer:function( wp )
 		{
@@ -1258,7 +1259,7 @@ function main()
 			combined.o_input = combined.printInput( combined.o_input, true );
 			combined.o_input.children('input').attr('id', 'o_origin');
 			combined.d_input = combined.printInput( combined.d_input );
-			combined.d_input.children('input').attr('id', 'd_destination').addClass('ui-state-default');
+			combined.d_input.children('input').attr('id', 'd_destination')/*.parent().addClass('ui-state-default')*/;
 			combined.add_button = $('<input type="button" id="add_input" name="add_input" value="add" />');
 			combined.save_buton = $('<input type="button" id="save_input" name="save_input" value="save" />');
 			combined.wrp = $('<div id="wrap_combined_inputs"></div>');
@@ -1276,6 +1277,7 @@ function main()
 			combined.add_button.bind('click',{d:null}, function(event){
 				var len = combined.w_inputs.length;
 				combined.w_inputs[len] = combined.printInput( combined.w_inputs[len] );
+				combined.w_inputs[len].attr('id', 'id_'+len);
 				if( len == 0 )
 				{
 					combined.o_input.after( combined.w_inputs[len] );
@@ -1299,6 +1301,15 @@ function main()
 				c.sortable({
 				   create: function(event, ui) { 
 						combined.has_sortables = true;
+					},
+					update:function(event, ui)
+					{
+						var curr_index = ui.item.index();
+						//console.log( ui.item, ui.item.index() );
+						$(this).children('span.ui-state-default').each(function(key, val){
+							//console.log( key, ui.item[0] == val, ui.item.index(), $(val).index() );
+							combined.w_inputs[key] = val;
+						});
 					}
 				});
 			}
@@ -1341,7 +1352,7 @@ function main()
 					combined.request.destination.lat(),
 					combined.request.destination.lng(),
 					combined.request.origin,
-					combined.request.waypoints
+					combined.waypoints
 				 );
 				google.maps.event.addListener(dir.directionDisplay, 'directions_changed', function()
 				{

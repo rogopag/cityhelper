@@ -323,26 +323,11 @@ div#wrap_combined_inputs{
 	overflow: auto;
 	vertical-align: bottom;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 .row{padding:5px;cursor:pointer;}
-
-
-
 /*/////// INFO BOX /////////////////////////////*/
 .infoBox{border: 1px solid black; margin-top: 8px; background: yellow; padding: 5px;opacity:0.75;width:280px;}
 
 /*/////COMBINED///////////*/
 div#wrap_combined_inputs input{float:left;clear:both;}
 .nui-lst{position:relative;top:20px;}
+.ui-state-default{padding-left:3px;padding-right:3px;}
