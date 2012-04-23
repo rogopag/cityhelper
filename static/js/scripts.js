@@ -1260,9 +1260,10 @@ function main()
 				{
 					
 					combined.w_inputs[len-1].after( combined.w_inputs[len] );
-				}
-					
+				}	
 			});
+			
+			$('#working-panel').css('display','table');
 		},
 		save:function()
 		{
