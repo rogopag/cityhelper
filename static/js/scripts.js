@@ -775,10 +775,12 @@ function main()
 	               	'top':'10',
 	               	'left':'10'
 	              	}).prepend('<span class="title"><h2>Opzioni percorso<h/h2></span>');
+	
 	           	$('.nui-dlg').append('<span class="close"><span>Chiudi</span></span>');
 	           	$('.nui-dlg .close').prepend($('.nui-dlg img.nui-icn'));
            });
 			
+			dircontrol.dialog.addClass("dircontrol");
 			dircontrol.addButtons();
 			
 			$.each(dircontrol.buttons, function(key, value)
@@ -991,6 +993,7 @@ function main()
 			}).detach(function () {
 				
 			});
+			container.addClass("locations-saved-list");
 			console.log("has storage:: "+store.has_storage()+" s len "+window.localStorage.length)
 			if( store.has_storage() && window.localStorage.length)
 			{
