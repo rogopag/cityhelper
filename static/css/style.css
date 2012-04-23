@@ -11,8 +11,12 @@
 body {
 	padding: 0;
 	margin: 0;
+	/*forces address bar to hide on iphone*/
+	min-height:540px;
 }
-
+/*forces address bar to hide on iphone*/
+body[orient="portrait"] { min-height:540px; }
+body[orient="landscape"] { min-height:400px; }
 /* main top bar */
 
 #mainbar {
