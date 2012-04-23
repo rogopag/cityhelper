@@ -1252,7 +1252,7 @@ function main()
 			
 			combined.o_input = combined.printInput( combined.o_input, true );
 			combined.d_input = combined.printInput( combined.d_input );
-			combined.add_button = $('<input type="button" id="add_input" name="add_input" value="add" />');
+			combined.add_button = $('<span class="button_wrapper"><input type="button" id="add_input" name="add_input" value="add" /></span>');
 			combined.save_buton = $('<input type="button" id="save_input" name="save_input" value="save" />');
 			combined.wrp = $('<div id="wrap_combined_inputs"></div>');
 			
@@ -1280,7 +1280,7 @@ function main()
 				}	
 			});
 			
-			$('#working-panel').css('display','table');
+			$('#working-panel').css({'display':'-webkit-box'});
 		},
 		save:function()
 		{
