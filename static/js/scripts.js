@@ -12,7 +12,7 @@ function main()
 		map : null,
 		d : null,
 		objects : {},
-		ZOOM: 13,
+		ZOOM: 11,
 		clusterMaxZoom:16,
 		mng: null,
 		icons: {},
@@ -403,7 +403,7 @@ function main()
 		},
 		ajax_populate: function()
 		{
-			var obj = {'do' : 'something'}, tmp;
+			var obj = {'do' : 'something'};
 			
 			$.ajax({  
 				type: 'post',
@@ -427,23 +427,7 @@ function main()
 					////////console.log( XMLHttpRequest, textStatus, jqXHR );
 					if( response )
 					{
-						////console.log(response)
-						var inner = {};
-						tmp = $.extend(true, {}, response);
-						for(var key in tmp){
-								inner[key] = $.map(tmp[key], function(v, k){
-								if( v.hasOwnProperty('fields') )
-								{
-									return v.fields;
-								}
-								else
-								{
-									return v;
-								}
-							});
-						};
-						self.d = inner;
-						delete inner, tmp;
+						self.d = self.parseResponse(response)
 						return self.d;
 					}
 				},
@@ -452,6 +436,24 @@ function main()
 					self.loader_hide();
 				}
 			});
+		},
+		parseResponse:function(r)
+		{
+			var inner = {}, response = r, tmp;
+			tmp = $.extend(true, {}, response);
+			for(var key in tmp){
+					inner[key] = $.map(tmp[key], function(v, k){
+					if( v.hasOwnProperty('fields') )
+					{
+						return v.fields;
+					}
+					else
+					{
+						return v;
+					}
+				});
+			}
+			return inner;
 		},
 		loader_hide:function()
 		{
@@ -783,6 +785,7 @@ function main()
 			var count = 0/*, cluster*/;
 
 			$.each(dircontrol.mngs, function(key, value){
+				console.log(key);
 				self.mng[key].mng = value;
 				dircontrol.buttons[count] = {};
 				dircontrol.buttons[count][key] = {};
