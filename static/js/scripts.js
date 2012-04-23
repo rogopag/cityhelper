@@ -78,7 +78,7 @@ function main()
 				var size = self.map.getZoom(), image, circle_options;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
-				////console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
+				//////console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
 				
 				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
 				{
@@ -198,12 +198,12 @@ function main()
 			
 			for(var key in self.d)
 			{
-				//////console.log( key );
+				////////console.log( key );
 				self.objects[key] = [];
 				self.icons[key] = LocalSettings.STATIC_URL+'images/map_icons.png';
 				
 				p = self.switch_parameters(key);
-				////console.log( )
+				//////console.log( )
 				image = new google.maps.MarkerImage(
 					self.icons[key],
 					new google.maps.Size(size, size), 
@@ -292,7 +292,7 @@ function main()
 				google.maps.event.addListener(self.map, 'click', (function(o, i){
 					return function()
 					{
-						////console.log( "tapped "+obj.has_infoBox+" "+i );
+						//////console.log( "tapped "+obj.has_infoBox+" "+i );
 						i.close();
 						o.has_infoBox = false;
 						self.has_infobox_open = false;
@@ -364,7 +364,7 @@ function main()
 			{
 				var styles, params = self.switch_parameters(key);
 				
-		//		////console.log(params.cluster)
+		//		//////console.log(params.cluster)
 				
 				if( key != 'traffic')
 				{
@@ -380,7 +380,7 @@ function main()
 					}];
 						//sets MarkerClusters for each group 
 						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:self.clusterMaxZoom});
-				//		////console.log( mgr[key].getCalculator() )
+				//		//////console.log( mgr[key].getCalculator() )
 					}
 					else
 					{
@@ -413,7 +413,7 @@ function main()
 				dataType: 'json',
 				error: function(XMLHttpRequest, textStatus, errorThrown)
 				{  
-					////////console.log( textStatus, errorThrown );
+					//////////console.log( textStatus, errorThrown );
 				},
 				beforeSend: function(XMLHttpRequest) 
 				{ 
@@ -424,7 +424,7 @@ function main()
 				}, 
 				success: function( response, textStatus, jqXHR )
 				{
-					//////////console.log( XMLHttpRequest, textStatus, jqXHR );
+					////////////console.log( XMLHttpRequest, textStatus, jqXHR );
 					if( response )
 					{
 						self.d = self.parseResponse(response)
@@ -483,7 +483,7 @@ function main()
 			view.mngs = mng;
 			view.buttons = [];
 			view.setSelectLayer();
-			//////console.log(view.mngs);
+			////////console.log(view.mngs);
 		},
 		setSelectLayer: function()
 		{
@@ -498,9 +498,9 @@ function main()
 			view.options = $.ninja.drawer({
 				html: '<div class="open"></div>',
 				value: '',
-			}).select(function(){
+			}).select(function(event){
 					view.controlOtherDrawers(this,  event.target);
-				}).deselect(function(){
+				}).deselect(function(event){
 					view.controlOtherDrawers(this,  event.target);
 				}),
 			view.optionsSelect = $.ninja.drawer({
@@ -579,7 +579,7 @@ function main()
 		},
 		destroy:function()
 		{
-			////console.log("Called destroy");
+			//////console.log("Called destroy");
 			dir.directionDisplay.setMap(null);
 		    dir.directionDisplay.setPanel(null);
 			dir.hasDirection = false;
@@ -638,7 +638,7 @@ function main()
 			
 			for( var i in w )
 			{
-				//console.log( i, w[i] );
+				////console.log( i, w[i] );
 				marker[i] = new google.maps.Marker({
 					position: w[i].location,
 					title: "stop",
@@ -797,7 +797,7 @@ function main()
 			var count = 0/*, cluster*/;
 
 			$.each(dircontrol.mngs, function(key, value){
-				//console.log(key);
+				////console.log(key);
 				self.mng[key].mng = value;
 				dircontrol.buttons[count] = {};
 				dircontrol.buttons[count][key] = {};
@@ -831,7 +831,7 @@ function main()
 					html: 'Selected',
 					select: false
 				});
-				//////console.log( dircontrol.key.el );
+				////////console.log( dircontrol.key.el );
 				$(dircontrol.buttons[count][key].el).addClass(dircontrol.buttons[count][key].name+"-button");
 				count++;
 			});
@@ -861,12 +861,12 @@ function main()
 			storecontrol.options = $.ninja.drawer({
 				html: '<div class="open"></div>',
 				value: ''
-			}).deselect(function(){
+			}).deselect(function(event){
 				view.controlOtherDrawers(this,  event.target);
-				$(this).find('button').each(function(){
+			/*	$(this).find('button').each(function(){
 					$(this).removeClass('nui-slc');
-				});	
-			}).select(function(){
+				});	*/
+			}).select(function(event){
 				view.controlOtherDrawers(this,  event.target);
 			}),
 			storecontrol.optionsSelect = $.ninja.drawer({
@@ -878,7 +878,7 @@ function main()
 				}).select(function(){
 					store.saveData(storecontrol.saveData);
 				}).deselect(function(){
-					
+					store.removePanel();
 				}),
 			storecontrol.saveDataSelect = $.ninja.button({
 				html: 'Selected',
@@ -888,6 +888,7 @@ function main()
 				html: 'Carica'
 				}).select(function(){
 					store.getData(storecontrol.saveData);
+					view.purge_open(storecontrol.options);
 				}).deselect(function(){
 					
 				}),
@@ -927,7 +928,7 @@ function main()
 			if( dir && dir.save )
 			{
 				//do you stuff here
-				console.log("Press ")
+				//console.log("Press ")
 				store.appendFormAndSave();
 			}
 			else
@@ -939,7 +940,7 @@ function main()
 		},
 		appendFormAndSave:function()
 		{
-			console.log("should append form " + store.has_form);
+			//console.log("should append form " + store.has_form);
 			var wrap = $('<div id="wrap_combined_inputs"></div>');
 			store.input = $('<input type="text" name="save_path_name" value="Nome percorso" id="save_path_name" />');
 			store.saveButton = $('<button type="button" id="save_path" value="Salva" />');
@@ -952,7 +953,7 @@ function main()
 					function(){
 						mainview.map_div.css('height', '75%');
 						store.has_form = true;
-						console.log("should be appendend " + store.has_form);
+						//console.log("should be appendend " + store.has_form);
 					});
 				wrap.fadeIn(200);
 				store.input.click(function(){
@@ -967,7 +968,7 @@ function main()
 				}
 				else
 				{
-					console.log("is else")
+					//console.log("is else")
 					try
 					{
 						window.localStorage.setObject( store.input.val(), dir.save );
@@ -991,10 +992,10 @@ function main()
 			container = $.ninja.dialog({
 				html: ''
 			}).detach(function () {
-				
+				storecontrol.displayData.removeClass('nui-slc')
 			});
 			container.addClass("locations-saved-list");
-			console.log("has storage:: "+store.has_storage()+" s len "+window.localStorage.length)
+			//console.log("has storage:: "+store.has_storage()+" s len "+window.localStorage.length)
 			if( store.has_storage() && window.localStorage.length)
 			{
 				var len = window.localStorage.length;
@@ -1022,7 +1023,7 @@ function main()
 								store.stored[i].obj.end_lng, 
 								o
 								);
-								//console.log("Clicked")
+								////console.log("Clicked")
 						});
 					}
 				}
