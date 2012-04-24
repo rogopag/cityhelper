@@ -78,7 +78,7 @@ function main()
 				var size = self.map.getZoom(), image, circle_options;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
-				//////console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
+				////////console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
 				
 				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
 				{
@@ -198,12 +198,12 @@ function main()
 			
 			for(var key in self.d)
 			{
-				////////console.log( key );
+				//////////console.log( key );
 				self.objects[key] = [];
 				self.icons[key] = LocalSettings.STATIC_URL+'images/map_icons.png';
 				
 				p = self.switch_parameters(key);
-				//////console.log( )
+				////////console.log( )
 				image = new google.maps.MarkerImage(
 					self.icons[key],
 					new google.maps.Size(size, size), 
@@ -292,7 +292,7 @@ function main()
 				google.maps.event.addListener(self.map, 'click', (function(o, i){
 					return function()
 					{
-						//////console.log( "tapped "+obj.has_infoBox+" "+i );
+						////////console.log( "tapped "+obj.has_infoBox+" "+i );
 						i.close();
 						o.has_infoBox = false;
 						self.has_infobox_open = false;
@@ -364,7 +364,7 @@ function main()
 			{
 				var styles, params = self.switch_parameters(key);
 				
-		//		//////console.log(params.cluster)
+		//		////////console.log(params.cluster)
 				
 				if( key != 'traffic')
 				{
@@ -380,7 +380,7 @@ function main()
 					}];
 						//sets MarkerClusters for each group 
 						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:self.clusterMaxZoom});
-				//		//////console.log( mgr[key].getCalculator() )
+				//		////////console.log( mgr[key].getCalculator() )
 					}
 					else
 					{
@@ -413,7 +413,7 @@ function main()
 				dataType: 'json',
 				error: function(XMLHttpRequest, textStatus, errorThrown)
 				{  
-					//////////console.log( textStatus, errorThrown );
+					////////////console.log( textStatus, errorThrown );
 				},
 				beforeSend: function(XMLHttpRequest) 
 				{ 
@@ -424,7 +424,7 @@ function main()
 				}, 
 				success: function( response, textStatus, jqXHR )
 				{
-					////////////console.log( XMLHttpRequest, textStatus, jqXHR );
+					//////////////console.log( XMLHttpRequest, textStatus, jqXHR );
 					if( response )
 					{
 						self.d = self.parseResponse(response)
@@ -483,7 +483,7 @@ function main()
 			view.mngs = mng;
 			view.buttons = [];
 			view.setSelectLayer();
-			////////console.log(view.mngs);
+			//////////console.log(view.mngs);
 		},
 		setSelectLayer: function()
 		{
@@ -579,7 +579,7 @@ function main()
 		},
 		destroy:function()
 		{
-			//////console.log("Called destroy");
+			////////console.log("Called destroy");
 			dir.directionDisplay.setMap(null);
 		    dir.directionDisplay.setPanel(null);
 			dir.hasDirection = false;
@@ -626,7 +626,6 @@ function main()
 					dir.save.start_lng = response.routes[0].legs[0].start_location.lng();
 					dir.save.end_lat = response.routes[0].legs[0].end_location.lat();
 					dir.save.end_lng = response.routes[0].legs[0].end_location.lng();
-					console.log( dir.save );
 			      }
 			    });
 			//dir.markers_printer(waypoints);
@@ -639,7 +638,7 @@ function main()
 			
 			for( var i in w )
 			{
-				////console.log( i, w[i] );
+				//////console.log( i, w[i] );
 				marker[i] = new google.maps.Marker({
 					position: w[i].location,
 					title: "stop",
@@ -798,7 +797,7 @@ function main()
 			var count = 0/*, cluster*/;
 
 			$.each(dircontrol.mngs, function(key, value){
-				////console.log(key);
+				//////console.log(key);
 				self.mng[key].mng = value;
 				dircontrol.buttons[count] = {};
 				dircontrol.buttons[count][key] = {};
@@ -832,7 +831,7 @@ function main()
 					html: 'Selected',
 					select: false
 				});
-				////////console.log( dircontrol.key.el );
+				//////////console.log( dircontrol.key.el );
 				$(dircontrol.buttons[count][key].el).addClass(dircontrol.buttons[count][key].name+"-button");
 				count++;
 			});
@@ -929,7 +928,7 @@ function main()
 			if( dir && dir.save )
 			{
 				//do you stuff here
-				//console.log("Press ")
+				////console.log("Press ")
 				store.appendFormAndSave();
 			}
 			else
@@ -941,7 +940,7 @@ function main()
 		},
 		appendFormAndSave:function()
 		{
-			//console.log("should append form " + store.has_form);
+			////console.log("should append form " + store.has_form);
 			var wrap = $('<div id="wrap_combined_inputs"></div>');
 			store.input = $('<input type="text" name="save_path_name" value="Nome percorso" id="save_path_name" />');
 			store.saveButton = $('<button type="button" id="save_path" value="Salva" />');
@@ -954,7 +953,7 @@ function main()
 					function(){
 						mainview.map_div.css('height', '75%');
 						store.has_form = true;
-						//console.log("should be appendend " + store.has_form);
+						////console.log("should be appendend " + store.has_form);
 					});
 				wrap.fadeIn(200);
 				store.input.click(function(){
@@ -969,7 +968,7 @@ function main()
 				}
 				else
 				{
-					//console.log("is else")
+					////console.log("is else")
 					try
 					{
 						window.localStorage.setObject( store.input.val(), dir.save );
@@ -996,7 +995,7 @@ function main()
 				storecontrol.displayData.removeClass('nui-slc')
 			});
 			container.addClass("locations-saved-list");
-			//console.log("has storage:: "+store.has_storage()+" s len "+window.localStorage.length)
+			////console.log("has storage:: "+store.has_storage()+" s len "+window.localStorage.length)
 			if( store.has_storage() && window.localStorage.length)
 			{
 				var len = window.localStorage.length;
@@ -1024,7 +1023,7 @@ function main()
 								store.stored[i].obj.end_lng, 
 								o
 								);
-								////console.log("Clicked")
+								//////console.log("Clicked")
 						});
 					}
 				}
@@ -1234,7 +1233,7 @@ function main()
 		destination:null,
 		o_input:null,
 		d_input:null,
-		w_inputs:[],
+		w_inputs:null,
 		wrp:null,
 		add_button:null,
 		save_buton:null,
@@ -1244,6 +1243,7 @@ function main()
 		request:false,
 		has_sortables:false,
 		sortable:null,
+		dictionary:null,
 		init:function()
 		{
 			combined = this;
@@ -1252,13 +1252,17 @@ function main()
 		{
 			var working_panel = $('#working-panel');
 			
+			combined.dictionary = combined.makeDictionary();
+			
+			//reset some variables 
 			combined.has_sortables = false;
+			combined.w_inputs = [];
 			combined.waypoints = [];
 			combined.request = {};
 			
 			combined.o_input = combined.printInput( combined.o_input, true );
 			combined.o_input.children('input').attr('id', 'o_origin');
-			combined.d_input = combined.printInput( combined.d_input );
+			combined.d_input = combined.printInput( combined.d_input, false, false );
 			combined.d_input.children('input').attr('id', 'd_destination')/*.parent().addClass('ui-state-default')*/;
 			combined.add_button = $('<input type="button" id="add_input" name="add_input" value="add" />');
 			combined.save_buton = $('<input type="button" id="save_input" name="save_input" value="save" />');
@@ -1276,39 +1280,42 @@ function main()
 		{
 			combined.add_button.bind('click',{d:null}, function(event){
 				var len = combined.w_inputs.length;
-				combined.w_inputs[len] = combined.printInput( combined.w_inputs[len] );
+				combined.w_inputs[len] = combined.printInput( combined.w_inputs[len], false, true );
 				combined.w_inputs[len].attr('id', 'id_'+len);
+				combined.w_inputs[len].related = null;
+				
 				if( len == 0 )
 				{
-					combined.o_input.after( combined.w_inputs[len] );
+					$(combined.o_input).after( combined.w_inputs[len] );
 				}
 				else
 				{
 					
-					combined.w_inputs[len-1].after( combined.w_inputs[len] );
+					$(combined.w_inputs[len-1]).after( combined.w_inputs[len] );
 				}
-				combined.sortable = combined.makeWayPointsSortable( combined.w_inputs[len] );
 				$( combined.w_inputs[len] ).addClass('ui-state-default')	
 			});
 			$('#working-panel').css('display','table');
 		},
 		makeWayPointsSortable:function(element, container)
 		{
-			var c = ( typeof container == 'undefined' ) ? combined.wrp : container, el = element;
+			var c = ( typeof container == 'undefined' ) ? combined.wrp : container, el = element, sort = null, tmp = [];
 			//check if container is sortable already, if not make it so
 			if( !$(c+':data(sortable)').length )
 			{
-				c.sortable({
+				sort = c.sortable({
 				   create: function(event, ui) { 
 						combined.has_sortables = true;
 					},
+					start: function (event, ui) {
+							combined.wrp.children('span.ui-state-default').each(function(key, val){
+								$(val).data( 'startindex', key );
+							});
+				    },
 					update:function(event, ui)
 					{
-						var curr_index = ui.item.index();
-						//console.log( ui.item, ui.item.index() );
-						$(this).children('span.ui-state-default').each(function(key, val){
-							//console.log( key, ui.item[0] == val, ui.item.index(), $(val).index() );
-							combined.w_inputs[key] = val;
+						combined.wrp.children('span.ui-state-default').each(function(key, val){
+							combined.w_inputs[key] = combined.w_inputs[$(val).data( 'startindex')];
 						});
 					}
 				});
@@ -1319,33 +1326,42 @@ function main()
 				'placeholder': 'ui-state-highlight'
 			}).disableSelection();
 			c.sortable('refresh');
-			return c;
+			return sort;
 		},
 		save:function()
 		{
+			var done = false;
 			combined.save_buton.bind('click', {d:null}, function(event){
-				combined.request.origin = ( 'name' in combined.o_input.data ) ? new google.maps.LatLng( combined.o_input.data.lat, combined.o_input.data.lng ) : combined.o_input.data;
-				combined.request.destination = ( typeof combined.d_input.data == 'object' ) ? new google.maps.LatLng( combined.d_input.data.lat, combined.d_input.data.lng ) : false;
+				combined.request.origin = ( 'name' in combined.o_input.related ) ? new google.maps.LatLng( combined.o_input.related.lat, combined.o_input.related.lng ) : combined.o_input.related;
+				combined.request.destination = ( typeof combined.d_input.related == 'object' ) ? new google.maps.LatLng( combined.d_input.related.lat, combined.d_input.related.lng ) : false;
 				if( !combined.request.destination )
 				{
 					alert("Seleziona una destinazione!");
 					return false;
 				}
 				$.each(combined.w_inputs, function(key, value){
-						if( typeof value.data == 'object' )
+						
+						console.log( value.related );
+						
+						if( typeof value.related == 'object' )
 						{
 							combined.waypoints.push({ 
-									'location':new google.maps.LatLng( value.data.lat, value.data.lng ),
+									'location':new google.maps.LatLng( value.related.lat, value.related.lng ),
 									'stopover':true,
 								});
+							done = true;
 						}
 						else
 						{
 							combined.waypoints = [];
+							done = false;
 							alert("Completa la compilazione dei waypoints!");
 							return false;
 						}
+						
 				});
+				if(!done) return false;
+				
 				combined.request.waypoints = combined.waypoints;
 				if(!dir) Directions.init();
 				dir.calculateRoute(
@@ -1360,26 +1376,39 @@ function main()
 				});
 			});
 		},
-		printInput:function( me, d )
+		makeDictionary:function()
 		{
-			var data = $.extend(true, {}, self.d), my = me, tmp = [], arr, def = ( typeof d == 'undefined' || d == false ) ? false : d;
+			var data, arr;
+			
+			data = $.extend(true, {}, self.d);
+			
 			delete data.traffic;
+			
 			arr = $.map(data, function (item, i){
-				return $.merge(tmp, data[i]);
+				return item;
 			});
+			
+			delete data;
+			return arr;
+		},
+		printInput:function( me, d, s )
+		{
+			var my = me, def = ( typeof d == 'undefined' || d == false ) ? false : d, sort = ( typeof s == 'undefined' || s == false ) ? false : s;
 			
 			my = $.ninja.autocomplete({
 			  placeholder: ( !def ) ? 'Cerca servizio' : 'Current location'
 			}).values(function (event) {
 			      my.list({
-			        values: $.map(arr, function (item, i) {
-					if( item.name.startsWith(event.query) )
-			          return {
-			            html: item.name,
-			            value: item.name,
-						select:function()
+			        values: $.map(combined.dictionary, function (item, i) {
+						if( item.name.startsWith(event.query) )
 						{
-							my.data = item;
+							return {
+								html: item.name,
+								value: item.name,
+								select:function()
+								{
+									my.related = item;
+								}
 						}
 			          };
 			        }),
@@ -1389,10 +1418,13 @@ function main()
 			
 			if( def )
 			{
-				my.data = self.me.currentLocation;
+				my.related = self.me.currentLocation;
 			}
 			
-			delete tmp, arr, data;
+			if( sort )
+			{
+				combined.sortable = combined.makeWayPointsSortable( my );
+			}
 			return my;
 		}	
 	};	
@@ -1430,4 +1462,4 @@ String.prototype.startsWith = function(pattern) {
   return this.slice(0, pattern.length).toLowerCase() == pattern.toLowerCase();
 };
 //Adds a data Object to autocomplete Object
-$.ninja.autocomplete.prototype.data = {};
+$.ninja.autocomplete.prototype.related = {};
