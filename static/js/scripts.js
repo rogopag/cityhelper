@@ -1243,6 +1243,7 @@ function main()
 		request:false,
 		has_sortables:false,
 		sortable:null,
+		dictionary:null,
 		init:function()
 		{
 			combined = this;
@@ -1250,6 +1251,8 @@ function main()
 		makeForm:function()
 		{
 			var working_panel = $('#working-panel');
+			
+			combined.dictionary = combined.makeDictionary();
 			
 			//reset some variables 
 			combined.has_sortables = false;
@@ -1370,31 +1373,42 @@ function main()
 				google.maps.event.addListener(dir.directionDisplay, 'directions_changed', function()
 				{
 					mainview.combinedHide();
-					delete combined;
 				});
 			});
 		},
-		printInput:function( me, d, s )
+		makeDictionary:function()
 		{
-			var data = $.extend(true, {}, self.d), my = me, tmp = [], arr, def = ( typeof d == 'undefined' || d == false ) ? false : d, sort = ( typeof s == 'undefined' || s == false ) ? false : s;
+			var data, arr;
+			
+			data = $.extend(true, {}, self.d);
 			
 			delete data.traffic;
+			
 			arr = $.map(data, function (item, i){
-				return $.merge(tmp, data[i]);
+				return item;
 			});
+			
+			delete data;
+			return arr;
+		},
+		printInput:function( me, d, s )
+		{
+			var my = me, def = ( typeof d == 'undefined' || d == false ) ? false : d, sort = ( typeof s == 'undefined' || s == false ) ? false : s;
 			
 			my = $.ninja.autocomplete({
 			  placeholder: ( !def ) ? 'Cerca servizio' : 'Current location'
 			}).values(function (event) {
 			      my.list({
-			        values: $.map(arr, function (item, i) {
-					if( item.name.startsWith(event.query) )
-			          return {
-			            html: item.name,
-			            value: item.name,
-						select:function()
+			        values: $.map(combined.dictionary, function (item, i) {
+						if( item.name.startsWith(event.query) )
 						{
-							my.related = item;
+							return {
+								html: item.name,
+								value: item.name,
+								select:function()
+								{
+									my.related = item;
+								}
 						}
 			          };
 			        }),
@@ -1411,8 +1425,6 @@ function main()
 			{
 				combined.sortable = combined.makeWayPointsSortable( my );
 			}
-			
-			delete tmp, arr, data;
 			return my;
 		}	
 	};	
