@@ -1260,9 +1260,9 @@ function main()
 			combined.waypoints = [];
 			combined.request = {};
 			
-			combined.o_input = combined.printInput( combined.o_input, true );
+			combined.o_input = combined.printInput( true );
 			combined.o_input.children('input').attr('id', 'o_origin');
-			combined.d_input = combined.printInput( combined.d_input, false, false );
+			combined.d_input = combined.printInput( false, false );
 			combined.d_input.children('input').attr('id', 'd_destination')/*.parent().addClass('ui-state-default')*/;
 
 			combined.add_button = $('<span class="button_wrapper"><input type="button" id="add_input" name="add_input" value="add" /></span>');
@@ -1282,9 +1282,9 @@ function main()
 		{
 			combined.add_button.bind('click',{d:null}, function(event){
 				var len = combined.w_inputs.length;
-				combined.w_inputs[len] = combined.printInput( combined.w_inputs[len], false, true );
+				combined.w_inputs[len] = combined.printInput( false, true );
 				combined.w_inputs[len].attr('id', 'id_'+len);
-				combined.w_inputs[len].related = null;
+				combined.w_inputs[len].data('related', null);
 				
 				if( len == 0 )
 				{
@@ -1312,14 +1312,14 @@ function main()
 					start: function (event, ui) {
 							combined.wrp.children('span.ui-state-default').each(function(key, val){
 								$(val).data( 'startindex', key );
-								console.log( $(val).data( 'startindex') )
+							//	console.log( $(val).data( 'startindex') )
 							});
 				    },
 					update:function(event, ui)
 					{
 						combined.wrp.children('span.ui-state-default').each(function(key, val){
 							combined.w_inputs[key] = combined.w_inputs[$(val).data( 'startindex')];
-							console.log( $(val).data( 'startindex') + " --- "+$(val).index() )
+						//	console.log( $(val).data( 'startindex') + " --- "+$(val).index() )
 						});
 					}
 				});
@@ -1336,8 +1336,8 @@ function main()
 		{
 			var done = false;
 			combined.save_buton.bind('click', {d:null}, function(event){
-				combined.request.origin = ( 'name' in combined.o_input.related ) ? new google.maps.LatLng( combined.o_input.related.lat, combined.o_input.related.lng ) : combined.o_input.related;
-				combined.request.destination = ( typeof combined.d_input.related == 'object' ) ? new google.maps.LatLng( combined.d_input.related.lat, combined.d_input.related.lng ) : false;
+				combined.request.origin = ( 'name' in combined.o_input.data('related') ) ? new google.maps.LatLng( combined.o_input.data('related').lat, combined.o_input.data('related').lng ) : combined.o_input.data('related');
+				combined.request.destination = ( typeof combined.d_input.data('related') == 'object' ) ? new google.maps.LatLng( combined.d_input.data('related').lat, combined.d_input.data('related').lng ) : false;
 				if( !combined.request.destination )
 				{
 					alert("Seleziona una destinazione!");
@@ -1345,12 +1345,12 @@ function main()
 				}
 				$.each(combined.w_inputs, function(key, value){
 						
-						console.log( value.related );
+						console.log( value.data('related') );
 						
-						if( typeof value.related == 'object' )
+						if( typeof value.data('related') == 'object' )
 						{
 							combined.waypoints.push({ 
-									'location':new google.maps.LatLng( value.related.lat, value.related.lng ),
+									'location':new google.maps.LatLng( value.data('related').lat, value.data('related').lng ),
 									'stopover':true,
 								});
 							done = true;
@@ -1395,9 +1395,9 @@ function main()
 			delete data;
 			return arr;
 		},
-		printInput:function( me, d, s )
+		printInput:function( d, s )
 		{
-			var my = me, def = ( typeof d == 'undefined' || d == false ) ? false : d, sort = ( typeof s == 'undefined' || s == false ) ? false : s;
+			var my, def = ( typeof d == 'undefined' || d == false ) ? false : d, sort = ( typeof s == 'undefined' || s == false ) ? false : s;
 			
 			my = $.ninja.autocomplete({
 			  placeholder: ( !def ) ? 'Cerca servizio' : 'Current location'
@@ -1411,7 +1411,7 @@ function main()
 								value: item.name,
 								select:function()
 								{
-									my.related = item;
+									my.data('related', item);
 								}
 						}
 			          };
@@ -1422,7 +1422,7 @@ function main()
 			
 			if( def )
 			{
-				my.related = self.me.currentLocation;
+				my.data('related', self.me.currentLocation);
 			}
 			
 			if( sort )
@@ -1465,5 +1465,3 @@ google.maps.TrafficLayer.prototype.hide = function()
 String.prototype.startsWith = function(pattern) {
   return this.slice(0, pattern.length).toLowerCase() == pattern.toLowerCase();
 };
-//Adds a data Object to autocomplete Object
-$.ninja.autocomplete.prototype.related = {};
