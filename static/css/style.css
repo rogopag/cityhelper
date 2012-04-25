@@ -326,7 +326,7 @@ div#working-panel div.division1 {
 	height: 23px;
 	width: 100%;
 	bottom: -5px;
-	background: url('../images/site/h_shadow.png') no-repeat 50% bottom;
+	background: url('../images/site/h_shadow.png') no-repeat 50% -8px;
 	z-index: 50;
 }
 div#wrap_combined_inputs {
@@ -334,52 +334,64 @@ div#wrap_combined_inputs {
 	overflow: auto;
 	max-height: 100%;
 }
-
 #save_input {
 	clear: both;
 	display: block;
 	height: 60px;
 	width: 100%;
 	border: 0;
-	background: yellow;
+	background: #ff6666 url('../images/site/save_texture.png') 50% top;
+	padding: 0;
+	color: #fff;
+	font-weight: bold;
+	font-size: .9em;
+	text-transform: capitalize;
 }
 div#wrap_combined_inputs span.nui-atc {
 	height: 60px;
 	width: 100%;
-	background: #f5f4f4 /* url('../images/bg.jpg') no-repeat left top */;
-	border-top: 1px solid red; /* #ebebeb */
-	border-bottom: 1px solid red;
+	background: #f5f4f4 url('../images/site/save_texture.png') repeat-x 50% -60px;
+	border-top: 1px solid #ebebeb; /* #ebebeb */
+	border-bottom: 1px solid #ebebeb;
 }
 div#wrap_combined_inputs span.nui-atc:first-child {
-	border-top: 1px solid red;
+	border-top: 1px solid #ebebeb;
 }
 div#wrap_combined_inputs span.nui-atc:last-of-type {
-	border-bottom: 1px solid red;
+	border-bottom: 0;
+/*	background: url('../images/site/h_shadow.png') no-repeat 50% -31px; */
 }
 div#wrap_combined_inputs span.button_wrapper {
 	height: 0;
 	width: 100%;
 	overflow: visible;
 	display: block;
-	background: cyan;
 	position: relative;
 	z-index: 10;
+	border: 1px solid #B2B2B2;
 }
 div#wrap_combined_inputs span.nui-atc input {
 	margin: 14px 0 14px 40px;
 	height: 32px;
-	border: 1px solid #333;
+	border: 1px solid #dbdbdb;
 	width: 232px;
+	font-size: .9em;
+	color: #756755;
 }
 input#add_input {
-	height: 20px;
-	width: 50px;
+	height: 14px;
+	width: 62px;
 	margin: 0 auto;
 	position: absolute;
-	top: -10px;
+	top: -7px;
+	left: 23px;
 	border: 0;
 	border-radius: 0;
+	background: url('../images/site/bar_buttons.png') no-repeat 50% -838px;
+	overflow: hidden;
+	text-indent: -999px;
 }
+
 
 
 

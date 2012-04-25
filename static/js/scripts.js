@@ -374,7 +374,7 @@ function main()
 						width : 38,
 						backgroundPosition:[params.cluster,0],
 					//	anchorIcon:[200,0],
-					//	anchor : [17,0],
+						anchor : [50,30],
 						textColor : '#ff0000',
 						textSize : 12
 					}];
