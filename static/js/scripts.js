@@ -548,7 +548,8 @@ function main()
 		purge_open:function(el)
 		{
 			$(el).children(".nui-try").slideUp('fast', function(){
-				$(this).prev().removeClass('nui-slc')
+				$(this).prev().removeClass('nui-slc');
+				view.dialogs_open = [];
 			});
 		},
 		purgeCssClass:function(el)
@@ -595,6 +596,11 @@ function main()
 				draggable:false,
 				markerOptions:{
 					visible:true
+				},
+				polylineOptions:{
+					strokeColor:"#0000ff",
+					strokeOpacity:0.5,
+					strokeWeight:6
 				}
 			});
 		},
@@ -1323,12 +1329,12 @@ function main()
 						});
 					}
 				});
+				c.sortable( "option", {
+					'items':'span.ui-state-default',
+					'cursor':'pointer',
+					'placeholder': 'ui-state-highlight'
+				}).disableSelection();
 			}
-			c.sortable( "option", {
-				'items':'span.ui-state-default',
-				'cursor':'pointer',
-				'placeholder': 'ui-state-highlight'
-			}).disableSelection();
 			c.sortable('refresh');
 			return sort;
 		},
@@ -1338,14 +1344,25 @@ function main()
 			combined.save_buton.bind('click', {d:null}, function(event){
 				combined.request.origin = ( 'name' in combined.o_input.data('related') ) ? new google.maps.LatLng( combined.o_input.data('related').lat, combined.o_input.data('related').lng ) : combined.o_input.data('related');
 				combined.request.destination = ( typeof combined.d_input.data('related') == 'object' ) ? new google.maps.LatLng( combined.d_input.data('related').lat, combined.d_input.data('related').lng ) : false;
+				
+				if( !combined.request.origin )
+				{
+					alert("Seleziona un punto di partenza!");
+					done = false;
+					return done;
+				}
 				if( !combined.request.destination )
 				{
 					alert("Seleziona una destinazione!");
-					return false;
+					done = false;
+					return done;
 				}
+				
+				if( !combined.w_inputs.length ) done = true;
+				
 				$.each(combined.w_inputs, function(key, value){
 						
-						console.log( value.data('related') );
+						//console.log( value.data('related') );
 						
 						if( typeof value.data('related') == 'object' )
 						{
@@ -1357,6 +1374,7 @@ function main()
 						}
 						else
 						{
+							//stop execution if not all waypoints have an address
 							combined.waypoints = [];
 							done = false;
 							alert("Completa la compilazione dei waypoints!");
@@ -1364,6 +1382,7 @@ function main()
 						}
 						
 				});
+				//stop execution if not all waypoints have an address
 				if(!done) return false;
 				
 				combined.request.waypoints = combined.waypoints;
@@ -1404,7 +1423,7 @@ function main()
 			}).values(function (event) {
 			      my.list({
 			        values: $.map(combined.dictionary, function (item, i) {
-						if( item.name.startsWith(event.query) )
+						if( item.name.startsWith(event.query) && my.data('related', item).name != item.name )
 						{
 							return {
 								html: item.name,
