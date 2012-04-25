@@ -941,7 +941,7 @@ function main()
 		appendFormAndSave:function()
 		{
 			////console.log("should append form " + store.has_form);
-			var wrap = $('<div id="wrap_combined_inputs"></div>');
+			var wrap = $('<div id="wrap_combined_inputs_save"></div>');
 			store.input = $('<input type="text" name="save_path_name" value="Nome percorso" id="save_path_name" />');
 			store.saveButton = $('<button type="button" id="save_path" value="Salva" />');
 			
@@ -972,7 +972,7 @@ function main()
 					try
 					{
 						window.localStorage.setObject( store.input.val(), dir.save );
-						alert("Il percorso "+ store.input.val() + " &egrave; stato salvato");
+						alert("Il percorso "+ store.input.val() + " " + unescape('%E8') + " stato salvato");
 					}
 					catch(error)
 					{
@@ -1312,12 +1312,14 @@ function main()
 					start: function (event, ui) {
 							combined.wrp.children('span.ui-state-default').each(function(key, val){
 								$(val).data( 'startindex', key );
+								console.log( $(val).data( 'startindex') )
 							});
 				    },
 					update:function(event, ui)
 					{
 						combined.wrp.children('span.ui-state-default').each(function(key, val){
 							combined.w_inputs[key] = combined.w_inputs[$(val).data( 'startindex')];
+							console.log( $(val).data( 'startindex') + " --- "+$(val).index() )
 						});
 					}
 				});

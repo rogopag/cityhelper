@@ -334,6 +334,13 @@ div#wrap_combined_inputs {
 	overflow: auto;
 	max-height: 100%;
 }
+div#wrap_combined_inputs_save{
+	width: 100%;
+	overflow: auto;
+	max-height: 100%;
+	position:relative;
+	left:40%;
+}
 #save_input {
 	clear: both;
 	display: block;
@@ -391,25 +398,10 @@ input#add_input {
 	overflow: hidden;
 	text-indent: -999px;
 }
-<<<<<<< HEAD
-=======
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> combined_view
 .row{padding:5px;cursor:pointer;}
 /*/////// INFO BOX /////////////////////////////*/
 .infoBox{border: 1px solid black; margin-top: 8px; background: yellow; padding: 5px;opacity:0.75;width:280px;}
 
 /*/////COMBINED///////////*/
-
 .nui-lst{position:relative;top:20px;}
 .ui-state-default{padding-left:3px;padding-right:3px;}
