@@ -374,7 +374,7 @@ function main()
 						width : 38,
 						backgroundPosition:[params.cluster,0],
 					//	anchorIcon:[200,0],
-					//	anchor : [17,0],
+						anchor : [50,30],
 						textColor : '#ff0000',
 						textSize : 12
 					}];
@@ -1261,10 +1261,15 @@ function main()
 			combined.request = {};
 			
 			combined.o_input = combined.printInput( combined.o_input, true );
+<<<<<<< HEAD
 			combined.o_input.children('input').attr('id', 'o_origin');
 			combined.d_input = combined.printInput( combined.d_input, false, false );
 			combined.d_input.children('input').attr('id', 'd_destination')/*.parent().addClass('ui-state-default')*/;
 			combined.add_button = $('<input type="button" id="add_input" name="add_input" value="add" />');
+=======
+			combined.d_input = combined.printInput( combined.d_input );
+			combined.add_button = $('<span class="button_wrapper"><input type="button" id="add_input" name="add_input" value="add" /></span>');
+>>>>>>> combined_view
 			combined.save_buton = $('<input type="button" id="save_input" name="save_input" value="save" />');
 			combined.wrp = $('<div id="wrap_combined_inputs"></div>');
 			
@@ -1295,7 +1300,12 @@ function main()
 				}
 				$( combined.w_inputs[len] ).addClass('ui-state-default')	
 			});
+<<<<<<< HEAD
 			$('#working-panel').css('display','table');
+=======
+			
+			$('#working-panel').css({'display':'-webkit-box'});
+>>>>>>> combined_view
 		},
 		makeWayPointsSortable:function(element, container)
 		{
