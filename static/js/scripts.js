@@ -580,6 +580,18 @@ function main()
 					value.removeClass('nui-slc');
 				}
 			});
+		},
+		listGenericDialog:function( content )
+		{
+			var container = $.ninja.dialog({
+				html: ''
+			}).detach(function () {
+				
+			}).attach(function(){
+				$(this).append(content);
+			});
+			container.addClass("places-show-data");
+			return container;
 		}
 	};
 	Directions = {
@@ -1410,7 +1422,8 @@ function main()
 				});
 				c.sortable( "option", {
 					'items':'span.ui-state-default',
-					'cursor':'pointer',
+					'cursor':'move',
+					'handle':'div.drag_handle',
 					'placeholder': 'ui-state-highlight'
 				}).disableSelection();
 			}
@@ -1442,7 +1455,7 @@ function main()
 			}).values(function (event) {
 			      my.list({
 			        values: $.map(combined.dictionary, function (item, i) {
-						if( item.name.startsWith(event.query) && my.data('related', item).name != item.name )
+						if( item.name.startsWith(event.query) )
 						{
 							return {
 								html: item.name,
@@ -1450,6 +1463,8 @@ function main()
 								select:function()
 								{
 									my.data('related', item);
+									details.unbind('click');
+									combined.showDetails(details, my.data('related') );
 								}
 						}
 			          };
@@ -1457,6 +1472,9 @@ function main()
 			        query: event.query
 			      });
 			});
+			
+			my.prepend( drag_handle );
+			my.append( details );
 		
 			if( sort && my )
 			{
@@ -1473,14 +1491,52 @@ function main()
 				my.data('related', null);
 			}
 			
-			my.prepend( drag_handle );
-			my.append( details );
+			combined.showDetails(details, my.data('related') );
 			
-			details.bind('click', {item:my.data('related')}, function(event){
-				var item = event.data.item;
-				console.log( item );
-			});
 			return my;
+		},
+		showDetails:function(el, data)
+		{
+				var content, dialog;
+				
+				el.bind('click', {item:data}, function(event){
+					console.log("clicked");
+					var item = event.data.item;
+					if( null != item )
+					{
+						if( 'name' in item )
+						{
+							console.log( item );
+							content = item.address+", "+item.cap+", "+item.town+", "+item.phone;
+							combined.attachListDialog(content);
+						}
+						else
+						{
+							var geo = new google.maps.Geocoder();
+							var latlng = new google.maps.LatLng( item.$a, item.ab );
+							geo.geocode({'latLng': latlng}, function(results, status) {
+								if (status == google.maps.GeocoderStatus.OK) {
+									if (results[0]) {
+										console.log( results[0].formatted_address );
+										content = results[0].formatted_address;
+										combined.attachListDialog(content);
+									}
+								}
+							});
+						}
+					}
+					else
+					{
+						alert( "Seleziona una destinazione per visualizzarne i dettagli")
+					}
+				});
+		},
+		attachListDialog:function(c)
+		{
+			var content = c;
+			dialog = view.listGenericDialog(content);
+			dialog.attach();
+			return dialog;
 		},
 		switchOriginAndDestination: function(d)
 		{
