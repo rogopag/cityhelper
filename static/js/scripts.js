@@ -813,11 +813,7 @@ function main()
 	       		$('.nui-dlg').prepend($('.nui-dlg .close .nui-icn'));
        		   	$('.nui-dlg .close').remove();
            }).attach(function(){
-               	$('.nui-dlg').css({
-	               	'width':$(window).width()-20,
-	               	'top':'10',
-	               	'left':'10'
-	              	}).prepend('<span class="title"><h2>Opzioni percorso<h/h2></span>');
+               	$('.nui-dlg').css({'width':$(window).width()-20,'top':'10','left':'10'}).prepend('<span class="title"><h2>Opzioni percorso<h/h2></span>');
 	
 	           	$('.nui-dlg').append('<span class="close"><span>Chiudi</span></span>');
 	           	$('.nui-dlg .close').prepend($('.nui-dlg img.nui-icn'));
@@ -1078,8 +1074,10 @@ function main()
 			}).detach(function () {
 				storecontrol.displayData.removeClass('nui-slc')
 			});
-			container.addClass("locations-saved-list");
-			////////console.log("has storage:: "+store.has_storage()+" s len "+window.localStorage.length)
+
+			container.addClass("locations-saved-list").append('<span class="title"><h2>I miei percorsi</h2></span>');
+			//////console.log("has storage:: "+store.has_storage()+" s len "+window.localStorage.length)
+
 			if( store.has_storage() && window.localStorage.length)
 			{
 				var len = window.localStorage.length;
@@ -1115,6 +1113,14 @@ function main()
 						});
 					}
 				}
+				
+				$('.nui-dlg').css({'width':$(window).width()-20,'top':'10','left':'10'});
+				
+				setTimeout(function(){ //must wait for the anim to end!
+					$('.nui-dlg').css('height',$(window).height()-20);
+					$('.nui-dlg').append('<span class="close"><span>Chiudi</span></span>');
+		           	$('.nui-dlg .close').prepend($('.nui-dlg img.nui-icn'));
+				},1000);
 			}
 			else
 			{
