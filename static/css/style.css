@@ -355,11 +355,13 @@ div#wrap_combined_inputs_save{
 	text-transform: capitalize;
 }
 div#wrap_combined_inputs span.nui-atc {
+	border: 0;
 	height: 60px;
 	width: 100%;
 	background: #f5f4f4 url('../images/site/save_texture.png') repeat-x 50% -60px;
 	border-top: 1px solid #ebebeb; /* #ebebeb */
 	border-bottom: 1px solid #ebebeb;
+	padding: 0;
 }
 div#wrap_combined_inputs span.nui-atc:first-child {
 	border-top: 1px solid #ebebeb;
@@ -368,6 +370,25 @@ div#wrap_combined_inputs span.nui-atc:last-of-type {
 	border-bottom: 0;
 /*	background: url('../images/site/h_shadow.png') no-repeat 50% -31px; */
 }
+div#wrap_combined_inputs span.nui-atc div.drag_handle,
+div#wrap_combined_inputs span.nui-atc div.details {
+	position: absolute;
+	top: 0;
+	width: 21px;
+	height: 100%;
+	background: url('../images/site/save_texture.png') no-repeat 0 -120px;
+}
+div#wrap_combined_inputs span.nui-atc div.drag_handle {
+	left: 0;
+}
+div#wrap_combined_inputs span.nui-atc div.details {
+	right: 0;
+	width: 34px;
+	background-position: 0 -180px;
+}
+
+
+
 div#wrap_combined_inputs span.button_wrapper {
 	height: 0;
 	width: 100%;
@@ -376,6 +397,8 @@ div#wrap_combined_inputs span.button_wrapper {
 	position: relative;
 	z-index: 10;
 	border: 1px solid #B2B2B2;
+	border-left: 0;
+	border-right: 0;
 }
 div#wrap_combined_inputs span.nui-atc input {
 	margin: 14px 0 14px 40px;
