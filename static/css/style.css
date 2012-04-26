@@ -4,18 +4,19 @@
 /* 
 ** general //////////////////////////////////////
 */
-
+html, body{height: 100%;margin: 0;}
 body {
 	padding: 0;
 	margin: 0;
 	/*forces address bar to hide on iphone*/
 	min-height:540px;
+	
 }
 /*forces address bar to hide on iphone*/
 body[orient="portrait"] { min-height:540px; }
 body[orient="landscape"] { min-height:400px; }
 /* main top bar */
-
+div#wrap_all{min-height: 100%;height: auto !important;height: 100%;margin: 0 auto -40px;}
 #mainbar {
 	position: fixed;
 	top: 0;

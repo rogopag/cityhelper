@@ -474,18 +474,11 @@ function main()
 		hideAddressBar: function()
 		{
 			setTimeout(function(){
-				if( self.touch )
-				{
-					window.scrollTo(0,1);
-					$("#map_canvas").trigger('resized');
-				}
-		  	},0);
-			
-			$('#map_canvas').live('resized', function(event){
-				$(event.target).css('height', '100%');
-				//console.log("resized bar "+$(event.target).height() + " "+ $(event.target).attr('id'));
-			});
-			
+					if( self.touch )
+					{
+						window.scrollTo(0,1);
+					}
+			},0);
 		},	
 	};
 	ViewController = {

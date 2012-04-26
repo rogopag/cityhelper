@@ -2,10 +2,8 @@
 
 	{% block addl_scripts %}
 	{{ block.super }}
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 	<link rel="stylesheet" href="{{STATIC_URL}}js/jquery-ui.custom/css/jquery-ui.custom.css" media="screen" />
-<!--	<script src="http://maps.google.com/maps/api/js?key=AIzaSyDELfap-CYuXhKz_bLWnRNmEnCattUfJFE&amp;sensor=true&amp;libraries=places&amp;v=3.8" type="text/javascript"></script> -->
+<script src="http://maps.google.com/maps/api/js?key=AIzaSyDELfap-CYuXhKz_bLWnRNmEnCattUfJFE&amp;sensor=true&amp;v=3.8" type="text/javascript"></script>
 <script src="http://maps.google.com/maps/api/js?sensor=true&amp;v=3.8" type="text/javascript"></script>
 	<script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.9/src/markerclusterer_packed.js"></script>
 	<script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/src/infobox_packed.js"></script>
@@ -15,6 +13,7 @@
 	{% endblock %}
 	
 	{% block content %}
+	<div id="wrap_all">
 	<div id="working-panel"></div>
 	<div id="map_canvas"></div>
 	<div id="token">{{ csrf_token }}</div>
@@ -31,5 +30,6 @@
 			<div class="button bt_4"><span></span></div>
 			<div class="button bt_5"><span></span></div>
 		</div>
+	</div>
 	</div>
 	{% endblock %}
