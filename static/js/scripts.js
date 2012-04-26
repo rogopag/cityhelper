@@ -185,7 +185,7 @@ function main()
 			    scaleControlOptions: {
 			        position: google.maps.ControlPosition.LEFT_CENTER
 			    },
-			    streetViewControl: self.is_not_touch,
+			    streetViewControl: false,
 			    streetViewControlOptions: {
 			        position: google.maps.ControlPosition.LEFT_CENTER
 			    }
@@ -251,13 +251,13 @@ function main()
 				html: 'Percorso',
 				select:( null == dir ) ? false : true
 				}).select(function(){
-					Directions.init();
+					if(!dir) Directions.init();
 					dir.calculateRoute(obj.lat, obj.lng);
-					return false;
+					//return false;
 				}).deselect(function(){
 					dir.destroy();
 					if( !obj.has_infoBox && !self.has_infobox_open ) self.infoBox.close();
-					return false;
+					//return false;
 				}),
 			buttonSelect = $.ninja.button({
 				html: 'Selected',
@@ -474,8 +474,18 @@ function main()
 		hideAddressBar: function()
 		{
 			setTimeout(function(){
-		    	window.scrollTo(0,1);
+				if( self.touch )
+				{
+					window.scrollTo(0,1);
+					$("#map_canvas").trigger('resized');
+				}
 		  	},0);
+			
+			$('#map_canvas').live('resized', function(event){
+				$(event.target).css('height', '100%');
+				console.log("resized bar "+$(event.target).height() + " "+ $(event.target).attr('id'));
+			});
+			
 		},	
 	};
 	ViewController = {
@@ -1415,7 +1425,7 @@ function main()
 		},
 		printInput:function( d, s )
 		{
-			var my, def = ( typeof d == 'undefined' || d == false ) ? false : d, sort = ( typeof s == 'undefined' || s == false ) ? false : s;
+			var my, def = ( typeof d == 'undefined' || d == false ) ? false : d, sort = ( typeof s == 'undefined' || s == false ) ? false : s, drag_handle = $('<div class="drag_handle"></div>'), details = $('<div class="details">');
 			
 			my = $.ninja.autocomplete({
 			  placeholder: ( !def ) ? 'Cerca servizio' : 'Current location'
@@ -1452,6 +1462,8 @@ function main()
 			{
 				my.data('related', null);
 			}
+			my.prepend( drag_handle );
+			my.append( details );
 			return my;
 		},
 		switchOriginAndDestination: function(d)
