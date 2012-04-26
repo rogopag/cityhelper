@@ -12,7 +12,7 @@ function main()
 		map : null,
 		d : null,
 		objects : {},
-		ZOOM: 11,
+		ZOOM: 12,
 		clusterMaxZoom:16,
 		mng: null,
 		icons: {},
@@ -131,6 +131,7 @@ function main()
 			google.maps.event.addListener(self.map, "zoom_changed", function() {
 				var zoom = self.map.getZoom(), size = zoom * ( zoom / 10 );
 				if( zoom <= self.ZOOM ) return false;
+				
 				
 				// sets the new zoom for the user's icon
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
