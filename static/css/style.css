@@ -385,6 +385,7 @@ div#wrap_combined_inputs span.nui-atc input {
 	font-size: .9em;
 	color: #756755;
 }
+div#wrap_combined_inputs_save{display:none;}
 input#add_input {
 	height: 14px;
 	width: 62px;

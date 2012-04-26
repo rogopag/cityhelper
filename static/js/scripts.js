@@ -898,6 +898,7 @@ function main()
 		saveDataSelect:null,
 		displayData:null,
 		displayDataSelect:null,
+		saveData_div:null,
 		init:function()
 		{
 			storecontrol = this;
@@ -927,7 +928,8 @@ function main()
 			storecontrol.saveData = $.ninja.button({
 				html: 'Salva'
 				}).select(function(){
-					store.saveData(storecontrol.saveData);
+					storecontrol.saveData_div = store.saveData(storecontrol.saveData);
+					
 				}).deselect(function(){
 					store.removePanel();
 				}),
@@ -980,7 +982,7 @@ function main()
 			{
 				//do you stuff here
 				//////console.log("Press ")
-				store.appendFormAndSave();
+				return store.appendFormAndSave();
 			}
 			else
 			{
@@ -998,15 +1000,13 @@ function main()
 			
 			if( !store.has_form )
 			{
-				mainview.div.css('height', '50%');
-				wrap.append(store.input, store.saveButton).css('top','50%');
-				mainview.div.append(wrap).slideDown(400, 
-					function(){
-						mainview.map_div.css('height', '50%');
+				wrap.append(store.input, store.saveButton);
+				
+				$(storecontrol.saveData).parent().append(wrap);
+					wrap.slideDown(400, function(){
 						store.has_form = true;
-						//////console.log("should be appendend " + store.has_form);
 					});
-				wrap.fadeIn(200);
+			
 				store.input.click(function(){
 					$(this).val('');
 				});
@@ -1035,6 +1035,7 @@ function main()
 					}	
 				}
 			});
+			return wrap;
 		},
 		getData:function(button)
 		{
@@ -1062,7 +1063,7 @@ function main()
 					if( !shown )
 					{
 						row.text(store.stored[i].key);
-						container.append( row ).fadeIn(400, function(){
+						container.append( row ).slideDown(400, function(){
 							shown = true;
 						});
 						row.bind('click', {index:i}, function(event){
@@ -1087,10 +1088,10 @@ function main()
 		removePanel:function()
 		{
 			//console.log('should remove the panel')
-			mainview.map_div.css('height', '100%');
-			mainview.div.slideUp(400, function(){
+			storecontrol.saveData_div.slideUp(400, function(){
 				store.has_form = false;
-				$(this).empty();
+				$(this).remove();
+				storecontrol.saveData.removeClass('nui-slc');
 			});
 		}
 	};
