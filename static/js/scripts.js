@@ -78,7 +78,7 @@ function main()
 				var size = self.map.getZoom(), image, circle_options;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
-				////////console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
+				//////////console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
 				
 				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
 				{
@@ -198,12 +198,12 @@ function main()
 			
 			for(var key in self.d)
 			{
-				//////////console.log( key );
+				////////////console.log( key );
 				self.objects[key] = [];
 				self.icons[key] = LocalSettings.STATIC_URL+'images/map_icons.png';
 				
 				p = self.switch_parameters(key);
-				////////console.log( )
+				//////////console.log( )
 				image = new google.maps.MarkerImage(
 					self.icons[key],
 					new google.maps.Size(size, size), 
@@ -292,7 +292,7 @@ function main()
 				google.maps.event.addListener(self.map, 'click', (function(o, i){
 					return function()
 					{
-						////////console.log( "tapped "+obj.has_infoBox+" "+i );
+						//////////console.log( "tapped "+obj.has_infoBox+" "+i );
 						i.close();
 						o.has_infoBox = false;
 						self.has_infobox_open = false;
@@ -364,7 +364,7 @@ function main()
 			{
 				var styles, params = self.switch_parameters(key);
 				
-		//		////////console.log(params.cluster)
+		//		//////////console.log(params.cluster)
 				
 				if( key != 'traffic')
 				{
@@ -380,7 +380,7 @@ function main()
 					}];
 						//sets MarkerClusters for each group 
 						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:self.clusterMaxZoom});
-				//		////////console.log( mgr[key].getCalculator() )
+				//		//////////console.log( mgr[key].getCalculator() )
 					}
 					else
 					{
@@ -413,7 +413,7 @@ function main()
 				dataType: 'json',
 				error: function(XMLHttpRequest, textStatus, errorThrown)
 				{  
-					////////////console.log( textStatus, errorThrown );
+					//////////////console.log( textStatus, errorThrown );
 				},
 				beforeSend: function(XMLHttpRequest) 
 				{ 
@@ -424,7 +424,7 @@ function main()
 				}, 
 				success: function( response, textStatus, jqXHR )
 				{
-					//////////////console.log( XMLHttpRequest, textStatus, jqXHR );
+					////////////////console.log( XMLHttpRequest, textStatus, jqXHR );
 					if( response )
 					{
 						self.d = self.parseResponse(response)
@@ -483,7 +483,7 @@ function main()
 			view.mngs = mng;
 			view.buttons = [];
 			view.setSelectLayer();
-			//////////console.log(view.mngs);
+			////////////console.log(view.mngs);
 		},
 		setSelectLayer: function()
 		{
@@ -513,6 +513,7 @@ function main()
 			view.clear_button = $.ninja.button({
 				html: 'Svuota'
 			}).select(function(){
+				//console.log( dir, dir.hasDirection )
 				if( dir && dir.hasDirection ) dir.destroy();
 				view.purge_open( view.options );
 				view.purgeCssClass( $(this) );
@@ -580,9 +581,10 @@ function main()
 		},
 		destroy:function()
 		{
-			////////console.log("Called destroy");
+			//////////console.log("Called destroy");
 			dir.directionDisplay.setMap(null);
 		    dir.directionDisplay.setPanel(null);
+			dircontrol.isSearchingForDirection = false;
 			dir.hasDirection = false;
 			dir.setRenderer();
 		},
@@ -595,18 +597,18 @@ function main()
 			dir.directionDisplay.setOptions({
 				draggable:false,
 				markerOptions:{
-					visible:true
+					visible:false
 				},
 				polylineOptions:{
-					strokeColor:"#0000ff",
+					strokeColor:"#5588ee",
 					strokeOpacity:0.5,
 					strokeWeight:6
 				}
 			});
 		},
-		calculateRoute:function(lat, lng, org, w)
+		calculateRoute:function(lat, lng, org, w, w_d, d)
 		{
-			var origin, request, waypoints;
+			var origin, request, waypoints, waypoints_data, dest = d;
 			// if a route is already plotted please erase.
 			
 			if( dir.hasDirection ) dir.destroy();
@@ -614,6 +616,8 @@ function main()
 			origin = ( org ) ? org : self.me.currentLocation;
 			
 			waypoints = ( w ) ? w : [];
+			waypoints_data = ( w_d ) ? w_d : [];
+			dest = ( d ) ? d : false;
 			
 			request = {
 				origin: origin,
@@ -624,32 +628,37 @@ function main()
 				optimizeWaypoints:true
 			};
 			dir.directionsService.route(request, function(response, status) {
-			      if (status == google.maps.DirectionsStatus.OK) {
-			        dir.directionDisplay.setDirections(response);
+				if (status == google.maps.DirectionsStatus.OK) {
+					dir.directionDisplay.setDirections(response);
 					dir.hasDirection = true;
 					dir.save = {};
 					dir.save.start_lat = response.routes[0].legs[0].start_location.lat();
 					dir.save.start_lng = response.routes[0].legs[0].start_location.lng();
 					dir.save.end_lat = response.routes[0].legs[0].end_location.lat();
 					dir.save.end_lng = response.routes[0].legs[0].end_location.lng();
-			      }
+				}
+				else if( status == google.maps.DirectionsStatus.MAX_WAYPOINTS_EXCEEDED)
+				{
+					alert("Il massimo numero di fermate (8) "+ unescape('%E8') +" stato raggiunto!");
+				}
 			    });
-			//dir.markers_printer(waypoints);
+			
+				dir.markers_printer(waypoints, waypoints_data, dest );
 		},
-		markers_printer:function( wp )
+		markers_printer:function( wp, waypoints_data, d )
 		{
-			var w = wp, marker = [];
+			var w = wp, marker = [], w_d = waypoints_data, dest = d;
 			
-			if( !w || w.length == 0 ) return;
+			if( !w || w.length == 0 ) return false;
 			
-			for( var i in w )
+			
+			dest.marker.setMap(self.map);
+			//console.log(self.map)
+			//console.log(dest.marker);
+			for( var i in w_d )
 			{
-				//////console.log( i, w[i] );
-				marker[i] = new google.maps.Marker({
-					position: w[i].location,
-					title: "stop",
-					map:self.map
-				});
+					w_d[i].marker.setMap(self.map);
+					//console.log( w_d[i].marker );
 			}
 		},
 		switchMode:function(val)
@@ -700,11 +709,10 @@ function main()
 				html: '<div class="open"></div>',
 				value: ''
 			}).select(function(event){
-				Directions.init();
+				if( !dir ) Directions.init();
 				dircontrol.isSearchingForDirection = true;
 				view.controlOtherDrawers(this,  event.target);
 			}).deselect(function(event){
-				dircontrol.isSearchingForDirection = false;
 				dir.destroy();
 				view.controlOtherDrawers(this,  event.target);
 			}),
@@ -803,7 +811,7 @@ function main()
 			var count = 0/*, cluster*/;
 
 			$.each(dircontrol.mngs, function(key, value){
-				//////console.log(key);
+				////////console.log(key);
 				self.mng[key].mng = value;
 				dircontrol.buttons[count] = {};
 				dircontrol.buttons[count][key] = {};
@@ -837,11 +845,51 @@ function main()
 					html: 'Selected',
 					select: false
 				});
-				//////////console.log( dircontrol.key.el );
+				////////////console.log( dircontrol.key.el );
 				$(dircontrol.buttons[count][key].el).addClass(dircontrol.buttons[count][key].name+"-button");
 				count++;
 			});
 		},
+		hideMngsAndDeselect:function()
+		{
+			for( var i in dircontrol.buttons )
+			{
+				for(var key in dircontrol.buttons[i] )
+				{
+					$(dircontrol.buttons[i][key].el).removeClass('nui-slc');
+					
+					if( 'hide' in self.mng[key].mng )
+					{
+						self.trafficLayer.hide();
+					}
+					else
+					{
+						self.mng[key].cluster = self.mng[key].mng.getMarkers()
+						self.mng[key].mng.clearMarkers();
+					}
+				}
+			}
+		},
+		showMangsAndSelect:function()
+		{
+			for( var i in dircontrol.buttons )
+			{
+				for(var key in dircontrol.buttons[i] )
+				{
+					$(dircontrol.buttons[i][key].el).removeClass('nui-slc');
+					
+					if( 'hide' in self.mng[key].mng )
+					{
+						self.trafficLayer.hide();
+					}
+					else
+					{
+						self.mng[key].cluster = self.mng[key].mng.getMarkers()
+						self.mng[key].mng.clearMarkers();
+					}
+				}
+			}
+		}
 	};
 	SessionStorageController = {
 		options:null,
@@ -860,7 +908,7 @@ function main()
 		{
 			storecontrol.addButton();
 			$('div.bt_2 span').append(storecontrol.options);
-			$('div.bt_2 div.open').append(storecontrol.saveData, storecontrol.displayData);
+			$('div.bt_2 div.open').append(storecontrol.displayData, storecontrol.saveData);
 		},
 		addButton:function()
 		{
@@ -869,9 +917,6 @@ function main()
 				value: ''
 			}).deselect(function(event){
 				view.controlOtherDrawers(this,  event.target);
-			/*	$(this).find('button').each(function(){
-					$(this).removeClass('nui-slc');
-				});	*/
 			}).select(function(event){
 				view.controlOtherDrawers(this,  event.target);
 			}),
@@ -934,32 +979,32 @@ function main()
 			if( dir && dir.save )
 			{
 				//do you stuff here
-				////console.log("Press ")
+				//////console.log("Press ")
 				store.appendFormAndSave();
 			}
 			else
 			{
 				$(button).removeClass('nui-slc');
-				alert("Build route before trying to save it!");
+				alert("Costruisci un percorso!");
 				return false;
 			}
 		},
 		appendFormAndSave:function()
 		{
-			////console.log("should append form " + store.has_form);
+			//////console.log("should append form " + store.has_form);
 			var wrap = $('<div id="wrap_combined_inputs_save"></div>');
 			store.input = $('<input type="text" name="save_path_name" value="Nome percorso" id="save_path_name" />');
 			store.saveButton = $('<button type="button" id="save_path" value="Salva" />');
 			
 			if( !store.has_form )
 			{
-				mainview.div.css('height', '25%');
+				mainview.div.css('height', '50%');
 				wrap.append(store.input, store.saveButton).css('top','50%');
 				mainview.div.append(wrap).slideDown(400, 
 					function(){
-						mainview.map_div.css('height', '75%');
+						mainview.map_div.css('height', '50%');
 						store.has_form = true;
-						////console.log("should be appendend " + store.has_form);
+						//////console.log("should be appendend " + store.has_form);
 					});
 				wrap.fadeIn(200);
 				store.input.click(function(){
@@ -974,7 +1019,7 @@ function main()
 				}
 				else
 				{
-					////console.log("is else")
+					//////console.log("is else")
 					try
 					{
 						window.localStorage.setObject( store.input.val(), dir.save );
@@ -1001,7 +1046,7 @@ function main()
 				storecontrol.displayData.removeClass('nui-slc')
 			});
 			container.addClass("locations-saved-list");
-			////console.log("has storage:: "+store.has_storage()+" s len "+window.localStorage.length)
+			//////console.log("has storage:: "+store.has_storage()+" s len "+window.localStorage.length)
 			if( store.has_storage() && window.localStorage.length)
 			{
 				var len = window.localStorage.length;
@@ -1029,7 +1074,7 @@ function main()
 								store.stored[i].obj.end_lng, 
 								o
 								);
-								//////console.log("Clicked")
+								////////console.log("Clicked")
 						});
 					}
 				}
@@ -1041,6 +1086,7 @@ function main()
 		},
 		removePanel:function()
 		{
+			//console.log('should remove the panel')
 			mainview.map_div.css('height', '100%');
 			mainview.div.slideUp(400, function(){
 				store.has_form = false;
@@ -1182,6 +1228,7 @@ function main()
 		combinedShow:function(d)
 		{
 			var has_dir = d;
+			dircontrol.hideMngsAndDeselect();
 			mainview.div.slideDown(function(){
 				mainview.map_div.css('height', '50%');
 				mainview.is_combined = true;
@@ -1266,18 +1313,19 @@ function main()
 			combined.waypoints = [];
 			combined.request = {};
 			
-			combined.o_input = combined.printInput( true );
-			combined.o_input.children('input').attr('id', 'o_origin');
-			combined.d_input = combined.printInput( false, false );
-			combined.d_input.children('input').attr('id', 'd_destination')/*.parent().addClass('ui-state-default')*/;
+			combined.wrp = $('<div id="wrap_combined_inputs"></div>');
+			working_panel.append(combined.wrp);
+			
+			combined.w_inputs[0] = combined.o_input = combined.printInput( true, true );
+			combined.o_input.attr('id', 'id_'+0);
+			combined.w_inputs[1] = combined.d_input = combined.printInput( false, true );
+			combined.d_input.attr('id', 'id_'+1)/*.parent().addClass('ui-state-default')*/;
 
 			combined.add_button = $('<span class="button_wrapper"><input type="button" id="add_input" name="add_input" value="add" /></span>');
 
 			combined.save_buton = $('<input type="button" id="save_input" name="save_input" value="save" />');
-			combined.wrp = $('<div id="wrap_combined_inputs"></div>');
 			
 			combined.wrp.append( combined.o_input, combined.add_button, combined.d_input, combined.save_buton );
-			working_panel.append(combined.wrp);
 			
 			combined.wrp.fadeIn(function(){
 				combined.addInput();
@@ -1291,23 +1339,21 @@ function main()
 				combined.w_inputs[len] = combined.printInput( false, true );
 				combined.w_inputs[len].attr('id', 'id_'+len);
 				combined.w_inputs[len].data('related', null);
-				
-				if( len == 0 )
+				if( len == 2 )
 				{
-					$(combined.o_input).after( combined.w_inputs[len] );
+					$(combined.w_inputs[0]).after( combined.w_inputs[len] );
 				}
 				else
 				{
 					
-					$(combined.w_inputs[len-1]).after( combined.w_inputs[len] );
-				}
-				$( combined.w_inputs[len] ).addClass('ui-state-default')	
+					$('#id_'+(len-1)).after( combined.w_inputs[len] );
+				}	
 			});
 			$('#working-panel').css({'display':'-webkit-box'});
 		},
 		makeWayPointsSortable:function(element, container)
 		{
-			var c = ( typeof container == 'undefined' ) ? combined.wrp : container, el = element, sort = null, tmp = [];
+			var c = ( typeof container == 'undefined' ) ? combined.wrp : container, el = element, sort = null, tmp = [], tmp;
 			//check if container is sortable already, if not make it so
 			if( !$(c+':data(sortable)').length )
 			{
@@ -1316,16 +1362,20 @@ function main()
 						combined.has_sortables = true;
 					},
 					start: function (event, ui) {
+							tmp = $.extend(true, [], combined.w_inputs);
 							combined.wrp.children('span.ui-state-default').each(function(key, val){
 								$(val).data( 'startindex', key );
-							//	console.log( $(val).data( 'startindex') )
 							});
+							
 				    },
 					update:function(event, ui)
 					{
 						combined.wrp.children('span.ui-state-default').each(function(key, val){
-							combined.w_inputs[key] = combined.w_inputs[$(val).data( 'startindex')];
-						//	console.log( $(val).data( 'startindex') + " --- "+$(val).index() )
+							combined.w_inputs[key] = tmp[ $(val).data( 'startindex') ];
+							combined.w_inputs[key].removeAttr('id');
+							//console.log( combined.w_inputs[key].prop( 'id') );
+							combined.w_inputs[key].prop( 'id', 'id_'+key );
+							//console.log( combined.w_inputs[key].prop( 'id') );
 						});
 					}
 				});
@@ -1338,67 +1388,6 @@ function main()
 			c.sortable('refresh');
 			return sort;
 		},
-		save:function()
-		{
-			var done = false;
-			combined.save_buton.bind('click', {d:null}, function(event){
-				combined.request.origin = ( 'name' in combined.o_input.data('related') ) ? new google.maps.LatLng( combined.o_input.data('related').lat, combined.o_input.data('related').lng ) : combined.o_input.data('related');
-				combined.request.destination = ( typeof combined.d_input.data('related') == 'object' ) ? new google.maps.LatLng( combined.d_input.data('related').lat, combined.d_input.data('related').lng ) : false;
-				
-				if( !combined.request.origin )
-				{
-					alert("Seleziona un punto di partenza!");
-					done = false;
-					return done;
-				}
-				if( !combined.request.destination )
-				{
-					alert("Seleziona una destinazione!");
-					done = false;
-					return done;
-				}
-				
-				if( !combined.w_inputs.length ) done = true;
-				
-				$.each(combined.w_inputs, function(key, value){
-						
-						//console.log( value.data('related') );
-						
-						if( typeof value.data('related') == 'object' )
-						{
-							combined.waypoints.push({ 
-									'location':new google.maps.LatLng( value.data('related').lat, value.data('related').lng ),
-									'stopover':true,
-								});
-							done = true;
-						}
-						else
-						{
-							//stop execution if not all waypoints have an address
-							combined.waypoints = [];
-							done = false;
-							alert("Completa la compilazione dei waypoints!");
-							return false;
-						}
-						
-				});
-				//stop execution if not all waypoints have an address
-				if(!done) return false;
-				
-				combined.request.waypoints = combined.waypoints;
-				if(!dir) Directions.init();
-				dir.calculateRoute(
-					combined.request.destination.lat(),
-					combined.request.destination.lng(),
-					combined.request.origin,
-					combined.waypoints
-				 );
-				google.maps.event.addListener(dir.directionDisplay, 'directions_changed', function()
-				{
-					mainview.combinedHide();
-				});
-			});
-		},
 		makeDictionary:function()
 		{
 			var data, arr;
@@ -1406,6 +1395,7 @@ function main()
 			data = $.extend(true, {}, self.d);
 			
 			delete data.traffic;
+			delete data.parkings;
 			
 			arr = $.map(data, function (item, i){
 				return item;
@@ -1438,17 +1428,123 @@ function main()
 			        query: event.query
 			      });
 			});
+		
+			if( sort && my )
+			{
+				my.addClass('ui-state-default');
+				combined.makeWayPointsSortable( my );
+			}
 			
 			if( def )
 			{
 				my.data('related', self.me.currentLocation);
 			}
-			
-			if( sort )
+			else
 			{
-				combined.sortable = combined.makeWayPointsSortable( my );
+				my.data('related', null);
 			}
 			return my;
+		},
+		switchOriginAndDestination: function(d)
+		{
+			var r = false, sw = d;
+			
+			if( d == null) return r;
+			
+			switch(typeof d)
+			{
+				case 'object':
+					if( 'name' in d )
+					{
+						r = new google.maps.LatLng( d.lat, d.lng );
+					}
+					else
+					{
+						r = new google.maps.LatLng( d.$a, d.ab );
+					}
+				break;
+			}
+			return r;
+		},
+		save:function()
+		{
+			combined.save_buton.bind('click', {d:null}, function(event){
+				
+				var done = false, len = combined.w_inputs.length, last = len - 1, wp, wp_items = [];
+				
+				combined.request.origin = combined.switchOriginAndDestination( combined.w_inputs[0].data('related') );
+				combined.request.destination = combined.switchOriginAndDestination( combined.w_inputs[last].data('related') );
+				
+				if( !combined.request.origin )
+				{
+					alert("Seleziona un punto di partenza!");
+					done = false;
+					return done;
+				}
+				if( !combined.request.destination )
+				{
+					alert("Seleziona una destinazione!");
+					done = false;
+					return done;
+				}
+				
+				wp = $.extend(true, [], combined.w_inputs);
+				
+				wp.pop();
+				wp.shift();
+				
+				if( !wp.length )
+				{
+					done = true
+				}
+				else
+				{
+					$.each(wp, function(key, value){
+
+						////console.log( value.data('related') );
+
+						if( typeof value.data('related') == 'object' )
+						{
+							combined.waypoints.push({ 
+								'location':new google.maps.LatLng( value.data('related').lat, value.data('related').lng ),
+								'stopover':true,
+							});
+							wp_items.push( value.data('related') );
+							done = true;
+						}
+						else
+						{
+							//stop execution if not all waypoints have an address
+							combined.waypoints = [];
+							wp_items = [];
+							done = false;
+							alert("Completa la compilazione delle fermate");
+							return false;
+						}
+
+					});
+				}
+				//stop execution if not all waypoints have an address
+				if(!done) return false;
+				
+				combined.request.waypoints = ( combined.waypoints ) ? combined.waypoints : [];
+				
+				if(!dir) Directions.init();
+				
+				//console.log( wp_items );
+				dir.calculateRoute(
+					combined.request.destination.lat(),
+					combined.request.destination.lng(),
+					combined.request.origin,
+					combined.waypoints,
+					wp_items,
+					combined.w_inputs[last].data('related')
+				 );
+				google.maps.event.addListener(dir.directionDisplay, 'directions_changed', function()
+				{
+					mainview.combinedHide();
+				});
+			});
 		}	
 	};	
 	LayoutFixes = {
