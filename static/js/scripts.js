@@ -580,6 +580,18 @@ function main()
 					value.removeClass('nui-slc');
 				}
 			});
+		},
+		listGenericDialog:function( content )
+		{
+			var container = $.ninja.dialog({
+				html: ''
+			}).detach(function () {
+				
+			}).attach(function(){
+				$(this).append(content);
+			});
+			container.addClass("places-show-data");
+			return container;
 		}
 	};
 	Directions = {
@@ -618,15 +630,15 @@ function main()
 					visible:false
 				},
 				polylineOptions:{
-					strokeColor:"#5588ee",
+					strokeColor:"#0000ff",
 					strokeOpacity:0.5,
 					strokeWeight:6
 				}
 			});
 		},
-		calculateRoute:function(lat, lng, org, w, w_d, d)
+		calculateRoute:function(lat, lng, org, w, w_d, d, is_store )
 		{
-			var origin, request, waypoints, waypoints_data, dest = d;
+			var origin, request, waypoints, waypoints_data, dest = d, is_s = ( !is_store || typeof is_store == 'undefined') ? false : true;
 			// if a route is already plotted please erase.
 			
 			if( dir.hasDirection ) dir.destroy();
@@ -645,6 +657,14 @@ function main()
 				waypoints:waypoints,
 				optimizeWaypoints:true
 			};
+			
+			if( is_s )
+			dir.directionDisplay.setOptions({
+				markerOptions:{
+					visible:true
+				}
+				});
+			
 			dir.directionsService.route(request, function(response, status) {
 				if (status == google.maps.DirectionsStatus.OK) {
 					dir.directionDisplay.setDirections(response);
@@ -660,23 +680,21 @@ function main()
 					alert("Il massimo numero di fermate (8) "+ unescape('%E8') +" stato raggiunto!");
 				}
 			    });
-			
-				dir.markers_printer(waypoints, waypoints_data, dest );
+				
+				if( !is_s )
+				dir.markers_printer(waypoints, waypoints_data, dest, origin );
 		},
-		markers_printer:function( wp, waypoints_data, d )
+		markers_printer:function( wp, waypoints_data, d, o )
 		{
 			var w = wp, marker = [], w_d = waypoints_data, dest = d;
+			console.log("markers printer");
+			if( dest )dest.marker.setMap(self.map);
 			
 			if( !w || w.length == 0 ) return false;
 			
-			
-			dest.marker.setMap(self.map);
-			//console.log(self.map)
-			//console.log(dest.marker);
 			for( var i in w_d )
 			{
-					w_d[i].marker.setMap(self.map);
-					//console.log( w_d[i].marker );
+				w_d[i].marker.setMap(self.map);	
 			}
 		},
 		switchMode:function(val)
@@ -1087,7 +1105,11 @@ function main()
 							dir.calculateRoute( 
 								store.stored[i].obj.end_lat, 
 								store.stored[i].obj.end_lng, 
-								o
+								o,
+								false,
+								false,
+								false,
+								true
 								);
 								////////console.log("Clicked")
 						});
@@ -1404,7 +1426,8 @@ function main()
 				});
 				c.sortable( "option", {
 					'items':'span.ui-state-default',
-					'cursor':'pointer',
+					'cursor':'move',
+					'handle':'div.drag_handle',
 					'placeholder': 'ui-state-highlight'
 				}).disableSelection();
 			}
@@ -1436,7 +1459,7 @@ function main()
 			}).values(function (event) {
 			      my.list({
 			        values: $.map(combined.dictionary, function (item, i) {
-						if( item.name.startsWith(event.query) && my.data('related', item).name != item.name )
+						if( item.name.startsWith(event.query) )
 						{
 							return {
 								html: item.name,
@@ -1444,6 +1467,8 @@ function main()
 								select:function()
 								{
 									my.data('related', item);
+									details.unbind('click');
+									combined.showDetails(details, my.data('related') );
 								}
 						}
 			          };
@@ -1451,6 +1476,9 @@ function main()
 			        query: event.query
 			      });
 			});
+			
+			my.prepend( drag_handle );
+			my.append( details );
 		
 			if( sort && my )
 			{
@@ -1466,9 +1494,53 @@ function main()
 			{
 				my.data('related', null);
 			}
-			my.prepend( drag_handle );
-			my.append( details );
+			
+			combined.showDetails(details, my.data('related') );
+			
 			return my;
+		},
+		showDetails:function(el, data)
+		{
+				var content, dialog;
+				
+				el.bind('click', {item:data}, function(event){
+					console.log("clicked");
+					var item = event.data.item;
+					if( null != item )
+					{
+						if( 'name' in item )
+						{
+							console.log( item );
+							content = item.address+", "+item.cap+", "+item.town+", "+item.phone;
+							combined.attachListDialog(content);
+						}
+						else
+						{
+							var geo = new google.maps.Geocoder();
+							var latlng = new google.maps.LatLng( item.$a, item.ab );
+							geo.geocode({'latLng': latlng}, function(results, status) {
+								if (status == google.maps.GeocoderStatus.OK) {
+									if (results[0]) {
+										console.log( results[0].formatted_address );
+										content = results[0].formatted_address;
+										combined.attachListDialog(content);
+									}
+								}
+							});
+						}
+					}
+					else
+					{
+						alert( "Seleziona una destinazione per visualizzarne i dettagli")
+					}
+				});
+		},
+		attachListDialog:function(c)
+		{
+			var content = c;
+			dialog = view.listGenericDialog(content);
+			dialog.attach();
+			return dialog;
 		},
 		switchOriginAndDestination: function(d)
 		{

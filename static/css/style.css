@@ -502,3 +502,5 @@ div.bt_2 div.nui-try div.open div#wrap_combined_inputs_save button {
 /*/////COMBINED///////////*/
 .nui-lst{position:relative;top:20px;}
 .ui-state-default{padding-left:3px;padding-right:3px;}
+.details{cursor:pointer;}
+.drag_handle{cursor:move;}
