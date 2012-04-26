@@ -618,15 +618,15 @@ function main()
 					visible:false
 				},
 				polylineOptions:{
-					strokeColor:"#5588ee",
+					strokeColor:"#0000ff",
 					strokeOpacity:0.5,
 					strokeWeight:6
 				}
 			});
 		},
-		calculateRoute:function(lat, lng, org, w, w_d, d)
+		calculateRoute:function(lat, lng, org, w, w_d, d, is_store )
 		{
-			var origin, request, waypoints, waypoints_data, dest = d;
+			var origin, request, waypoints, waypoints_data, dest = d, is_s = ( !is_store || typeof is_store == 'undefined') ? false : true;
 			// if a route is already plotted please erase.
 			
 			if( dir.hasDirection ) dir.destroy();
@@ -645,6 +645,14 @@ function main()
 				waypoints:waypoints,
 				optimizeWaypoints:true
 			};
+			
+			if( is_s )
+			dir.directionDisplay.setOptions({
+				markerOptions:{
+					visible:true
+				}
+				});
+			
 			dir.directionsService.route(request, function(response, status) {
 				if (status == google.maps.DirectionsStatus.OK) {
 					dir.directionDisplay.setDirections(response);
@@ -660,23 +668,21 @@ function main()
 					alert("Il massimo numero di fermate (8) "+ unescape('%E8') +" stato raggiunto!");
 				}
 			    });
-			
-				dir.markers_printer(waypoints, waypoints_data, dest );
+				
+				if( !is_s )
+				dir.markers_printer(waypoints, waypoints_data, dest, origin );
 		},
-		markers_printer:function( wp, waypoints_data, d )
+		markers_printer:function( wp, waypoints_data, d, o )
 		{
 			var w = wp, marker = [], w_d = waypoints_data, dest = d;
+			console.log("markers printer");
+			if( dest )dest.marker.setMap(self.map);
 			
 			if( !w || w.length == 0 ) return false;
 			
-			
-			dest.marker.setMap(self.map);
-			//console.log(self.map)
-			//console.log(dest.marker);
 			for( var i in w_d )
 			{
-					w_d[i].marker.setMap(self.map);
-					//console.log( w_d[i].marker );
+				w_d[i].marker.setMap(self.map);	
 			}
 		},
 		switchMode:function(val)
@@ -1091,7 +1097,11 @@ function main()
 							dir.calculateRoute( 
 								store.stored[i].obj.end_lat, 
 								store.stored[i].obj.end_lng, 
-								o
+								o,
+								false,
+								false,
+								false,
+								true
 								);
 								////////console.log("Clicked")
 						});
@@ -1462,8 +1472,14 @@ function main()
 			{
 				my.data('related', null);
 			}
+			
 			my.prepend( drag_handle );
 			my.append( details );
+			
+			details.bind('click', {item:my.data('related')}, function(event){
+				var item = event.data.item;
+				console.log( item );
+			});
 			return my;
 		},
 		switchOriginAndDestination: function(d)
