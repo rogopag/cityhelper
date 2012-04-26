@@ -320,30 +320,35 @@ function main()
 				params.ratio = 1.5;
 				params.cluster = 0;
 				params.icon = 0;
+				params.color = '#ff4927';
 				break;
 				case 'pharma':
 				params.index = 1001;
 				params.ratio = 1.5;
-				params.cluster = 38;
-				params.icon = 54;
+				params.cluster = 44;
+				params.icon = 44;
+				params.color = '#1b3e94';
 				break;
 				case 'parkings':
 				params.index = 1000;
 				params.ratio = 1.5;
-				params.cluster = 76;
-				params.icon = 108;
+				params.cluster = 90;
+				params.icon = 90;
+				params.color = '#00a4e8';
 				break;
 				case 'traffic':
 				params.index = 999;
 				params.ratio = 0.92;
 				params.cluster = 0;
 				params.icon = 108;
+				params.color = '#000';
 				break;
 				case 'veterinarians':
 				params.index = 999;
 				params.ratio = 0.92;
-				params.cluster = 114;
-				params.icon = 162;
+				params.cluster = 136;
+				params.icon = 136;
+				params.color = '#17c05f';
 				break;
 			}
 			return params;
@@ -370,13 +375,15 @@ function main()
 				{
 					styles = [{
 						url : LocalSettings.STATIC_URL+'images/map_clusters.png',
-						height : 38,
-						width : 38,
-						backgroundPosition:[params.cluster,0],
-					//	anchorIcon:[200,0],
-						anchor : [50,30],
-						textColor : '#ff0000',
-						textSize : 12
+						height: 44,
+						width: 44,
+						backgroundPosition: [params.cluster,0],
+					//	anchorIcon: [200,0],
+					//	anchor: [12,30],
+						textColor: '#000',
+						textSize: 11,
+						fontWeight: 700,
+						textColor: params.color
 					}];
 						//sets MarkerClusters for each group 
 						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:self.clusterMaxZoom});
