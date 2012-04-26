@@ -78,7 +78,7 @@ function main()
 				var size = self.map.getZoom(), image, circle_options;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
-				//////////console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
+				////////////console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
 				
 				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
 				{
@@ -199,12 +199,12 @@ function main()
 			
 			for(var key in self.d)
 			{
-				////////////console.log( key );
+				//////////////console.log( key );
 				self.objects[key] = [];
 				self.icons[key] = LocalSettings.STATIC_URL+'images/map_icons.png';
 				
 				p = self.switch_parameters(key);
-				//////////console.log( )
+				////////////console.log( )
 				image = new google.maps.MarkerImage(
 					self.icons[key],
 					new google.maps.Size(size, size), 
@@ -293,7 +293,7 @@ function main()
 				google.maps.event.addListener(self.map, 'click', (function(o, i){
 					return function()
 					{
-						//////////console.log( "tapped "+obj.has_infoBox+" "+i );
+						////////////console.log( "tapped "+obj.has_infoBox+" "+i );
 						i.close();
 						o.has_infoBox = false;
 						self.has_infobox_open = false;
@@ -370,7 +370,7 @@ function main()
 			{
 				var styles, params = self.switch_parameters(key);
 				
-		//		//////////console.log(params.cluster)
+		//		////////////console.log(params.cluster)
 				
 				if( key != 'traffic')
 				{
@@ -388,7 +388,7 @@ function main()
 					}];
 						//sets MarkerClusters for each group 
 						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:self.clusterMaxZoom});
-				//		//////////console.log( mgr[key].getCalculator() )
+				//		////////////console.log( mgr[key].getCalculator() )
 					}
 					else
 					{
@@ -421,7 +421,7 @@ function main()
 				dataType: 'json',
 				error: function(XMLHttpRequest, textStatus, errorThrown)
 				{  
-					//////////////console.log( textStatus, errorThrown );
+					////////////////console.log( textStatus, errorThrown );
 				},
 				beforeSend: function(XMLHttpRequest) 
 				{ 
@@ -432,7 +432,7 @@ function main()
 				}, 
 				success: function( response, textStatus, jqXHR )
 				{
-					////////////////console.log( XMLHttpRequest, textStatus, jqXHR );
+					//////////////////console.log( XMLHttpRequest, textStatus, jqXHR );
 					if( response )
 					{
 						self.d = self.parseResponse(response)
@@ -483,7 +483,7 @@ function main()
 			
 			$('#map_canvas').live('resized', function(event){
 				$(event.target).css('height', '100%');
-				console.log("resized bar "+$(event.target).height() + " "+ $(event.target).attr('id'));
+				//console.log("resized bar "+$(event.target).height() + " "+ $(event.target).attr('id'));
 			});
 			
 		},	
@@ -501,7 +501,7 @@ function main()
 			view.mngs = mng;
 			view.buttons = [];
 			view.setSelectLayer();
-			////////////console.log(view.mngs);
+			//////////////console.log(view.mngs);
 		},
 		setSelectLayer: function()
 		{
@@ -531,7 +531,7 @@ function main()
 			view.clear_button = $.ninja.button({
 				html: 'Svuota'
 			}).select(function(){
-				//console.log( dir, dir.hasDirection )
+				////console.log( dir, dir.hasDirection )
 				if( dir && dir.hasDirection ) dir.destroy();
 				view.purge_open( view.options );
 				view.purgeCssClass( $(this) );
@@ -611,7 +611,7 @@ function main()
 		},
 		destroy:function()
 		{
-			//////////console.log("Called destroy");
+			////////////console.log("Called destroy");
 			dir.directionDisplay.setMap(null);
 		    dir.directionDisplay.setPanel(null);
 			dircontrol.isSearchingForDirection = false;
@@ -687,7 +687,7 @@ function main()
 		markers_printer:function( wp, waypoints_data, d, o )
 		{
 			var w = wp, marker = [], w_d = waypoints_data, dest = d;
-			console.log("markers printer");
+			//console.log("markers printer");
 			if( dest )dest.marker.setMap(self.map);
 			
 			if( !w || w.length == 0 ) return false;
@@ -847,7 +847,7 @@ function main()
 			var count = 0/*, cluster*/;
 
 			$.each(dircontrol.mngs, function(key, value){
-				////////console.log(key);
+				//////////console.log(key);
 				self.mng[key].mng = value;
 				dircontrol.buttons[count] = {};
 				dircontrol.buttons[count][key] = {};
@@ -881,7 +881,7 @@ function main()
 					html: 'Selected',
 					select: false
 				});
-				////////////console.log( dircontrol.key.el );
+				//////////////console.log( dircontrol.key.el );
 				$(dircontrol.buttons[count][key].el).addClass(dircontrol.buttons[count][key].name+"-button");
 				count++;
 			});
@@ -894,14 +894,17 @@ function main()
 				{
 					$(dircontrol.buttons[i][key].el).removeClass('nui-slc');
 					
-					if( 'hide' in self.mng[key].mng )
+					if( typeof self.mng[key] != 'undefined' )
 					{
-						self.trafficLayer.hide();
-					}
-					else
-					{
-						self.mng[key].cluster = self.mng[key].mng.getMarkers()
-						self.mng[key].mng.clearMarkers();
+						if( 'hide' in self.mng[key].mng )
+						{
+							self.trafficLayer.hide();
+						}
+						else
+						{
+							self.mng[key].cluster = self.mng[key].mng.getMarkers()
+							self.mng[key].mng.clearMarkers();
+						}
 					}
 				}
 			}
@@ -1017,7 +1020,7 @@ function main()
 			if( dir && dir.save )
 			{
 				//do you stuff here
-				//////console.log("Press ")
+				////////console.log("Press ")
 				return store.appendFormAndSave();
 			}
 			else
@@ -1029,7 +1032,7 @@ function main()
 		},
 		appendFormAndSave:function()
 		{
-			//////console.log("should append form " + store.has_form);
+			////////console.log("should append form " + store.has_form);
 			var wrap = $('<div id="wrap_combined_inputs_save"></div>');
 			store.input = $('<input type="text" name="save_path_name" value="Nome percorso" id="save_path_name" />');
 			store.saveButton = $('<button type="button" id="save_path" value="Salva" />');
@@ -1055,7 +1058,7 @@ function main()
 				}
 				else
 				{
-					//////console.log("is else")
+					////////console.log("is else")
 					try
 					{
 						window.localStorage.setObject( store.input.val(), dir.save );
@@ -1083,7 +1086,7 @@ function main()
 				storecontrol.displayData.removeClass('nui-slc')
 			});
 			container.addClass("locations-saved-list");
-			//////console.log("has storage:: "+store.has_storage()+" s len "+window.localStorage.length)
+			////////console.log("has storage:: "+store.has_storage()+" s len "+window.localStorage.length)
 			if( store.has_storage() && window.localStorage.length)
 			{
 				var len = window.localStorage.length;
@@ -1115,7 +1118,7 @@ function main()
 								false,
 								true
 								);
-								////////console.log("Clicked")
+								//////////console.log("Clicked")
 						});
 					}
 				}
@@ -1127,7 +1130,7 @@ function main()
 		},
 		removePanel:function()
 		{
-			//console.log('should remove the panel')
+			////console.log('should remove the panel')
 			storecontrol.saveData_div.slideUp(400, function(){
 				store.has_form = false;
 				$(this).remove();
@@ -1414,9 +1417,7 @@ function main()
 						combined.wrp.children('span.ui-state-default').each(function(key, val){
 							combined.w_inputs[key] = tmp[ $(val).data( 'startindex') ];
 							combined.w_inputs[key].removeAttr('id');
-							//console.log( combined.w_inputs[key].prop( 'id') );
 							combined.w_inputs[key].prop( 'id', 'id_'+key );
-							//console.log( combined.w_inputs[key].prop( 'id') );
 						});
 					}
 				});
@@ -1500,13 +1501,13 @@ function main()
 				var content, dialog;
 				
 				el.bind('click', {item:data}, function(event){
-					console.log("clicked");
+					//console.log("clicked");
 					var item = event.data.item;
 					if( null != item )
 					{
 						if( 'name' in item )
 						{
-							console.log( item );
+							//console.log( item );
 							content = item.address+", "+item.cap+", "+item.town+", "+item.phone;
 							combined.attachListDialog(content);
 						}
@@ -1517,7 +1518,7 @@ function main()
 							geo.geocode({'latLng': latlng}, function(results, status) {
 								if (status == google.maps.GeocoderStatus.OK) {
 									if (results[0]) {
-										console.log( results[0].formatted_address );
+										//console.log( results[0].formatted_address );
 										content = results[0].formatted_address;
 										combined.attachListDialog(content);
 									}
@@ -1594,7 +1595,7 @@ function main()
 				{
 					$.each(wp, function(key, value){
 
-						////console.log( value.data('related') );
+						//////console.log( value.data('related') );
 
 						if( typeof value.data('related') == 'object' )
 						{
@@ -1624,7 +1625,7 @@ function main()
 				
 				if(!dir) Directions.init();
 				
-				//console.log( wp_items );
+				////console.log( wp_items );
 				dir.calculateRoute(
 					combined.request.destination.lat(),
 					combined.request.destination.lng(),
@@ -1672,4 +1673,11 @@ google.maps.TrafficLayer.prototype.hide = function()
 //Adds startsWith method to string Object
 String.prototype.startsWith = function(pattern) {
   return this.slice(0, pattern.length).toLowerCase() == pattern.toLowerCase();
+};
+// Array Remove - By John Resig (MIT Licensed)
+Array.prototype.removeElement = function(from, to) {
+  var rest = this.slice((to || from) + 1 || this.length);
+  this.length = from < 0 ? this.length + from : from;
+  //return this.push.apply(this, rest);
+	return this;
 };
