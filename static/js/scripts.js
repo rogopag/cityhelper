@@ -1502,8 +1502,7 @@ function main()
 					var len = combined.w_inputs.length, i = $(event.target).parent().index(), index = ( len ==  i ) ? i-1 : i;
 					combined.w_inputs.remove(index);
 					
-					$(event.target).parent().slideUp(200, function(){
-						
+					$(event.target).parent().slideUp(200, function(){	
 						$(this).remove();
 						$('span.ui-state-default').each(function(key, val){
 							$(val).removeAttr('id');
