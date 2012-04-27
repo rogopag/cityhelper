@@ -16,7 +16,7 @@ function main()
 		clusterMaxZoom:16,
 		mng: null,
 		icons: {},
-		icons_default_size:54,
+		icons_default_size:44,
 		me: {},
 		touch: false,
 		is_not_touch: true,
@@ -78,7 +78,6 @@ function main()
 				var size = self.map.getZoom(), image, circle_options;
 				self.me.icon = LocalSettings.STATIC_URL+'images/me.png';
 				image = new google.maps.MarkerImage(self.me.icon,null, null, null, new google.maps.Size(size, size*self.me.RATIO));
-				////////////console.log("marker "+self.me.marker+" accuracy "+position.coords.accuracy+" time "+position.timestamp+" circle "+self.me.circle);
 				
 				if(typeof self.me.marker == 'undefined' && typeof self.me.circle == 'undefined' )
 				{
@@ -195,54 +194,62 @@ function main()
 		},
 		fill_objects : function()
 		{
-			var index = 1, /*ratio = 1,*/ size = self.icons_default_size, p;
+			var /*index = 0, ratio = 1,*/ size = self.icons_default_size, p;
 			
 			for(var key in self.d)
 			{
-				//////////////console.log( key );
-				self.objects[key] = [];
-				self.icons[key] = LocalSettings.STATIC_URL+'images/map_icons.png';
+				var image;
 				
-				p = self.switch_parameters(key);
-				////////////console.log( )
-				image = new google.maps.MarkerImage(
-					self.icons[key],
-					new google.maps.Size(size, size), 
-					new google.maps.Point(p.icon,0), 
-					new google.maps.Point(0,0)
-					//new google.maps.Size(size, size*p.ratio)
-					);
-				for( var items in self.d[key] )
-				{
-					var current = {}, image;
-					//make sure fields prperty is gone forever and doesn't bother anymore
-					current = ( typeof self.d[key][items].fields != 'undefined' )?self.d[key][items].fields:self.d[key][items];
-					current.type = key;
-					current.icon_url = self.icons[key];
-					current.marker = new google.maps.Marker({
-						position: new google.maps.LatLng(current.lat, current.lng),
-						title: current.name,
-						icon: image,
-						type: current.type,
-						zIndex: p.index
-					});
-					current.has_infoBox = false;
+				if( 'traffic' != key )
+				{ 
+					self.objects[key] = [];
+					self.icons[key] = LocalSettings.STATIC_URL+'images/map_icons.png';
 					
-					google.maps.event.addListener(current.marker, 'click', (function(o)
+					p = self.switch_parameters(key);
+					image = new google.maps.MarkerImage(
+						LocalSettings.STATIC_URL+'images/map_icons.png',
+						new google.maps.Size(size, size), 
+						new google.maps.Point(p.icon,0), 
+						new google.maps.Point(0,0)
+						//new google.maps.Size(size, size*p.ratio)
+					);
+					$.each(self.d[key], function(items, values)
 					{
-						return function()
+						var current = {};
+						current = self.d[key][items];
+						current.type = key;
+						current.icon_url = self.icons[key];
+						current.marker = new google.maps.Marker({
+							position: new google.maps.LatLng(current.lat, current.lng),
+							title: current.name,
+							icon: image,
+							type: current.type,
+							zIndex: p.index
+						});
+						current.has_infoBox = false;
+
+						google.maps.event.addListener(current.marker, 'click', (function(o)
 						{
-							if( !o.has_infoBox )
-							self.manage_info_box(o);
-						}
-						
-					})(current));
-					self.objects[key].push( current );
-					delete current;
+							return function()
+							{
+								if( !o.has_infoBox )
+								self.manage_info_box(o);
+							}
+
+						})(current));
+							
+							
+							self.objects[key].push( current );
+							delete current;
+						});
+					}
+					else
+					{
+						self.d[key] = self.d[key];
+					}
 				}
-			}
-			return self.objects;
-		},
+				return self.objects;
+			},
 		manage_info_box:function(o)
 		{
 			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect;
@@ -264,7 +271,7 @@ function main()
 				select: true
 			});
 			
-			info.text(obj.name);
+			info.text(obj.name+" "+obj.type+" ");
 			action.append(button);
 			
 			$(boxBox).append(info, action);
@@ -293,7 +300,6 @@ function main()
 				google.maps.event.addListener(self.map, 'click', (function(o, i){
 					return function()
 					{
-						////////////console.log( "tapped "+obj.has_infoBox+" "+i );
 						i.close();
 						o.has_infoBox = false;
 						self.has_infobox_open = false;
@@ -326,7 +332,7 @@ function main()
 				case 'pharma':
 				params.index = 1001;
 				params.ratio = 1.5;
-				params.cluster = 44;
+				params.cluster = 136;
 				params.icon = 44;
 				params.color = '#1b3e94';
 				break;
@@ -335,7 +341,7 @@ function main()
 				params.ratio = 1.5;
 				params.cluster = 90;
 				params.icon = 90;
-				params.color = '#00a4e8';
+				params.color = '#17c05f';
 				break;
 				case 'traffic':
 				params.index = 999;
@@ -347,9 +353,9 @@ function main()
 				case 'veterinarians':
 				params.index = 999;
 				params.ratio = 0.92;
-				params.cluster = 136;
+				params.cluster = 44;
 				params.icon = 136;
-				params.color = '#17c05f';
+				params.color = '#00a4e8';
 				break;
 			}
 			return params;
@@ -357,21 +363,18 @@ function main()
 		draw_markers : function(obj)
 		{
 			var mgr = {}, markers = {};
-			
+
 			if(!obj) return false;
-			
+
 			self.trafficLayer = new google.maps.TrafficLayer();
 			//self.trafficLayer.setMap(self.map);
-			
 			self.trafficData = obj.traffic;
 			obj.traffic = self.trafficLayer;
-			
+
 			for(var key in obj)
 			{
 				var styles, params = self.switch_parameters(key);
-				
-		//		////////////console.log(params.cluster)
-				
+
 				if( key != 'traffic')
 				{
 					styles = [{
@@ -379,36 +382,36 @@ function main()
 						height: 44,
 						width: 44,
 						backgroundPosition: [params.cluster,0],
-					//	anchorIcon: [200,0],
-					//	anchor: [12,30],
+						//	anchorIcon: [200,0],
+						//	anchor: [12,30],
 						textColor: '#000',
 						textSize: 11,
 						fontWeight: 700,
 						textColor: params.color
-					}];
+						}];
+
 						//sets MarkerClusters for each group 
 						mgr[key] = new MarkerClusterer(self.map, [], {styles : styles, maxZoom:self.clusterMaxZoom});
-				//		////////////console.log( mgr[key].getCalculator() )
+						
+						mgr[key].setTitle(key);
+						
+						markers[key] = [];
+
+						$.each(obj[key], function(item, value)
+						{
+							markers[key].push(value.marker);
+						});
+
+						mgr[key].addMarkers(markers[key]);
 					}
 					else
 					{
-						//sets MarkerManager for those we don't want to cluster 
-						mgr[key] = self.trafficLayer;
+						mgr[key] = obj.traffic;
 					}
-				
-				markers[key] = [];
-				
-				for( var items in obj[key] )
-				{
-					markers[key].push(obj[key][items].marker);
 				}
-				if(key != 'traffic')
-				mgr[key].addMarkers(markers[key]);
-				
-			}
-			//set the data to data object and substitutes layer to data in obj array
-			return mgr;
-		},
+				//set the data to data object and substitutes layer to data in obj array
+				return mgr;
+			},
 		ajax_populate: function()
 		{
 			var obj = {'do' : 'something'};
@@ -421,7 +424,7 @@ function main()
 				dataType: 'json',
 				error: function(XMLHttpRequest, textStatus, errorThrown)
 				{  
-					////////////////console.log( textStatus, errorThrown );
+					alert( textStatus, errorThrown );
 				},
 				beforeSend: function(XMLHttpRequest) 
 				{ 
@@ -432,11 +435,9 @@ function main()
 				}, 
 				success: function( response, textStatus, jqXHR )
 				{
-					//////////////////console.log( XMLHttpRequest, textStatus, jqXHR );
 					if( response )
 					{
 						self.d = self.parseResponse(response)
-						return self.d;
 					}
 				},
 				complete: function( data, textStatus )
@@ -494,7 +495,6 @@ function main()
 			view.mngs = mng;
 			view.buttons = [];
 			view.setSelectLayer();
-			//////////////console.log(view.mngs);
 		},
 		setSelectLayer: function()
 		{
@@ -524,7 +524,6 @@ function main()
 			view.clear_button = $.ninja.button({
 				html: 'Svuota'
 			}).select(function(){
-				////console.log( dir, dir.hasDirection )
 				if( dir && dir.hasDirection ) dir.destroy();
 				view.purge_open( view.options );
 				view.purgeCssClass( $(this) );
@@ -604,7 +603,6 @@ function main()
 		},
 		destroy:function()
 		{
-			////////////console.log("Called destroy");
 			dir.directionDisplay.setMap(null);
 		    dir.directionDisplay.setPanel(null);
 			dircontrol.isSearchingForDirection = false;
@@ -680,7 +678,6 @@ function main()
 		markers_printer:function( wp, waypoints_data, d, o )
 		{
 			var w = wp, marker = [], w_d = waypoints_data, dest = d;
-			//console.log("markers printer");
 			if( dest )dest.marker.setMap(self.map);
 			
 			if( !w || w.length == 0 ) return false;
@@ -836,7 +833,6 @@ function main()
 			var count = 0/*, cluster*/;
 
 			$.each(dircontrol.mngs, function(key, value){
-				//////////console.log(key);
 				self.mng[key].mng = value;
 				dircontrol.buttons[count] = {};
 				dircontrol.buttons[count][key] = {};
@@ -870,7 +866,6 @@ function main()
 					html: 'Selected',
 					select: false
 				});
-				//////////////console.log( dircontrol.key.el );
 				$(dircontrol.buttons[count][key].el).addClass(dircontrol.buttons[count][key].name+"-button");
 				count++;
 			});
@@ -1009,7 +1004,7 @@ function main()
 			if( dir && dir.save )
 			{
 				//do you stuff here
-				////////console.log("Press ")
+			
 				return store.appendFormAndSave();
 			}
 			else
@@ -1021,7 +1016,6 @@ function main()
 		},
 		appendFormAndSave:function()
 		{
-			////////console.log("should append form " + store.has_form);
 			var wrap = $('<div id="wrap_combined_inputs_save"></div>');
 			store.input = $('<input type="text" name="save_path_name" value="Nome percorso" id="save_path_name" />');
 			store.saveButton = $('<button type="button" id="save_path" value="Salva" />');
@@ -1047,7 +1041,6 @@ function main()
 				}
 				else
 				{
-					////////console.log("is else")
 					try
 					{
 						window.localStorage.setObject( store.input.val(), dir.save );
@@ -1076,7 +1069,6 @@ function main()
 			});
 
 			container.addClass("locations-saved-list").append('<span class="title"><h2>I miei percorsi</h2></span>');
-			//////console.log("has storage:: "+store.has_storage()+" s len "+window.localStorage.length)
 
 			if( store.has_storage() && window.localStorage.length)
 			{
@@ -1109,7 +1101,6 @@ function main()
 								false,
 								true
 								);
-								//////////console.log("Clicked")
 						});
 					}
 				}
@@ -1129,7 +1120,6 @@ function main()
 		},
 		removePanel:function()
 		{
-			////console.log('should remove the panel')
 			storecontrol.saveData_div.slideUp(400, function(){
 				store.has_form = false;
 				$(this).remove();
@@ -1500,13 +1490,11 @@ function main()
 				var content, dialog;
 				
 				el.bind('click', {item:data}, function(event){
-					//console.log("clicked");
 					var item = event.data.item;
 					if( null != item )
 					{
 						if( 'name' in item )
 						{
-							//console.log( item );
 							content = item.address+", "+item.cap+", "+item.town+", "+item.phone;
 							combined.attachListDialog(content);
 						}
@@ -1517,7 +1505,6 @@ function main()
 							geo.geocode({'latLng': latlng}, function(results, status) {
 								if (status == google.maps.GeocoderStatus.OK) {
 									if (results[0]) {
-										//console.log( results[0].formatted_address );
 										content = results[0].formatted_address;
 										combined.attachListDialog(content);
 									}
@@ -1594,8 +1581,6 @@ function main()
 				{
 					$.each(wp, function(key, value){
 
-						//////console.log( value.data('related') );
-
 						if( typeof value.data('related') == 'object' )
 						{
 							combined.waypoints.push({ 
@@ -1624,7 +1609,6 @@ function main()
 				
 				if(!dir) Directions.init();
 				
-				////console.log( wp_items );
 				dir.calculateRoute(
 					combined.request.destination.lat(),
 					combined.request.destination.lng(),
