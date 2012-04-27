@@ -1361,9 +1361,12 @@ function main()
 			combined.wrp.append( combined.o_input, combined.add_button, combined.d_input, combined.save_buton );
 			
 			combined.wrp.fadeIn(function(){
-				combined.addInput();
-				combined.save();
+				
 			});
+			
+			combined.deleteBox();
+			combined.addInput();
+			combined.save();
 		},
 		addInput:function()
 		{
@@ -1380,7 +1383,8 @@ function main()
 				{
 					
 					$('#id_'+(len-1)).after( combined.w_inputs[len] );
-				}	
+				}
+				combined.deleteBox();	
 			});
 			$('#working-panel').css({'display':'-webkit-box'});
 		},
@@ -1438,7 +1442,7 @@ function main()
 		},
 		printInput:function( d, s )
 		{
-			var my, def = ( typeof d == 'undefined' || d == false ) ? false : d, sort = ( typeof s == 'undefined' || s == false ) ? false : s, drag_handle = $('<div class="drag_handle"></div>'), details = $('<div class="details">');
+			var my, def = ( typeof d == 'undefined' || d == false ) ? false : d, sort = ( typeof s == 'undefined' || s == false ) ? false : s, delete_handle = $('<div class="delete_handle"></div>'), drag_handle = $('<div class="drag_handle"></div>'), details = $('<div class="details">');
 			
 			my = $.ninja.autocomplete({
 			  placeholder: ( !def ) ? 'Cerca servizio' : 'Current location'
@@ -1463,9 +1467,8 @@ function main()
 			      });
 			});
 			
-			my.prepend( drag_handle );
-			my.append( details );
-		
+			my.append( delete_handle, drag_handle, details );
+			
 			if( sort && my )
 			{
 				my.addClass('ui-state-default');
@@ -1484,6 +1487,32 @@ function main()
 			combined.showDetails(details, my.data('related') );
 			
 			return my;
+		},
+		deleteBox:function()
+		{
+			var elements = $('.delete_handle');
+			
+			$.each(elements, function(i, v){
+				
+				var el = $(v);
+				
+				el.unbind('click');
+				
+				el.bind('click', function(event){
+					var len = combined.w_inputs.length, i = $(event.target).parent().index(), index = ( len ==  i ) ? i-1 : i;
+					combined.w_inputs.remove(index);
+					
+					$(event.target).parent().slideUp(200, function(){
+						
+						$(this).remove();
+						$('span.ui-state-default').each(function(key, val){
+							$(val).removeAttr('id');
+							$(val).prop( 'id', 'id_'+key );
+							combined.w_inputs[key] = $(val);
+						});
+					});
+				});
+			});
 		},
 		showDetails:function(el, data)
 		{
@@ -1658,9 +1687,8 @@ String.prototype.startsWith = function(pattern) {
   return this.slice(0, pattern.length).toLowerCase() == pattern.toLowerCase();
 };
 // Array Remove - By John Resig (MIT Licensed)
-Array.prototype.removeElement = function(from, to) {
+Array.prototype.remove = function(from, to) {
   var rest = this.slice((to || from) + 1 || this.length);
   this.length = from < 0 ? this.length + from : from;
-  //return this.push.apply(this, rest);
-	return this;
+  return this.push.apply(this, rest);
 };

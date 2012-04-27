@@ -404,7 +404,7 @@ div#wrap_combined_inputs span.nui-atc:last-of-type {
 /*	background: url('../images/site/h_shadow.png') no-repeat 50% -31px; */
 }
 div#wrap_combined_inputs span.nui-atc div.drag_handle,
-div#wrap_combined_inputs span.nui-atc div.details {
+div#wrap_combined_inputs span.nui-atc div.details, div#wrap_combined_inputs span.nui-atc div.delete_handle {
 	position: absolute;
 	top: 0;
 	width: 21px;
@@ -412,16 +412,14 @@ div#wrap_combined_inputs span.nui-atc div.details {
 	background: url('../images/site/save_texture.png') no-repeat 0 -120px;
 }
 div#wrap_combined_inputs span.nui-atc div.drag_handle {
-	left: 0;
+	left: 50%;
 }
+div#wrap_combined_inputs span.nui-atc div.delete_handle{left:0;}
 div#wrap_combined_inputs span.nui-atc div.details {
 	right: 0;
 	width: 34px;
 	background-position: 0 -180px;
 }
-
-
-
 div#wrap_combined_inputs span.button_wrapper {
 	height: 0;
 	width: 100%;
@@ -504,3 +502,4 @@ div.bt_2 div.nui-try div.open div#wrap_combined_inputs_save button {
 .ui-state-default{padding-left:3px;padding-right:3px;}
 .details{cursor:pointer;}
 .drag_handle{cursor:move;}
+.delete_handle{cursor:pointer;}
