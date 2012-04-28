@@ -336,7 +336,7 @@ only screen and (max-device-width: 960px) {
 /*///// A panel to show stuff to work on//////////*/
 div#working-panel {
 	display: none;	
-	background: white;
+	background: #ebebeb;
 	height: 50%;
 	width: 100%;
 	position: absolute;
@@ -398,6 +398,7 @@ div#wrap_combined_inputs span.nui-atc {
 }
 div#wrap_combined_inputs span.nui-atc:first-child {
 	border-top: 1px solid #ebebeb;
+	margin-top: 60px;
 }
 div#wrap_combined_inputs span.nui-atc:last-of-type {
 	border-bottom: 0;
@@ -492,6 +493,53 @@ div.bt_2 div.nui-try div.open div#wrap_combined_inputs_save button {
 	border: 0;
 	border-right: 20px solid #f5f5f5;
 	padding: 0;
+}
+.info_box {
+	border: 0;
+	background: url('../images/site/save_texture.png') repeat-x 50% -292px;
+	width: 200px;
+	font-size: .9em;
+	height: 58px;
+	overflow: hidden;
+	display: table !important;
+	padding-top: 8px;
+}
+.info_box .infoRow {
+	display: table-cell;
+	width: 152px;
+	height: 58px;
+	color: #fff;
+	vertical-align: middle;
+	padding-left: 10px;
+}
+.info_box .actionRow,
+.info_box .more {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 28px;
+	height: 28px;
+}
+.info_box .more {
+	top: 8px;
+	background: #4dbfca url('../images/site/list_sel.png') no-repeat 6px -126px;
+}
+.info_box .actionRow button {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+	background: #4dbfca url('../images/site/list_sel.png') no-repeat -18px -126px;
+	border: 0;
+	width: 100%;
+	height: 100%;
+}
+.info_box .bubble {
+	background: url('../images/site/save_texture.png') no-repeat 50% -380px;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 8px;
+	display: block;
 }
 
 /*/////// INFO BOX /////////////////////////////*/

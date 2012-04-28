@@ -252,10 +252,10 @@ function main()
 			},
 		manage_info_box:function(o)
 		{
-			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect;
+			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), more = '<div class="more"></div>', bubble = '<span class="bubble"></span>', info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect;
 			//we create and append some html
 			button = $.ninja.button({
-				html: 'Percorso',
+				html: '',
 				select:( null == dir ) ? false : true
 				}).select(function(){
 					if(!dir) Directions.init();
@@ -274,14 +274,14 @@ function main()
 			info.text(obj.name+" "+obj.type+" ");
 			action.append(button);
 			
-			$(boxBox).append(info, action);
+			$(boxBox).append(more, info, action, bubble);
 			
 			//some options for our infoBox
 			var infoBoxOptions = {
 			                 content: boxBox
 			                ,disableAutoPan: false
-			                ,maxWidth: 0
-			                ,pixelOffset: new google.maps.Size(-140, 0)
+			                ,maxWidth: 200
+			                ,pixelOffset: new google.maps.Size(-77, 42)
 			                ,zIndex: null
 			                ,closeBoxMargin: ""
 			                ,closeBoxURL: ""
@@ -289,6 +289,7 @@ function main()
 			                ,isHidden: false
 			                ,pane: "floatPane"
 			                ,enableEventPropagation: false
+			                ,boxClass: "info_box"
 			        };
 			//and action!
 			if( !obj.has_infoBox && !self.has_infobox_open )
