@@ -4,8 +4,8 @@
 /* 
 ** general //////////////////////////////////////
 */
-html, body{height: 100%;margin: 0;}
-body {
+
+html, body {
 	padding: 0;
 	margin: 0;
 	/*forces address bar to hide on iphone*/
@@ -44,7 +44,7 @@ div#wrap_all{min-height: 100%;height: auto !important;height: 100%;margin: 0 aut
 	width: 100%;
 	height: 100%;
 	right: 50%;
-	background: #fe9f0d;
+	background: #fbc619;
 }
 #mainbar .left {
 	width: 40%;
@@ -104,22 +104,24 @@ div#wrap_all{min-height: 100%;height: auto !important;height: 100%;margin: 0 aut
 	display: none;
 }
 #mainbar div.bt_4 button.nui-btn {
-	background-position: 50% -780px;
+	background-position: 50% -1020px;
 }
 #mainbar div.bt_4 button.nui-slc { /* sel */
-	background-position: 50% -720;
+	background-position: 50% -960px;
 }
 #mainbar div.bt_5 button.nui-btn {
-	background-position: 50% -540px;
+	background-position: 50% -660px;
 }
 #mainbar div.bt_5 button.nui-slc { /* sel */
-	background-position: 50% -480;
+	background-position: 50% -600px;
 }
 #mainbar div.bt_3 button.nui-btn {
-	background-position: 50% -420px;
+	background-position: 50% -300px;
 }
 #mainbar div.bt_3 button.nui-slc { /* sel */
-	background-position: 50% -360;
+	background-position: 50% -240px;
+	background-color: #fbc619;
+	border-bottom: 1px solid #e6b014;
 }
 #mainbar div.bt_2 button.nui-btn {
 	background-position: 50% -180px;
@@ -142,12 +144,28 @@ div#wrap_all{min-height: 100%;height: auto !important;height: 100%;margin: 0 aut
 #mainbar div.nui-try button.nui-btn {
 	background: none;
 	color: white;
-	height: 48px;
+	height: 50px;
 	text-shadow: none;
 	font: bold .9em/1em "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
 	text-indent: 20px;
 	border-top: 1px solid #3b210a;
 	border-bottom: 1px solid #220d00;
+}
+#mainbar div.bt_3 div.nui-try button.nui-btn {
+	background: #fbc619 url('../images/site/bar_buttons.png') no-repeat 50% 0;
+	text-indent: -999px;
+	overflow: hidden;
+	border: 0;
+}
+#mainbar div.bt_3 div.nui-try button.nui-btn:nth-child(1) {
+	background-position-y: -306px;
+	border-top: 1px solid #fcd147;
+}
+#mainbar div.bt_3 div.nui-try button.nui-btn:nth-child(2) {
+	background-position-y: -426px;
+}
+#mainbar div.bt_3 div.nui-try button.nui-btn:nth-child(3) {
+	background-position-y: -546px;
 }
 #mainbar div.nui-try button.nui-btn:first-child {
 	border-top-color: #301300;
@@ -160,6 +178,12 @@ div#wrap_all{min-height: 100%;height: auto !important;height: 100%;margin: 0 aut
 	border-left: 10px solid #aeed63;
 	text-indent: 10px;
 }
+#mainbar div.bt_3 div.nui-try button.nui-slc {
+	border-left: 0;
+}
+
+
+
 
 /* options dialog */
 
