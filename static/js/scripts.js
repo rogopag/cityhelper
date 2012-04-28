@@ -252,7 +252,7 @@ function main()
 			},
 		manage_info_box:function(o)
 		{
-			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), more = '<div class="more"></div>', bubble = '<span class="bubble"></span>', info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect;
+			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), more = '<div class="more"></div>', bubble = '<span class="bubble"></span>', info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect, parkings_info = $('<span class="parkings_info"></span>');
 			//we create and append some html
 			button = $.ninja.button({
 				html: '',
@@ -271,7 +271,7 @@ function main()
 				select: true
 			});
 			
-			info.text(obj.name+" "+obj.type+" ");
+			info.text(obj.name);
 			action.append(button);
 			
 			$(boxBox).append(more, info, action, bubble);
@@ -291,6 +291,12 @@ function main()
 			                ,enableEventPropagation: false
 			                ,boxClass: "info_box"
 			        };
+			if( obj.type == 'parkings' )
+			{
+					console.log( obj.free+" liberi su "+obj.total );
+					parkings_info.text(' '+obj.free+" posti liberi su "+obj.total);
+					info.append( parkings_info );
+			}
 			//and action!
 			if( !obj.has_infoBox && !self.has_infobox_open )
 			{
