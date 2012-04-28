@@ -524,7 +524,14 @@ function main()
 			view.clear_button = $.ninja.button({
 				html: 'Svuota'
 			}).select(function(){
-				if( dir && dir.hasDirection ) dir.destroy();
+				if( dir && dir.hasDirection )
+				{
+					if( dir.wmarkers.length ) 
+					{
+						for(var i=0;i<dir.wmarkers.length;i++) dir.wmarkers[i].setMap(null);
+					}
+					dir.destroy();
+				} 
 				view.purge_open( view.options );
 				view.purgeCssClass( $(this) );
 			});
@@ -595,6 +602,7 @@ function main()
 		hasDirection:false,
 		mode: google.maps.DirectionsTravelMode.DRIVING,
 		waypoints:[],
+		wmarkers:[],
 		init:function()
 		{
 			dir = this;
@@ -653,7 +661,7 @@ function main()
 			dir.directionDisplay.setOptions({
 				markerOptions:{
 					visible:true
-				}
+					}
 				});
 			
 			dir.directionsService.route(request, function(response, status) {
@@ -678,13 +686,24 @@ function main()
 		markers_printer:function( wp, waypoints_data, d, o )
 		{
 			var w = wp, marker = [], w_d = waypoints_data, dest = d;
-			if( dest )dest.marker.setMap(self.map);
+			
+			dir.wmarkers = [];
+			
+			if( dest && dest.marker ) 
+			{
+				dest.marker.setMap(self.map);
+				dir.wmarkers.push(dest.marker);
+			}
 			
 			if( !w || w.length == 0 ) return false;
 			
 			for( var i in w_d )
 			{
-				w_d[i].marker.setMap(self.map);	
+				if( typeof w_d[i].marker != 'undefined')
+				{
+					w_d[i].marker.setMap(self.map);
+					dir.wmarkers.unshift( w_d[i].marker );
+				}	
 			}
 		},
 		switchMode:function(val)
@@ -1361,36 +1380,38 @@ function main()
 			combined.wrp.append( combined.o_input, combined.add_button, combined.d_input, combined.save_buton );
 			
 			combined.wrp.fadeIn(function(){
-				
+				combined.save();
 			});
 			
 			combined.deleteBox();
 			combined.addInput();
-			combined.save();
 		},
 		addInput:function()
 		{
-			combined.add_button.bind('click',{d:null}, function(event){
+			combined.add_button.bind('click', function(event){
 				var len = combined.w_inputs.length;
-				combined.w_inputs[len] = combined.printInput( false, true );
-				combined.w_inputs[len].attr('id', 'id_'+len);
-				combined.w_inputs[len].data('related', null);
+				combined.w_inputs[len] = combined.w_inputs[len-1]
+				combined.w_inputs[len-1] = combined.printInput( false, true );
+				combined.w_inputs[len-1].data('related', null);
 				if( len == 2 )
 				{
-					$(combined.w_inputs[0]).after( combined.w_inputs[len] );
+					$(combined.w_inputs[0]).after( combined.w_inputs[len-1] );
 				}
 				else
-				{
-					
-					$('#id_'+(len-1)).after( combined.w_inputs[len] );
+				{	
+					$('#id_'+(len-2) ).after( combined.w_inputs[len-1] );
 				}
-				combined.deleteBox();	
+				$(combined.w_inputs[len-1]).prop('id', 'id_'+(len-1) );
+				$(combined.w_inputs[len]).removeProp('id');
+				$(combined.w_inputs[len]).attr('id', 'id_'+len );
+				combined.deleteBox();
+				console.log( "len after"+combined.w_inputs.length );	
 			});
 			$('#working-panel').css({'display':'-webkit-box'});
 		},
 		makeWayPointsSortable:function(element, container)
 		{
-			var c = ( typeof container == 'undefined' ) ? combined.wrp : container, el = element, sort = null, tmp = [], tmp;
+			var c = ( typeof container == 'undefined' ) ? combined.wrp : container, el = element, sort = null, tmp = [];
 			//check if container is sortable already, if not make it so
 			if( !$(c+':data(sortable)').length )
 			{
@@ -1400,17 +1421,25 @@ function main()
 					},
 					start: function (event, ui) {
 							tmp = $.extend(true, [], combined.w_inputs);
-							combined.wrp.children('span.ui-state-default').each(function(key, val){
+							
+							$('span.ui-state-default').each(function(key, val){
 								$(val).data( 'startindex', key );
+								console.log( "on start ".key, $(val).data( 'startindex'), $(combined.w_inputs[key]).data('related').name, $(val).data('related') );
 							});
 							
 				    },
 					update:function(event, ui)
 					{
-						combined.wrp.children('span.ui-state-default').each(function(key, val){
+						combined.w_inputs = [];
+						
+						$('span.ui-state-default').each(function(key, val){
+							console.log( key, $(val).data( 'startindex') );
 							combined.w_inputs[key] = tmp[ $(val).data( 'startindex') ];
-							combined.w_inputs[key].removeAttr('id');
+							$(combined.w_inputs[key]).removeProp('id');
+							//console.log( $(combined.w_inputs[key]).attr('id') )
 							combined.w_inputs[key].prop( 'id', 'id_'+key );
+							//console.log( key, $(val).data( 'startindex') )
+							console.log( " ends "+$(combined.w_inputs[key]).data('related').name+" "+ $(val).data( 'startindex') +" ->>> "+ key);
 						});
 					}
 				});
@@ -1477,7 +1506,9 @@ function main()
 			
 			if( def )
 			{
+				console.log( self.me.currentLocation );
 				my.data('related', self.me.currentLocation);
+				console.log( my.data('related') );
 			}
 			else
 			{
@@ -1491,26 +1522,41 @@ function main()
 		deleteBox:function()
 		{
 			var elements = $('.delete_handle');
-			
+
 			$.each(elements, function(i, v){
-				
+
 				var el = $(v);
-				
+				//keep at least origin and destination
+				if( combined.w_inputs.length <= 2 )
+				{
+					el.css('display', 'none');
+				} 
+				else
+				{
+					el.css('display', 'block');
+				}
+				//don't make a mess 
 				el.unbind('click');
-				
-				el.bind('click', function(event){
-					var len = combined.w_inputs.length, i = $(event.target).parent().index(), index = ( len ==  i ) ? i-1 : i;
-					combined.w_inputs.remove(index);
-					
-					$(event.target).parent().slideUp(200, function(){	
-						$(this).remove();
-						$('span.ui-state-default').each(function(key, val){
-							$(val).removeAttr('id');
-							$(val).prop( 'id', 'id_'+key );
-							combined.w_inputs[key] = $(val);
+				//and bind only if necessary
+				if( combined.w_inputs.length > 2 )
+				{
+					el.bind('click', function(event){
+						var len = combined.w_inputs.length, i = $(event.target).parent().index(), index = ( len ==  i ) ? i-1 : i;
+						//remove from array
+						combined.w_inputs.remove(index);
+						$(event.target).parent().slideUp(200, function(){
+							//remove from dom	
+							$(this).remove();
+							//reorder others
+							$('span.ui-state-default').each(function(key, val){
+								$(val).removeAttr('id');
+								$(val).prop( 'id', 'id_'+key );
+								combined.w_inputs[key] = $(val);
+							});
 						});
+
 					});
-				});
+				}
 			});
 		},
 		showDetails:function(el, data)
@@ -1557,18 +1603,18 @@ function main()
 		{
 			var r = false, sw = d;
 			
-			if( d == null) return r;
+			if( sw == null) return r;
 			
-			switch(typeof d)
+			switch(typeof sw)
 			{
 				case 'object':
-					if( 'name' in d )
+					if( 'name' in sw )
 					{
-						r = new google.maps.LatLng( d.lat, d.lng );
+						r = new google.maps.LatLng( sw.lat, sw.lng );
 					}
 					else
 					{
-						r = new google.maps.LatLng( d.$a, d.ab );
+						r = new google.maps.LatLng( sw.$a, sw.ab );
 					}
 				break;
 			}
@@ -1579,6 +1625,12 @@ function main()
 			combined.save_buton.bind('click', {d:null}, function(event){
 				
 				var done = false, len = combined.w_inputs.length, last = len - 1, wp, wp_items = [];
+				//debug
+				console.log( len );
+				
+				$.each(combined.w_inputs, function(key, val){
+					console.log("Line ::: "+key, $(val).data('related').name);
+				});
 				
 				combined.request.origin = combined.switchOriginAndDestination( combined.w_inputs[0].data('related') );
 				combined.request.destination = combined.switchOriginAndDestination( combined.w_inputs[last].data('related') );
@@ -1596,6 +1648,9 @@ function main()
 					return done;
 				}
 				
+				console.log( "o "+combined.w_inputs[0].data('related').name )
+				console.log( "last "+combined.w_inputs[last].data('related').name )
+				
 				wp = $.extend(true, [], combined.w_inputs);
 				
 				wp.pop();
@@ -1611,6 +1666,7 @@ function main()
 
 						if( typeof value.data('related') == 'object' )
 						{
+							console.log( "w "+key+""+value.data('related').name );
 							combined.waypoints.push({ 
 								'location':new google.maps.LatLng( value.data('related').lat, value.data('related').lng ),
 								'stopover':true,
