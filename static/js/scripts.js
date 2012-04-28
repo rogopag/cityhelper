@@ -1405,7 +1405,7 @@ function main()
 				$(combined.w_inputs[len]).removeProp('id');
 				$(combined.w_inputs[len]).attr('id', 'id_'+len );
 				combined.deleteBox();
-				console.log( "len after"+combined.w_inputs.length );	
+				//console.log( "len after"+combined.w_inputs.length );	
 			});
 			$('#working-panel').css({'display':'-webkit-box'});
 		},
@@ -1424,7 +1424,7 @@ function main()
 							
 							$('span.ui-state-default').each(function(key, val){
 								$(val).data( 'startindex', key );
-								console.log( "on start ".key, $(val).data( 'startindex'), $(combined.w_inputs[key]).data('related').name, $(val).data('related') );
+								//console.log( "on start ".key, $(val).data( 'startindex'), $(combined.w_inputs[key]).data('related').name, $(val).data('related') );
 							});
 							
 				    },
@@ -1433,13 +1433,13 @@ function main()
 						combined.w_inputs = [];
 						
 						$('span.ui-state-default').each(function(key, val){
-							console.log( key, $(val).data( 'startindex') );
+							//console.log( key, $(val).data( 'startindex') );
 							combined.w_inputs[key] = tmp[ $(val).data( 'startindex') ];
 							$(combined.w_inputs[key]).removeProp('id');
-							//console.log( $(combined.w_inputs[key]).attr('id') )
+							////console.log( $(combined.w_inputs[key]).attr('id') )
 							combined.w_inputs[key].prop( 'id', 'id_'+key );
-							//console.log( key, $(val).data( 'startindex') )
-							console.log( " ends "+$(combined.w_inputs[key]).data('related').name+" "+ $(val).data( 'startindex') +" ->>> "+ key);
+							////console.log( key, $(val).data( 'startindex') )
+							//console.log( " ends "+$(combined.w_inputs[key]).data('related').name+" "+ $(val).data( 'startindex') +" ->>> "+ key);
 						});
 					}
 				});
@@ -1506,9 +1506,9 @@ function main()
 			
 			if( def )
 			{
-				console.log( self.me.currentLocation );
+				//console.log( self.me.currentLocation );
 				my.data('related', self.me.currentLocation);
-				console.log( my.data('related') );
+				//console.log( my.data('related') );
 			}
 			else
 			{
@@ -1626,10 +1626,10 @@ function main()
 				
 				var done = false, len = combined.w_inputs.length, last = len - 1, wp, wp_items = [];
 				//debug
-				console.log( len );
+				//console.log( len );
 				
 				$.each(combined.w_inputs, function(key, val){
-					console.log("Line ::: "+key, $(val).data('related').name);
+					//console.log("Line ::: "+key, $(val).data('related').name);
 				});
 				
 				combined.request.origin = combined.switchOriginAndDestination( combined.w_inputs[0].data('related') );
@@ -1648,8 +1648,8 @@ function main()
 					return done;
 				}
 				
-				console.log( "o "+combined.w_inputs[0].data('related').name )
-				console.log( "last "+combined.w_inputs[last].data('related').name )
+				//console.log( "o "+combined.w_inputs[0].data('related').name )
+				//console.log( "last "+combined.w_inputs[last].data('related').name )
 				
 				wp = $.extend(true, [], combined.w_inputs);
 				
@@ -1666,7 +1666,7 @@ function main()
 
 						if( typeof value.data('related') == 'object' )
 						{
-							console.log( "w "+key+""+value.data('related').name );
+							//console.log( "w "+key+""+value.data('related').name );
 							combined.waypoints.push({ 
 								'location':new google.maps.LatLng( value.data('related').lat, value.data('related').lng ),
 								'stopover':true,
