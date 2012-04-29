@@ -216,6 +216,7 @@ span.nui-dlg.locations-saved-list .title h2 {
 span.locations-saved-list {
 	background: #fff;
 	position: relative;
+	position: absolute;
 }
 
 .nui-dlg.dircontrol .nui-icn,
