@@ -293,7 +293,6 @@ function main()
 			        };
 			if( obj.type == 'parkings' )
 			{
-					console.log( obj.free+" liberi su "+obj.total );
 					parkings_info.text(' '+obj.free+" posti liberi su "+obj.total);
 					info.append( parkings_info );
 			}
@@ -675,11 +674,18 @@ function main()
 				if (status == google.maps.DirectionsStatus.OK) {
 					dir.directionDisplay.setDirections(response);
 					dir.hasDirection = true;
-					dir.save = {};
-					dir.save.start_lat = response.routes[0].legs[0].start_location.lat();
-					dir.save.start_lng = response.routes[0].legs[0].start_location.lng();
-					dir.save.end_lat = response.routes[0].legs[0].end_location.lat();
-					dir.save.end_lng = response.routes[0].legs[0].end_location.lng();
+					dir.save = [];
+					
+					var len = response.routes[0].legs.legs.length;
+					for(var i=0;i<len;i++)
+					{
+						dir.save[i] = {};
+						dir.save[i].start_lat = response.routes[0].legs[0].start_location.lat();
+						dir.save[i].start_lng = response.routes[0].legs[0].start_location.lng();
+						dir.save[i].end_lat = response.routes[0].legs[0].end_location.lat();
+						dir.save[i].end_lng = response.routes[0].legs[0].end_location.lng();
+					}
+					
 				}
 				else if( status == google.maps.DirectionsStatus.MAX_WAYPOINTS_EXCEEDED)
 				{
@@ -1557,9 +1563,22 @@ function main()
 							//reorder others
 							$('span.ui-state-default').each(function(key, val){
 								$(val).removeAttr('id');
+								
 								$(val).prop( 'id', 'id_'+key );
+								
 								combined.w_inputs[key] = $(val);
+								
+								if( combined.w_inputs.length <= 2 )
+								{
+									$(val).children('.delete_handle').fadeOut(200);
+								} 
+								else
+								{
+									$(val).children('.delete_handle').css('display', 'block');
+								}
 							});
+							
+							
 						});
 
 					});
