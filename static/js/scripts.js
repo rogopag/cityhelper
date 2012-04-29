@@ -1337,11 +1337,26 @@ function main()
 					view.purge_open( mainview.options );
 					view.purgeCssClass( $(this) );
 				}
-				
 				$(this).addClass("list_view");
-				$('.list_view').css('height',$(window).height()-60);			
-				
+				$(this).prop('id', 'list_view');
+				$('.list_view').css('height',$(window).height()-60);
+				mainview.listenToListView();				
 			});			
+		},
+		listenToListView:function()
+		{
+			var check_id = setInterval(func, 300);
+			
+			function func()
+			{
+				var inside = mainview.listDialog.children('div');
+				
+				if( inside.length )
+				{
+					inside.wrapAll('<div class="list_wrapper" />');
+					clearInterval(check_id);
+				}
+			}
 		}	
 	};
 	CombinedView = {
