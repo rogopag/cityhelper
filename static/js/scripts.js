@@ -653,9 +653,9 @@ function main()
 				}
 			});
 		},
-		calculateRoute:function(lat, lng, org, w, w_d, d, is_store )
+		calculateRoute:function(lat, lng, org, w, w_d, d, is_store, org_item )
 		{
-			var origin, request, waypoints, waypoints_data, dest = d, is_s = ( !is_store || typeof is_store == 'undefined') ? false : true;
+			var origin, request, waypoints, waypoints_data, dest = d, is_s = ( !is_store || typeof is_store == 'undefined') ? false : true, destination = new google.maps.LatLng(lat, lng);
 			// if a route is already plotted please erase.
 			
 			self.loader_show();
@@ -664,52 +664,51 @@ function main()
 			
 			origin = ( org ) ? org : self.me.currentLocation;
 			
+			origin_item = org_item;
+
 			waypoints = ( w ) ? w : [];
 			waypoints_data = ( w_d ) ? w_d : [];
 			dest = ( d ) ? d : false;
 			
-			console.log( origin );
-			
 			request = {
 				origin: origin,
-				destination: new google.maps.LatLng(lat, lng),
+				destination: destination,
 				travelMode: dir.mode,
 				provideRouteAlternatives:true,
 				waypoints:waypoints,
 				optimizeWaypoints:true
 			};
 			
-			if( is_s )
-			dir.directionDisplay.setOptions({
-				markerOptions:{
-					visible:true
+			console.log( waypoints, request );
+			
+			if( is_s ) dir.directionDisplay.setOptions({
+					markerOptions:{
+						visible:true
 					}
 				});
-			
 				dir.directionsService.route(request, function(response, status) {
 					if (status == google.maps.DirectionsStatus.OK) {
 						self.loader_hide();
 						dir.directionDisplay.setDirections(response);
 						dir.hasDirection = true;
 						dir.save = {};
-						dir.save.start_lat = response.routes[0].legs[0].start_location.lat();
-						dir.save.start_lng = response.routes[0].legs[0].start_location.lng();
-						dir.save.end_lat = response.routes[0].legs[0].end_location.lat();
-						dir.save.end_lng = response.routes[0].legs[0].end_location.lng();
+						dir.save.start_lat = origin.lat();
+						dir.save.start_lng = origin.lng();
+						dir.save.end_lat = destination.lat();
+						dir.save.end_lng = destination.lng();
+						dir.save.waypoints = waypoints;
 					}
 				else if( status == google.maps.DirectionsStatus.MAX_WAYPOINTS_EXCEEDED)
 				{
 					alert("Il massimo numero di fermate (8) "+ unescape('%E8') +" stato raggiunto!");
 				}
 			    });
-				
 				if( !is_s )
-				dir.markers_printer(waypoints, waypoints_data, dest, origin );
+				dir.markers_printer(waypoints, waypoints_data, dest, origin_item  );
 		},
 		markers_printer:function( wp, waypoints_data, d, o )
 		{
-			var w = wp, marker = [], w_d = waypoints_data, dest = d;
-			
+			var w = wp, marker = [], w_d = waypoints_data, dest = d, origin = o;
 			dir.wmarkers = [];
 			
 			if( dest && dest.marker ) 
@@ -718,7 +717,7 @@ function main()
 				dir.wmarkers.push(dest.marker);
 			}
 			
-			if( !w || w.length == 0 ) return false;
+			//if( !w || w.length == 0 ) return false;
 			
 			for( var i in w_d )
 			{
@@ -727,6 +726,12 @@ function main()
 					w_d[i].marker.setMap(self.map);
 					dir.wmarkers.unshift( w_d[i].marker );
 				}	
+			}
+			
+			if( origin )
+			{
+				dir.wmarkers.setMap(self.map);
+				dir.wmarkers.unshift( origin.marker );
 			}
 		},
 		switchMode:function(val)
@@ -1007,6 +1012,7 @@ function main()
 				}).select(function(){
 					store.getData(storecontrol.saveData);
 					view.purge_open(storecontrol.options);
+					dircontrol.hideMngsAndDeselect();
 				}).deselect(function(){
 					
 				}),
@@ -1133,12 +1139,11 @@ function main()
 						row.bind('click', {index:i}, function(event){
 							if(!dir) Directions.init();
 							var i = event.data.index, o = new google.maps.LatLng(store.stored[i].obj.start_lat, store.stored[i].obj.start_lng);
-							
 							dir.calculateRoute( 
 								store.stored[i].obj.end_lat, 
 								store.stored[i].obj.end_lng, 
 								o,
-								false,
+								store.parseWaypoints(store.stored[i].obj.waypoints),
 								false,
 								false,
 								true
@@ -1159,6 +1164,19 @@ function main()
 			{
 				alert("Non ci sono percorsi salvati");
 			}
+		},
+		parseWaypoints:function(waypoints)
+		{
+			var w = waypoints, ar = [];
+			
+			$.each(w, function(key, value){
+				var lat = value.location.$a, lng = value.location.ab;
+				ar.push({ 
+					'location':new google.maps.LatLng( lat, lng ),
+					'stopover':true,
+				});
+			});
+			return ar;
 		},
 		removePanel:function()
 		{
@@ -1501,7 +1519,7 @@ function main()
 			}).values(function (event) {
 			      my.list({
 			        values: $.map(combined.dictionary, function (item, i) {
-						if( item.name.startsWith(event.query) )
+						if( item.name.hasIn(event.query) )
 						{
 							return {
 								html: item.name,
@@ -1530,7 +1548,7 @@ function main()
 			if( def )
 			{
 				//console.log( self.me.currentLocation );
-				my.data('related', self.me.currentLocation);
+				my.data('related', false);
 				//console.log( my.data('related') );
 			}
 			else
@@ -1660,7 +1678,7 @@ function main()
 		{
 			combined.save_buton.bind('click', {d:null}, function(event){
 				
-				var done = false, len = combined.w_inputs.length, last = len - 1, wp, wp_items = [];
+				var done = false, len = combined.w_inputs.length, last = len - 1, wp, wp_items = [], org_item;
 				//debug
 				//console.log( len );
 				
@@ -1668,7 +1686,8 @@ function main()
 					//console.log("Line ::: "+key, $(val).data('related').name);
 				});
 				
-				combined.request.origin = combined.switchOriginAndDestination( combined.w_inputs[0].data('related') );
+				combined.request.origin = ( combined.w_inputs[0].data('related') ) ?  combined.switchOriginAndDestination( combined.w_inputs[0].data('related') ) : self.me.currentLocation;
+				
 				combined.request.destination = combined.switchOriginAndDestination( combined.w_inputs[last].data('related') );
 				
 				if( !combined.request.origin )
@@ -1727,6 +1746,8 @@ function main()
 				
 				combined.request.waypoints = ( combined.waypoints ) ? combined.waypoints : [];
 				
+				org_item = ( combined.request.origin == self.me.currentLocation )? false : combined.request.origin; 
+				
 				if(!dir) Directions.init();
 				
 				dir.calculateRoute(
@@ -1735,7 +1756,8 @@ function main()
 					combined.request.origin,
 					combined.waypoints,
 					wp_items,
-					combined.w_inputs[last].data('related')
+					combined.w_inputs[last].data('related'),
+					org_item
 				 );
 				google.maps.event.addListener(dir.directionDisplay, 'directions_changed', function()
 				{
@@ -1777,6 +1799,18 @@ google.maps.TrafficLayer.prototype.hide = function()
 //Adds startsWith method to string Object
 String.prototype.startsWith = function(pattern) {
   return this.slice(0, pattern.length).toLowerCase() == pattern.toLowerCase();
+};
+String.prototype.hasIn = function(pattern)
+{
+	var splits = this.split(" "), len = splits.length;
+	
+	for(var i=0;i<len;i++)
+	{
+		if( splits[i].length > 2 )
+		{
+			if( splits[i].startsWith(pattern) ) return true;
+		}	
+	}
 };
 // Array Remove - By John Resig (MIT Licensed)
 Array.prototype.remove = function(from, to) {
