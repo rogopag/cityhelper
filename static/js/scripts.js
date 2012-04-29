@@ -1339,24 +1339,8 @@ function main()
 				}
 				$(this).addClass("list_view");
 				$(this).prop('id', 'list_view');
-				$('.list_view').css('height',$(window).height()-60);
-				mainview.listenToListView();				
+				$('.list_view').css('height',$(window).height()-60);				
 			});			
-		},
-		listenToListView:function()
-		{
-			var check_id = setInterval(func, 300);
-			
-			function func()
-			{
-				var inside = mainview.listDialog.children('div');
-				
-				if( inside.length )
-				{
-					inside.wrapAll('<div class="list_wrapper" />');
-					clearInterval(check_id);
-				}
-			}
 		}	
 	};
 	CombinedView = {
