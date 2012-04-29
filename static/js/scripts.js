@@ -1337,7 +1337,11 @@ function main()
 					view.purge_open( mainview.options );
 					view.purgeCssClass( $(this) );
 				}
-			});
+				
+				$(this).addClass("list_view");
+				$('.list_view').css('height',$(window).height()-60);			
+				
+			});			
 		}	
 	};
 	CombinedView = {
