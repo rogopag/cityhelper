@@ -210,7 +210,7 @@ function main()
 						LocalSettings.STATIC_URL+'images/map_icons.png',
 						new google.maps.Size(size, size), 
 						new google.maps.Point(p.icon,0), 
-						new google.maps.Point(0,0)
+						new google.maps.Point(12,14)
 						//new google.maps.Size(size, size*p.ratio)
 					);
 					$.each(self.d[key], function(items, values)
@@ -259,11 +259,11 @@ function main()
 				select:( null == dir ) ? false : true
 				}).select(function(){
 					if(!dir) Directions.init();
-					dir.calculateRoute(obj.lat, obj.lng);
+						dir.calculateRoute(obj.lat, obj.lng);
 					//return false;
 				}).deselect(function(){
-					dir.destroy();
-					if( !obj.has_infoBox && !self.has_infobox_open ) self.infoBox.close();
+					if( obj.has_infoBox && self.has_infobox_open ) self.infoBox.close();
+					view.removeMarkers();
 					//return false;
 				}),
 			buttonSelect = $.ninja.button({
@@ -530,18 +530,24 @@ function main()
 			view.clear_button = $.ninja.button({
 				html: 'Svuota'
 			}).select(function(){
-				if( dir && dir.hasDirection )
-				{
-					if( dir.wmarkers.length ) 
-					{
-						for(var i=0;i<dir.wmarkers.length;i++) dir.wmarkers[i].setMap(null);
-					}
-					dir.destroy();
-				} 
+				view.removeMarkers();
+				if( mainview.is_combined )
+					mainview.combinedHide();
 				view.purge_open( view.options );
 				view.purgeCssClass( $(this) );
 			});
 			view.rows_selected.push( view.clear_button );
+		},
+		removeMarkers:function()
+		{
+			if( dir && dir.hasDirection )
+			{
+				if( dir.wmarkers.length ) 
+				{
+					for(var i=0;i<dir.wmarkers.length;i++) dir.wmarkers[i].setMap(null);
+				}
+				dir.destroy();
+			}
 		},
 		controlOtherDrawers:function( d, t )
 		{
@@ -646,6 +652,8 @@ function main()
 			var origin, request, waypoints, waypoints_data, dest = d, is_s = ( !is_store || typeof is_store == 'undefined') ? false : true;
 			// if a route is already plotted please erase.
 			
+			self.loader_show();
+			
 			if( dir.hasDirection ) dir.destroy();
 			
 			origin = ( org ) ? org : self.me.currentLocation;
@@ -670,23 +678,17 @@ function main()
 					}
 				});
 			
-			dir.directionsService.route(request, function(response, status) {
-				if (status == google.maps.DirectionsStatus.OK) {
-					dir.directionDisplay.setDirections(response);
-					dir.hasDirection = true;
-					dir.save = [];
-					
-					var len = response.routes[0].legs.legs.length;
-					for(var i=0;i<len;i++)
-					{
-						dir.save[i] = {};
-						dir.save[i].start_lat = response.routes[0].legs[0].start_location.lat();
-						dir.save[i].start_lng = response.routes[0].legs[0].start_location.lng();
-						dir.save[i].end_lat = response.routes[0].legs[0].end_location.lat();
-						dir.save[i].end_lng = response.routes[0].legs[0].end_location.lng();
+				dir.directionsService.route(request, function(response, status) {
+					if (status == google.maps.DirectionsStatus.OK) {
+						self.loader_hide();
+						dir.directionDisplay.setDirections(response);
+						dir.hasDirection = true;
+						dir.save = {};
+						dir.save.start_lat = response.routes[0].legs[0].start_location.lat();
+						dir.save.start_lng = response.routes[0].legs[0].start_location.lng();
+						dir.save.end_lat = response.routes[0].legs[0].end_location.lat();
+						dir.save.end_lng = response.routes[0].legs[0].end_location.lng();
 					}
-					
-				}
 				else if( status == google.maps.DirectionsStatus.MAX_WAYPOINTS_EXCEEDED)
 				{
 					alert("Il massimo numero di fermate (8) "+ unescape('%E8') +" stato raggiunto!");
