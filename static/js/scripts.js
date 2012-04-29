@@ -256,19 +256,24 @@ function main()
 			//we create and append some html
 			button = $.ninja.button({
 				html: '',
-				select:( null == dir ) ? false : true
+				select:( dir == null || !dir.hasDirection ) ? false : true
 				}).select(function(){
 					if(!dir) Directions.init();
-						dir.calculateRoute(obj.lat, obj.lng);
+						if( !dir.hasDirection )
+						{
+							dir.calculateRoute(obj.lat, obj.lng);
+						}
 					//return false;
 				}).deselect(function(){
 					if( obj.has_infoBox && self.has_infobox_open ) self.infoBox.close();
+					o.has_infoBox = false;
+					self.has_infobox_open = false;
 					view.removeMarkers();
-					//return false;
+					dir = null;
 				}),
 			buttonSelect = $.ninja.button({
 				html: 'Selected',
-				select: true
+				select: true,
 			});
 			
 			info.text(obj.name);
@@ -306,9 +311,9 @@ function main()
 				google.maps.event.addListener(self.map, 'click', (function(o, i){
 					return function()
 					{
-						i.close();
 						o.has_infoBox = false;
 						self.has_infobox_open = false;
+						i.close();	
 					}
 				})(obj, self.infoBox));
 			}
@@ -535,6 +540,7 @@ function main()
 					mainview.combinedHide();
 				view.purge_open( view.options );
 				view.purgeCssClass( $(this) );
+				mainview.listDialog.detach();
 			});
 			view.rows_selected.push( view.clear_button );
 		},
@@ -661,6 +667,8 @@ function main()
 			waypoints = ( w ) ? w : [];
 			waypoints_data = ( w_d ) ? w_d : [];
 			dest = ( d ) ? d : false;
+			
+			console.log( origin );
 			
 			request = {
 				origin: origin,
