@@ -1293,7 +1293,7 @@ function main()
 				mainview.is_combined = true;
 				if( has_dir )
 				{
-					dir.directionDisplay.setPanel(this);
+					dir.directionDisplay.setPanel(this);					
 				}
 				else
 				{
@@ -1337,10 +1337,10 @@ function main()
 					view.purge_open( mainview.options );
 					view.purgeCssClass( $(this) );
 				}
-				
 				$(this).addClass("list_view");
-				$('.list_view').css('height',$(window).height()-60);			
-				
+				$('.list_view').css('height',$(window).height()-60).append('<div class="list_wrapper"></div>');
+				$('.list_wrapper').append($('.adp-list'));
+
 			});			
 		}	
 	};
