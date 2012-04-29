@@ -1293,7 +1293,7 @@ function main()
 				mainview.is_combined = true;
 				if( has_dir )
 				{
-					dir.directionDisplay.setPanel(this);
+					dir.directionDisplay.setPanel(this);					
 				}
 				else
 				{
