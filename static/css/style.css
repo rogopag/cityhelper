@@ -4,7 +4,6 @@
 /* 
 ** general //////////////////////////////////////
 */
-
 html, body {
 	padding: 0;
 	margin: 0;
@@ -16,7 +15,7 @@ html, body {
 body[orient="portrait"] { min-height:540px; }
 body[orient="landscape"] { min-height:400px; }
 /* main top bar */
-div#wrap_all{min-height: 100%;height: auto !important;height: 100%;margin: 0 auto -40px;position:relative;}
+div#wrap_all{min-height: 100%;height: auto !important;height: 100%;margin: 0 auto 0px;position:relative;}
 #mainbar {
 	position: fixed;
 	top: 0;
@@ -580,3 +579,7 @@ div.bt_2 div.nui-try div.open div#wrap_combined_inputs_save button {
 .nui-lst{position:relative;top:20px;}
 .ui-state-default{padding-left:3px;padding-right:3px;}
 .delete_handle{cursor:pointer;}
+/*SAVED DATA*/
+.store_delete{position:absolute;cursor:pointer;right:3px;width: 40px;
+height: 40px;background: url('../images/site/save_texture.png') no-repeat 0 -120px;background-position: 6px -240px;}
+.store_text{cursor:pointer;}
