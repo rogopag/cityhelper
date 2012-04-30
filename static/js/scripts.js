@@ -252,7 +252,7 @@ function main()
 			},
 		manage_info_box:function(o)
 		{
-			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), more = '<div class="more"></div>', bubble = '<span class="bubble"></span>', info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect, parkings_info = $('<span class="parkings_info"></span>');
+			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), more, moreSelect, bubble = '<span class="bubble"></span>', info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect, parkings_info = $('<span class="parkings_info"></span>');
 			//we create and append some html
 			button = $.ninja.button({
 				html: '',
@@ -275,6 +275,21 @@ function main()
 				html: 'Selected',
 				select: true,
 			});
+			
+			more = $.ninja.button({
+				html: '',
+				select:false
+				}).select(function(){
+					var con = view.listGenericDialog( self.parseDataToList( obj ) );
+					con.attach();
+				}).deselect(function(){
+					
+				}),
+			moreSelect = $.ninja.button({
+				html: 'Selected',
+				select: true,
+			});
+			more.addClass('more');
 			
 			info.text(obj.name);
 			action.append(button);
@@ -319,6 +334,21 @@ function main()
 			}
 			
 			return self.infoBox;
+		},
+		parseDataToList:function(obj)
+		{
+			console.log(obj)
+			var html = '';
+			html += '<span class="span-row">'+obj.name+'</span>';
+			if( obj.free && obj.total )
+			html += '<span class="span-row">'+obj.free+' posti liberi su '+obj.total+' totali</span>';
+			if( obj.kind )
+			html += '<span class="span-row">'+obj.kind+'</span>';
+			if(obj.address)
+			html += '<span class="span-row">'+obj.address+'</span>';
+			if( obj.phone)
+			html += '<span class="span-row">'+obj.phone+'</span>';
+			return html;
 		},
 		close_info_box:function()
 		{
