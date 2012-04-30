@@ -303,6 +303,9 @@ span.nui-dlg.locations-saved-list .close span {
 
 .nui-lst {
 	background: #ccc;
+	top: 0;
+	right: 0;
+	width: 100%;
 }
 .overflow-visible{
 	overflow: visible !important;
