@@ -252,7 +252,7 @@ function main()
 			},
 		manage_info_box:function(o)
 		{
-			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), more = '<div class="more"></div>', bubble = '<span class="bubble"></span>', info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect, parkings_info = $('<span class="parkings_info"></span>');
+			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), more, moreSelect, bubble = '<span class="bubble"></span>', info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect, parkings_info = $('<span class="parkings_info"></span>');
 			//we create and append some html
 			button = $.ninja.button({
 				html: '',
@@ -275,6 +275,21 @@ function main()
 				html: 'Selected',
 				select: true,
 			});
+			
+			more = $.ninja.button({
+				html: '',
+				select:false
+				}).select(function(){
+					var con = view.listGenericDialog( self.parseDataToList( obj ) );
+					con.attach();
+				}).deselect(function(){
+					
+				}),
+			moreSelect = $.ninja.button({
+				html: 'Selected',
+				select: true,
+			});
+			more.addClass('more');
 			
 			info.text(obj.name);
 			action.append(button);
@@ -320,6 +335,21 @@ function main()
 			
 			return self.infoBox;
 		},
+		parseDataToList:function(obj)
+		{
+			console.log(obj)
+			var html = '';
+			html += '<span class="span-row">'+obj.name+'</span>';
+			if( obj.free && obj.total )
+			html += '<span class="span-row">'+obj.free+' posti liberi su '+obj.total+' totali</span>';
+			if( obj.kind )
+			html += '<span class="span-row">'+obj.kind+'</span>';
+			if(obj.address)
+			html += '<span class="span-row">'+obj.address+'</span>';
+			if( obj.phone)
+			html += '<span class="span-row">'+obj.phone+'</span>';
+			return html;
+		},
 		close_info_box:function()
 		{
 			if( self.has_infobox_open )
@@ -339,6 +369,7 @@ function main()
 				params.cluster = 0;
 				params.icon = 0;
 				params.color = '#ff4927';
+				params.trans = 'Ospedali';
 				break;
 				case 'pharma':
 				params.index = 1001;
@@ -346,6 +377,7 @@ function main()
 				params.cluster = 136;
 				params.icon = 44;
 				params.color = '#1b3e94';
+				params.trans = 'Farmacie';
 				break;
 				case 'parkings':
 				params.index = 1000;
@@ -353,6 +385,7 @@ function main()
 				params.cluster = 90;
 				params.icon = 90;
 				params.color = '#17c05f';
+				params.trans = 'Parcheggi';
 				break;
 				case 'traffic':
 				params.index = 999;
@@ -360,6 +393,7 @@ function main()
 				params.cluster = 0;
 				params.icon = 108;
 				params.color = '#000';
+				params.trans = 'Traffico';
 				break;
 				case 'veterinarians':
 				params.index = 999;
@@ -367,6 +401,7 @@ function main()
 				params.cluster = 44;
 				params.icon = 136;
 				params.color = '#00a4e8';
+				params.trans = 'Veterinari';
 				break;
 			}
 			return params;
@@ -889,7 +924,7 @@ function main()
 				dircontrol.buttons[count][key] = {};
 				dircontrol.buttons[count][key].name = key;
 				dircontrol.buttons[count][key].el = $.ninja.button({
-					html: dircontrol.buttons[count][key].name,
+					html: self.switch_parameters(key).trans,
 					select: !( 'hide' in self.mng[key].mng )
 					}).deselect(function(){
 						if( 'hide' in self.mng[key].mng )
@@ -1104,6 +1139,7 @@ function main()
 					{
 						window.localStorage.setObject( store.input.val(), dir.save );
 						alert("Il percorso "+ store.input.val() + " " + unescape('%E8') + " stato salvato");
+						//view.removeMarkers();
 					}
 					catch(error)
 					{
