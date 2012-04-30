@@ -698,6 +698,7 @@ function main()
 			var origin, request, waypoints, waypoints_data, dest = d, is_s = ( !is_store || typeof is_store == 'undefined') ? false : true, destination = new google.maps.LatLng(lat, lng);
 			// if a route is already plotted please erase.
 			
+			console.log( is_store, is_s )
 			self.loader_show();
 			
 			if( dir.hasDirection ) dir.destroy();
@@ -705,7 +706,7 @@ function main()
 			origin = ( org ) ? org : self.me.currentLocation;
 			
 			origin_item = org_item;
-
+			console.log( origin_item, org_item )
 			waypoints = ( w ) ? w : [];
 			waypoints_data = ( w_d ) ? w_d : [];
 			dest = ( d ) ? d : false;
@@ -743,11 +744,13 @@ function main()
 					alert("Il massimo numero di fermate (8) "+ unescape('%E8') +" stato raggiunto!");
 				}
 			    });
+				console.log( is_s );
 				if( !is_s )
 				dir.markers_printer(waypoints, waypoints_data, dest, origin_item  );
 		},
 		markers_printer:function( wp, waypoints_data, d, o )
 		{
+			console.log( wp, waypoints_data, d, o );
 			var w = wp, marker = [], w_d = waypoints_data, dest = d, origin = o;
 			dir.wmarkers = [];
 			
@@ -770,9 +773,10 @@ function main()
 				}	
 			}
 			
+			console.log( origin );
 			if( origin )
 			{
-				dir.wmarkers.setMap(self.map);
+				origin.marker.setMap(self.map);
 				dir.wmarkers.unshift( origin.marker );
 				console.log( dir.wmarkers.length, dir.wmarkers)
 			}
@@ -1837,10 +1841,12 @@ function main()
 				
 				combined.request.waypoints = ( combined.waypoints ) ? combined.waypoints : [];
 				
-				org_item = ( combined.request.origin == self.me.currentLocation )? false : combined.request.origin;
+				org_item = ( combined.request.origin == self.me.currentLocation )? false : combined.w_inputs[0].data('related');
+				
+				console.log( combined.request.origin == self.me.currentLocation, combined.w_inputs[0].data('related') );
 				
 				if(!dir) Directions.init();
-				
+				console.log(combined.w_inputs[last].data('related'))
 				dir.calculateRoute(
 					combined.request.destination.lat(),
 					combined.request.destination.lng(),
@@ -1848,6 +1854,7 @@ function main()
 					combined.waypoints,
 					wp_items,
 					combined.w_inputs[last].data('related'),
+					false,
 					org_item
 				 );
 				google.maps.event.addListener(dir.directionDisplay, 'directions_changed', function()
