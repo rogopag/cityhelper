@@ -302,14 +302,34 @@ span.nui-dlg.locations-saved-list .close span {
 
 
 .nui-lst {
-	background: #ccc;
-	top: 0;
-	right: 0;
 	width: 100%;
+	position: relative;
+	font-size: .9em;
+	text-shadow: none;
+	border-radius: 0;
+	border: 0;
+	box-shadow: none;
+	z-index: 90;
+	padding: 10px 0 0 0;
+	background:  url('../images/site/save_texture.png') no-repeat 40px -388px;
+	margin-top: -10px;
 }
 .overflow-visible{
 	overflow: visible !important;
 }
+.nui-lst button {
+	background: #fff;
+	padding: 5px 20px 6px;
+	border-bottom: 1px solid #f4f3f3;
+	color: #756755;
+}
+.nui-itm.nui-hvr,
+.nui-slc {
+	border: 0;
+	text-shadow: none !important;
+	background: #756755;
+}
+
 
 /* list view dialog */
 
