@@ -1339,7 +1339,8 @@ function main()
 				}
 				$(this).addClass("list_view");
 				$(this).prop('id', 'list_view');
-				$('.list_view').css('height',$(window).height()-60);				
+				$('.list_view').css('height',$(window).height()-60).append('<div class="backmap"></div>');
+				$('.backmap').append($('.list_view img.nui-icn')).append('<span class="backtext">Vai alla mappa</span>');
 			});			
 		}	
 	};
