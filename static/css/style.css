@@ -182,8 +182,6 @@ div#wrap_all{min-height: 100%;height: auto !important;height: 100%;margin: 0 aut
 }
 
 
-
-
 /* options dialog */
 
 span.nui-dlg {
@@ -302,6 +300,13 @@ span.nui-dlg.locations-saved-list .close span {
 	display: inline-block;
 }
 
+
+.nui-lst {
+	background: #ccc;
+}
+.overflow-visible{
+	overflow: visible !important;
+}
 
 /* list view dialog */
 
@@ -742,7 +747,9 @@ div[jsselect="legs"]:nth-child(5) table.adp-placemark tr td:first-child {
 	background: #C5BFBD url('../images/site/legs.png') no-repeat -120px 50%;
 }
 
-//table.adp-placemark
+
+
+
 
 /*/////// INFO BOX /////////////////////////////*/
 
@@ -751,11 +758,10 @@ div[jsselect="legs"]:nth-child(5) table.adp-placemark tr td:first-child {
 */
 
 /*/////COMBINED///////////*/
-.nui-lst{position:relative;top:20px;}
+
 .ui-state-default{padding-left:3px;padding-right:3px;}
 .delete_handle{cursor:pointer;}
 /*SAVED DATA*/
 .store_delete{position:absolute;cursor:pointer;right:3px;width: 40px;
 height: 40px;background: url('../images/site/save_texture.png') no-repeat 0 -120px;background-position: 6px -240px;}
 .store_text{cursor:pointer;}
-.overflow-visible{overflow:visible !important;}
