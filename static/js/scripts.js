@@ -1361,7 +1361,7 @@ function main()
 				mainview.is_combined = true;
 				if( has_dir )
 				{
-					dir.directionDisplay.setPanel(this);
+					dir.directionDisplay.setPanel(this);					
 				}
 				else
 				{
@@ -1405,7 +1405,11 @@ function main()
 					view.purge_open( mainview.options );
 					view.purgeCssClass( $(this) );
 				}
-			});
+				$(this).addClass("list_view");
+				$(this).prop('id', 'list_view');
+				$('.list_view').css('height',$(window).height()-60)/*.prepend('<div class="backmap"></div>')*/;
+				/*$('.backmap').append($('.list_view img.nui-icn')).append('<span class="backtext">Vai alla mappa</span>');*/
+			});			
 		}	
 	};
 	CombinedView = {
