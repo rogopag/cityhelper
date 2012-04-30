@@ -602,6 +602,10 @@ div.bt_2 div.nui-try div.open div#wrap_combined_inputs_save button {
 .info_box .more {
 	top: 8px;
 	background: #4dbfca url('../images/site/list_sel.png') no-repeat 6px -126px;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+	border: 0;
 }
 .info_box .actionRow button {
 	-webkit-border-radius: 0;
