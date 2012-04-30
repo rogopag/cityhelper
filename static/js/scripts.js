@@ -587,13 +587,8 @@ function main()
 				if( dir.wmarkers.length ) 
 				{
 					for(var i=0;i<dir.wmarkers.length;i++) {
-
-
-						console.log( dir.wmarkers[i] );
 						dir.wmarkers[i].setMap(null);
-
 					}
-
 				}
 				dir.wmarkers = [];
 				console.log( dir.wmarkers );
@@ -1633,7 +1628,7 @@ function main()
 			if( def )
 			{
 				////console.log( self.me.currentLocation );
-				my.data('related', false);
+				my.data('related', true);
 				////console.log( my.data('related') );
 			}
 			else
@@ -1771,16 +1766,18 @@ function main()
 					////console.log("Line ::: "+key, $(val).data('related').name);
 				});
 				
-				combined.request.origin = ( combined.w_inputs[0].data('related') ) ?  combined.switchOriginAndDestination( combined.w_inputs[0].data('related') ) : self.me.currentLocation;
+				combined.request.origin = ( combined.w_inputs[0].data('related') !== true ) ?  combined.switchOriginAndDestination( combined.w_inputs[0].data('related') ) : self.me.currentLocation;
 				
-				combined.request.destination = combined.switchOriginAndDestination( combined.w_inputs[last].data('related') );
+				combined.request.destination = ( combined.w_inputs[last].data('related') !== true ) ? combined.switchOriginAndDestination( combined.w_inputs[last].data('related') ) : self.me.currentLocation;
 				
+				console.log( combined.request.origin );
 				if( !combined.request.origin )
 				{
 					alert("Seleziona un punto di partenza!");
 					done = false;
 					return done;
 				}
+				console.log( combined.request.destination );
 				if( !combined.request.destination )
 				{
 					alert("Seleziona una destinazione!");
@@ -1804,11 +1801,20 @@ function main()
 				{
 					$.each(wp, function(key, value){
 
-						if( typeof value.data('related') == 'object' )
+						if( typeof value.data('related') == 'object' && value.data('related') != null )
 						{
 							////console.log( "w "+key+""+value.data('related').name );
 							combined.waypoints.push({ 
 								'location':new google.maps.LatLng( value.data('related').lat, value.data('related').lng ),
+								'stopover':true,
+							});
+							wp_items.push( value.data('related') );
+							done = true;
+						}
+						else if( value.data('related') == true )
+						{
+							combined.waypoints.push({ 
+								'location':combined.switchOriginAndDestination( self.me.currentLocation ),
 								'stopover':true,
 							});
 							wp_items.push( value.data('related') );
@@ -1831,7 +1837,7 @@ function main()
 				
 				combined.request.waypoints = ( combined.waypoints ) ? combined.waypoints : [];
 				
-				org_item = ( combined.request.origin == self.me.currentLocation )? false : combined.request.origin; 
+				org_item = ( combined.request.origin == self.me.currentLocation )? false : combined.request.origin;
 				
 				if(!dir) Directions.init();
 				
