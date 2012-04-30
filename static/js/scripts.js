@@ -1591,6 +1591,7 @@ function main()
 			my = $.ninja.autocomplete({
 			  placeholder: ( !def ) ? 'Cerca servizio' : 'Current location'
 			}).values(function (event) {
+				combined.wrp.addClass('overflow-visible');
 			      my.list({
 			        values: $.map(combined.dictionary, function (item, i) {
 						if( item.name.hasIn(event.query) )
@@ -1603,6 +1604,7 @@ function main()
 									my.data('related', item);
 									details.unbind('click');
 									combined.showDetails(details, my.data('related') );
+									combined.wrp.removeClass('overflow-visible');
 								}
 						}
 			          };
@@ -1610,7 +1612,7 @@ function main()
 			        query: event.query
 			      });
 			});
-			
+			my.addClass('autocomplete-list');
 			my.append( delete_handle, drag_handle, details );
 			
 			if( sort && my )
