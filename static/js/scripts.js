@@ -252,7 +252,7 @@ function main()
 			},
 		manage_info_box:function(o)
 		{
-			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), more, moreSelect, bubble = '<span class="bubble"></span>', info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect, parkings_info = $('<span class="parkings_info"></span>');
+			var obj = o, infoBoxOptions, boxBox = document.createElement("div"), more = '<div class="more"></div>', bubble = '<span class="bubble"></span>', info = $('<div class="infoRow"></div>'), action = $('<div class="actionRow"></div>'), button, buttonSelect, parkings_info = $('<span class="parkings_info"></span>');
 			//we create and append some html
 			button = $.ninja.button({
 				html: '',
@@ -275,21 +275,6 @@ function main()
 				html: 'Selected',
 				select: true,
 			});
-			
-			more = $.ninja.button({
-				html: '',
-				select:false
-				}).select(function(){
-					var con = view.listGenericDialog( self.parseDataToList( obj ) );
-					con.attach();
-				}).deselect(function(){
-					
-				}),
-			moreSelect = $.ninja.button({
-				html: 'Selected',
-				select: true,
-			});
-			more.addClass('more');
 			
 			info.text(obj.name);
 			action.append(button);
@@ -335,21 +320,6 @@ function main()
 			
 			return self.infoBox;
 		},
-		parseDataToList:function(obj)
-		{
-			console.log(obj)
-			var html = '';
-			html += '<span class="span-row">'+obj.name+'</span>';
-			if( obj.free && obj.total )
-			html += '<span class="span-row">'+obj.free+' posti liberi su '+obj.total+' totali</span>';
-			if( obj.kind )
-			html += '<span class="span-row">'+obj.kind+'</span>';
-			if(obj.address)
-			html += '<span class="span-row">'+obj.address+'</span>';
-			if( obj.phone)
-			html += '<span class="span-row">'+obj.phone+'</span>';
-			return html;
-		},
 		close_info_box:function()
 		{
 			if( self.has_infobox_open )
@@ -369,7 +339,6 @@ function main()
 				params.cluster = 0;
 				params.icon = 0;
 				params.color = '#ff4927';
-				params.trans = 'Ospedali';
 				break;
 				case 'pharma':
 				params.index = 1001;
@@ -377,7 +346,6 @@ function main()
 				params.cluster = 136;
 				params.icon = 44;
 				params.color = '#1b3e94';
-				params.trans = 'Farmacie';
 				break;
 				case 'parkings':
 				params.index = 1000;
@@ -385,7 +353,6 @@ function main()
 				params.cluster = 90;
 				params.icon = 90;
 				params.color = '#17c05f';
-				params.trans = 'Parcheggi';
 				break;
 				case 'traffic':
 				params.index = 999;
@@ -393,7 +360,6 @@ function main()
 				params.cluster = 0;
 				params.icon = 108;
 				params.color = '#000';
-				params.trans = 'Traffico';
 				break;
 				case 'veterinarians':
 				params.index = 999;
@@ -401,7 +367,6 @@ function main()
 				params.cluster = 44;
 				params.icon = 136;
 				params.color = '#00a4e8';
-				params.trans = 'Veterinari';
 				break;
 			}
 			return params;
@@ -585,11 +550,7 @@ function main()
 			{
 				if( dir.wmarkers.length ) 
 				{
-					for(var i=0;i<dir.wmarkers.length;i++) {
-						if( $.inArray(dir.wmarkers[i], dir.wmarkers) )
-						dir.wmarkers[i].setMap(null);
-					}
-						
+					for(var i=0;i<dir.wmarkers.length;i++) dir.wmarkers[i].setMap(null);
 				}
 				dir.destroy();
 			}
@@ -622,7 +583,7 @@ function main()
 		},
 		purge_open:function(el)
 		{
-			$(el).children(".nui-try").slideUp(200, function(){
+			$(el).children(".nui-try").slideUp('fast', function(){
 				$(this).prev().removeClass('nui-slc');
 				view.dialogs_open = [];
 			});
@@ -754,6 +715,7 @@ function main()
 			{
 				dest.marker.setMap(self.map);
 				dir.wmarkers.push(dest.marker);
+				console.log( dir.wmarkers, dir.wmarkers.length)
 			}
 			
 			//if( !w || w.length == 0 ) return false;
@@ -764,6 +726,7 @@ function main()
 				{
 					w_d[i].marker.setMap(self.map);
 					dir.wmarkers.unshift( w_d[i].marker );
+					console.log( dir.wmarkers, dir.wmarkers.length)
 				}	
 			}
 			
@@ -771,6 +734,7 @@ function main()
 			{
 				dir.wmarkers.setMap(self.map);
 				dir.wmarkers.unshift( origin.marker );
+				console.log( dir.wmarkers, dir.wmarkers.length)
 			}
 		},
 		switchMode:function(val)
@@ -924,7 +888,7 @@ function main()
 				dircontrol.buttons[count][key] = {};
 				dircontrol.buttons[count][key].name = key;
 				dircontrol.buttons[count][key].el = $.ninja.button({
-					html: self.switch_parameters(key).trans,
+					html: dircontrol.buttons[count][key].name,
 					select: !( 'hide' in self.mng[key].mng )
 					}).deselect(function(){
 						if( 'hide' in self.mng[key].mng )
@@ -1049,16 +1013,9 @@ function main()
 			storecontrol.displayData = $.ninja.button({
 				html: 'Carica'
 				}).select(function(){
-					if( store.getData(storecontrol.saveData) )
-					{
-						view.purge_open(storecontrol.options);
-						dircontrol.hideMngsAndDeselect();
-					}
-					else
-					{
-						$(this).removeClass('nui-slc');
-						view.purge_open(storecontrol.options);
-					}
+					store.getData(storecontrol.saveData);
+					view.purge_open(storecontrol.options);
+					dircontrol.hideMngsAndDeselect();
 				}).deselect(function(){
 					
 				}),
@@ -1139,7 +1096,6 @@ function main()
 					{
 						window.localStorage.setObject( store.input.val(), dir.save );
 						alert("Il percorso "+ store.input.val() + " " + unescape('%E8') + " stato salvato");
-						//view.removeMarkers();
 					}
 					catch(error)
 					{
@@ -1183,9 +1139,6 @@ function main()
 						row.append(txt, del);
 						container.append( row ).slideDown(400, function(){
 							shown = true;
-							$('.nui-dlg').css('height',$(window).height()-20);
-							$('.nui-dlg').append('<span class="close"><span>Chiudi</span></span>');
-				           	$('.nui-dlg .close').prepend($('.nui-dlg img.nui-icn'));
 						});
 						txt.bind('click', {index:i}, function(event){
 							if(!dir) Directions.init();
@@ -1221,12 +1174,15 @@ function main()
 				
 				$('.nui-dlg').css({'width':$(window).width()-20,'top':'10','left':'10'});
 				
-				return true;
+				setTimeout(function(){ //must wait for the anim to end!
+					$('.nui-dlg').css('height',$(window).height()-20);
+					$('.nui-dlg').append('<span class="close"><span>Chiudi</span></span>');
+		           	$('.nui-dlg .close').prepend($('.nui-dlg img.nui-icn'));
+				},1000);
 			}
 			else
 			{
 				alert("Non ci sono percorsi salvati");
-				return false;
 			}
 		},
 		deleteStore:function(key)
@@ -1397,7 +1353,7 @@ function main()
 				mainview.is_combined = true;
 				if( has_dir )
 				{
-					dir.directionDisplay.setPanel(this);					
+					dir.directionDisplay.setPanel(this);
 				}
 				else
 				{
@@ -1441,11 +1397,7 @@ function main()
 					view.purge_open( mainview.options );
 					view.purgeCssClass( $(this) );
 				}
-				$(this).addClass("list_view");
-				$(this).prop('id', 'list_view');
-				$('.list_view').css('height',$(window).height()-60)/*.prepend('<div class="backmap"></div>')*/;
-				/*$('.backmap').append($('.list_view img.nui-icn')).append('<span class="backtext">Vai alla mappa</span>');*/
-			});			
+			});
 		}	
 	};
 	CombinedView = {
@@ -1591,7 +1543,6 @@ function main()
 			my = $.ninja.autocomplete({
 			  placeholder: ( !def ) ? 'Cerca servizio' : 'Current location'
 			}).values(function (event) {
-				combined.wrp.addClass('overflow-visible');
 			      my.list({
 			        values: $.map(combined.dictionary, function (item, i) {
 						if( item.name.hasIn(event.query) )
@@ -1604,7 +1555,6 @@ function main()
 									my.data('related', item);
 									details.unbind('click');
 									combined.showDetails(details, my.data('related') );
-									combined.wrp.removeClass('overflow-visible');
 								}
 						}
 			          };
@@ -1612,7 +1562,7 @@ function main()
 			        query: event.query
 			      });
 			});
-			my.addClass('autocomplete-list');
+			
 			my.append( delete_handle, drag_handle, details );
 			
 			if( sort && my )
@@ -1624,7 +1574,7 @@ function main()
 			if( def )
 			{
 				////console.log( self.me.currentLocation );
-				my.data('related', false);
+				my.data('related', 'current');
 				////console.log( my.data('related') );
 			}
 			else
@@ -1747,6 +1697,12 @@ function main()
 						r = new google.maps.LatLng( sw.$a, sw.ab );
 					}
 				break;
+				case 'string':
+					if( sw == 'current' )
+					{
+						r = new google.maps.LatLng( sw.$a, sw.ab );
+					}
+				break;
 			}
 			return r;
 		},
@@ -1794,12 +1750,23 @@ function main()
 				else
 				{
 					$.each(wp, function(key, value){
-
+						
+						
+						
 						if( typeof value.data('related') == 'object' )
 						{
 							////console.log( "w "+key+""+value.data('related').name );
 							combined.waypoints.push({ 
 								'location':new google.maps.LatLng( value.data('related').lat, value.data('related').lng ),
+								'stopover':true,
+							});
+							wp_items.push( value.data('related') );
+							done = true;
+						}
+						else if( value.data('related') == 'current' )
+						{
+							combined.waypoints.push({ 
+								'location':combined.switchOriginAndDestination('current'),
 								'stopover':true,
 							});
 							wp_items.push( value.data('related') );
