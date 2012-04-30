@@ -1109,6 +1109,7 @@ function main()
 					{
 						window.localStorage.setObject( store.input.val(), dir.save );
 						alert("Il percorso "+ store.input.val() + " " + unescape('%E8') + " stato salvato");
+						//view.removeMarkers();
 					}
 					catch(error)
 					{
