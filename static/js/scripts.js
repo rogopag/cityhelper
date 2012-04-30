@@ -339,6 +339,7 @@ function main()
 				params.cluster = 0;
 				params.icon = 0;
 				params.color = '#ff4927';
+				params.trans = 'Ospedali';
 				break;
 				case 'pharma':
 				params.index = 1001;
@@ -346,6 +347,7 @@ function main()
 				params.cluster = 136;
 				params.icon = 44;
 				params.color = '#1b3e94';
+				params.trans = 'Farmacie';
 				break;
 				case 'parkings':
 				params.index = 1000;
@@ -353,6 +355,7 @@ function main()
 				params.cluster = 90;
 				params.icon = 90;
 				params.color = '#17c05f';
+				params.trans = 'Parcheggi';
 				break;
 				case 'traffic':
 				params.index = 999;
@@ -360,6 +363,7 @@ function main()
 				params.cluster = 0;
 				params.icon = 108;
 				params.color = '#000';
+				params.trans = 'Traffico';
 				break;
 				case 'veterinarians':
 				params.index = 999;
@@ -367,6 +371,7 @@ function main()
 				params.cluster = 44;
 				params.icon = 136;
 				params.color = '#00a4e8';
+				params.trans = 'Veterinari';
 				break;
 			}
 			return params;
@@ -889,7 +894,7 @@ function main()
 				dircontrol.buttons[count][key] = {};
 				dircontrol.buttons[count][key].name = key;
 				dircontrol.buttons[count][key].el = $.ninja.button({
-					html: dircontrol.buttons[count][key].name,
+					html: self.switch_parameters(key).trans,
 					select: !( 'hide' in self.mng[key].mng )
 					}).deselect(function(){
 						if( 'hide' in self.mng[key].mng )
