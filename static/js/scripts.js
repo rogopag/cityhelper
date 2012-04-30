@@ -587,7 +587,7 @@ function main()
 		},
 		purge_open:function(el)
 		{
-			$(el).children(".nui-try").slideUp('fast', function(){
+			$(el).children(".nui-try").slideUp(200, function(){
 				$(this).prev().removeClass('nui-slc');
 				view.dialogs_open = [];
 			});
