@@ -223,8 +223,7 @@ span.locations-saved-list {
 }
 
 .nui-dlg.dircontrol .nui-icn,
-.nui-dlg.locations-saved-list .nui-icn,
-.nui-dlg.list_view div.backmap .nui-icn {
+.nui-dlg.locations-saved-list .nui-icn {
 	position: absolute;
 	top: 0 !important;
 	left: 0;
@@ -679,18 +678,20 @@ table.adp-directions tr td.adp-substep {
 }
 table.adp-directions tr:first-child td {
 	padding-top: 20px;
+	background-position-y: 6% !important;
 }
 table.adp-directions tr:last-child td {
 	padding-bottom: 20px;
+	background-position-y: 70% !important;
 }
 table.adp-directions tr td.adp-substep:first-child {
 	text-align: right;
 	min-width: 40px;
 	overflow: hidden;
-	text-indent: 4px;
+	background: #ECEAEA url('../images/site/route_step.png') no-repeat 0 50%;
 }
 table.adp-directions tr td.adp-substep:nth-child(2) {
-	padding-left: 10px;
+	padding-left: 7px;
 	padding-right: 10px;
 }
 table.adp-directions tr td.adp-substep:nth-child(3) {
@@ -698,6 +699,9 @@ table.adp-directions tr td.adp-substep:nth-child(3) {
 	padding-left: 10px;
 }
 div.adp-legal {
+	display: none;
+}
+.nui-dlg.list_view .nui-icn { 
 	display: none;
 }
 /*
@@ -718,6 +722,25 @@ div.backmap .backtext {
 	color: #fff;
 }
 */
+
+#adp-placemark img,
+.adp-placemark img {
+	display: none;	
+}
+table#adp-placemark tr td:first-child {
+	background: #C5BFBD url('../images/site/legs.png') no-repeat 0 50%;
+}
+div[jsselect="legs"]:nth-child(3) table.adp-placemark tr td:first-child {
+	background: #C5BFBD url('../images/site/legs.png') no-repeat -40px 50%;
+}
+div[jsselect="legs"]:nth-child(4) table.adp-placemark tr td:first-child {
+	background: #C5BFBD url('../images/site/legs.png') no-repeat -80px 50%;
+}
+div[jsselect="legs"]:nth-child(5) table.adp-placemark tr td:first-child {
+	background: #C5BFBD url('../images/site/legs.png') no-repeat -120px 50%;
+}
+
+//table.adp-placemark
 
 /*/////// INFO BOX /////////////////////////////*/
 
