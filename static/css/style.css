@@ -15,7 +15,7 @@ html, body {
 body[orient="portrait"] { min-height:540px; }
 body[orient="landscape"] { min-height:400px; }
 /* main top bar */
-div#wrap_all{min-height: 100%;height: auto !important;height: 100%;margin: 0 auto 0px;position:relative;top:60px;}
+div#wrap_all{min-height: 100%;height: auto !important;height: 100%;margin: 0 auto 0px;position:relative;bottom:0;}
 #mainbar {
 	position: fixed;
 	top: 0;
