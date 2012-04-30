@@ -583,14 +583,20 @@ function main()
 		{
 			if( dir && dir.hasDirection )
 			{
+				console.log( dir.wmarkers.length, dir.wmarkers)
 				if( dir.wmarkers.length ) 
 				{
 					for(var i=0;i<dir.wmarkers.length;i++) {
-						if( $.inArray(dir.wmarkers[i], dir.wmarkers) )
+
+
+						console.log( dir.wmarkers[i] );
 						dir.wmarkers[i].setMap(null);
+
 					}
-						
+
 				}
+				dir.wmarkers = [];
+				console.log( dir.wmarkers );
 				dir.destroy();
 			}
 		},
@@ -754,6 +760,7 @@ function main()
 			{
 				dest.marker.setMap(self.map);
 				dir.wmarkers.push(dest.marker);
+				console.log( dir.wmarkers.length, dir.wmarkers)
 			}
 			
 			//if( !w || w.length == 0 ) return false;
@@ -764,6 +771,7 @@ function main()
 				{
 					w_d[i].marker.setMap(self.map);
 					dir.wmarkers.unshift( w_d[i].marker );
+					console.log( dir.wmarkers.length, dir.wmarkers)
 				}	
 			}
 			
@@ -771,6 +779,7 @@ function main()
 			{
 				dir.wmarkers.setMap(self.map);
 				dir.wmarkers.unshift( origin.marker );
+				console.log( dir.wmarkers.length, dir.wmarkers)
 			}
 		},
 		switchMode:function(val)
