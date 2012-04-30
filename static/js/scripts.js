@@ -550,7 +550,11 @@ function main()
 			{
 				if( dir.wmarkers.length ) 
 				{
-					for(var i=0;i<dir.wmarkers.length;i++) dir.wmarkers[i].setMap(null);
+					for(var i=0;i<dir.wmarkers.length;i++) {
+						if( $.inArray(dir.wmarkers[i], dir.wmarkers) )
+						dir.wmarkers[i].setMap(null);
+					}
+						
 				}
 				dir.destroy();
 			}
@@ -1010,9 +1014,16 @@ function main()
 			storecontrol.displayData = $.ninja.button({
 				html: 'Carica'
 				}).select(function(){
-					store.getData(storecontrol.saveData);
-					view.purge_open(storecontrol.options);
-					dircontrol.hideMngsAndDeselect();
+					if( store.getData(storecontrol.saveData) )
+					{
+						view.purge_open(storecontrol.options);
+						dircontrol.hideMngsAndDeselect();
+					}
+					else
+					{
+						$(this).removeClass('nui-slc');
+						view.purge_open(storecontrol.options);
+					}
 				}).deselect(function(){
 					
 				}),
@@ -1136,6 +1147,9 @@ function main()
 						row.append(txt, del);
 						container.append( row ).slideDown(400, function(){
 							shown = true;
+							$('.nui-dlg').css('height',$(window).height()-20);
+							$('.nui-dlg').append('<span class="close"><span>Chiudi</span></span>');
+				           	$('.nui-dlg .close').prepend($('.nui-dlg img.nui-icn'));
 						});
 						txt.bind('click', {index:i}, function(event){
 							if(!dir) Directions.init();
@@ -1171,15 +1185,12 @@ function main()
 				
 				$('.nui-dlg').css({'width':$(window).width()-20,'top':'10','left':'10'});
 				
-				setTimeout(function(){ //must wait for the anim to end!
-					$('.nui-dlg').css('height',$(window).height()-20);
-					$('.nui-dlg').append('<span class="close"><span>Chiudi</span></span>');
-		           	$('.nui-dlg .close').prepend($('.nui-dlg img.nui-icn'));
-				},1000);
+				return true;
 			}
 			else
 			{
 				alert("Non ci sono percorsi salvati");
+				return false;
 			}
 		},
 		deleteStore:function(key)
