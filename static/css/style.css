@@ -616,6 +616,9 @@ div.bt_2 div.nui-try div.open div#wrap_combined_inputs_save button {
 	width: 100%;
 	height: 100%;
 }
+.info_box .actionRow button.minus{
+	background: #4dbfca url('../images/site/list_sel.png') no-repeat -18px -148px;
+}
 .info_box .bubble {
 	background: url('../images/site/save_texture.png') no-repeat 50% -380px;
 	position: absolute;

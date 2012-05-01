@@ -262,6 +262,7 @@ function main()
 						if( !dir.hasDirection )
 						{
 							dir.calculateRoute(obj.lat, obj.lng);
+							$(this).addClass('minus');
 						}
 					//return false;
 				}).deselect(function(){
@@ -270,6 +271,7 @@ function main()
 					self.has_infobox_open = false;
 					view.removeMarkers();
 					dir = null;
+					$(this).removeClass('minus');
 				}),
 			buttonSelect = $.ninja.button({
 				html: 'Selected',
