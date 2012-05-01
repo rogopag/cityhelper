@@ -221,7 +221,8 @@ span.locations-saved-list {
 }
 
 .nui-dlg.dircontrol .nui-icn,
-.nui-dlg.locations-saved-list .nui-icn {
+.nui-dlg.locations-saved-list .nui-icn,
+span.nui-dlg.places-show-data .nui-icn {
 	position: absolute;
 	top: 0 !important;
 	left: 0;
@@ -272,7 +273,6 @@ span.nui-dlg.dircontrol button.nui-slc {
 	background: #fff;
 	color: #2d1500;
 }
-
 span.nui-dlg.dircontrol .close,
 span.nui-dlg.locations-saved-list .close {
 	width: 100%;
@@ -299,8 +299,6 @@ span.nui-dlg.locations-saved-list .close span {
 	border-bottom: 1px solid #ff6666;
 	display: inline-block;
 }
-
-
 .nui-lst {
 	width: 100%;
 	position: relative;
@@ -330,6 +328,27 @@ span.nui-dlg.locations-saved-list .close span {
 	background: #756755;
 }
 
+span.nui-dlg.places-show-data {
+	position: absolute;
+	top: 0 !important;
+	left: 0;
+	width: 100%;
+	height: 100% !important;
+}
+span.nui-dlg.places-show-data span {
+	display: block;
+	float: none;
+	width: 95%;
+	padding: 10px;
+	
+}
+span.nui-dlg.places-show-data .nui-icn {
+	opacity: 0.5;
+	filter: alpha(opacity=0.5);
+	height: 60px;
+	bottom: 0;
+	top: auto !important;
+}
 
 /* list view dialog */
 
@@ -372,6 +391,7 @@ div#loading-gif {
 	height:100px;
 	overflow:hidden;
 }
+
 
 /* 
 ** media calls //////////////////////////////////
@@ -577,7 +597,7 @@ div.bt_2 div.nui-try div.open div#wrap_combined_inputs_save button {
 	border: 0;
 	background: url('../images/site/save_texture.png') repeat-x 50% -292px;
 	width: 200px;
-	font-size: .9em;
+	font-size: .84em;
 	height: 58px;
 	overflow: hidden;
 	display: table !important;
@@ -585,11 +605,11 @@ div.bt_2 div.nui-try div.open div#wrap_combined_inputs_save button {
 }
 .info_box .infoRow {
 	display: table-cell;
-	width: 152px;
+	width: 156px;
 	height: 58px;
 	color: #fff;
 	vertical-align: middle;
-	padding-left: 10px;
+	padding-left: 9px;
 }
 .info_box .actionRow,
 .info_box .more {
@@ -617,7 +637,7 @@ div.bt_2 div.nui-try div.open div#wrap_combined_inputs_save button {
 	height: 100%;
 }
 .info_box .actionRow button.minus{
-	background: #4dbfca url('../images/site/list_sel.png') no-repeat -18px -148px;
+	background: #d1392a url('../images/site/list_sel.png') no-repeat -18px -149px;
 }
 .info_box .bubble {
 	background: url('../images/site/save_texture.png') no-repeat 50% -380px;
@@ -763,9 +783,36 @@ div.backmap .backtext {
 .adp-placemark img {
 	display: none;	
 }
-table#adp-placemark tr td:first-child {
+table#adp-placemark tr td:first-child,
+div[jsselect="legs"] table.adp-placemark tr td:first-child {
 	background: #C5BFBD url('../images/site/legs.png') no-repeat 0 50%;
 }
+div[jsselect="legs"]:nth-child(3) table.adp-placemark tr td:first-child {
+	background-position-y: -40px;
+}
+div[jsselect="legs"]:nth-child(4) table.adp-placemark tr td:first-child {
+	background-position-y: -80px;
+}
+div[jsselect="legs"]:nth-child(5) table.adp-placemark tr td:first-child {
+	background-position-y: -120px;
+}
+div[jsselect="legs"]:nth-child(6) table.adp-placemark tr td:first-child {
+	background-position-y: -160px;
+}
+div[jsselect="legs"]:nth-child(7) table.adp-placemark tr td:first-child {
+	background-position-y: -200px;
+}
+div[jsselect="legs"]:nth-child(8) table.adp-placemark tr td:first-child {
+	background-position-y: -240px;
+}
+div[jsselect="legs"]:nth-child(8) table.adp-placemark tr td:first-child {
+	background-position-y: -280px;
+}
+
+
+
+
+/*
 div[jsselect="legs"]:nth-child(3) table.adp-placemark tr td:first-child {
 	background: #C5BFBD url('../images/site/legs.png') no-repeat -40px 50%;
 }
@@ -775,9 +822,19 @@ div[jsselect="legs"]:nth-child(4) table.adp-placemark tr td:first-child {
 div[jsselect="legs"]:nth-child(5) table.adp-placemark tr td:first-child {
 	background: #C5BFBD url('../images/site/legs.png') no-repeat -120px 50%;
 }
-
-
-
+div[jsselect="legs"]:nth-child(6) table.adp-placemark tr td:first-child {
+	background: #C5BFBD url('../images/site/legs.png') no-repeat -160px 50%;
+}
+div[jsselect="legs"]:nth-child(7) table.adp-placemark tr td:first-child {
+	background: #C5BFBD url('../images/site/legs.png') no-repeat -200px 50%;
+}
+div[jsselect="legs"]:nth-child(8) table.adp-placemark tr td:first-child {
+	background: #C5BFBD url('../images/site/legs.png') no-repeat -240px 50%;
+}
+div[jsselect="legs"]:nth-child(8) table.adp-placemark tr td:first-child {
+	background: #C5BFBD url('../images/site/legs.png') no-repeat -280px 50%;
+}
+*/
 
 
 /*/////// INFO BOX /////////////////////////////*/
@@ -787,9 +844,9 @@ div[jsselect="legs"]:nth-child(5) table.adp-placemark tr td:first-child {
 */
 
 /*/////COMBINED///////////*/
-
 .ui-state-default{padding-left:3px;padding-right:3px;}
 .delete_handle{cursor:pointer;}
+
 /*SAVED DATA*/
 .store_delete{position:absolute;cursor:pointer;right:3px;width: 40px;
 height: 40px;background: url('../images/site/save_texture.png') no-repeat 0 -120px;background-position: 6px -240px;}
