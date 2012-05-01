@@ -15,7 +15,7 @@ log = logging.getLogger("cityhelper.filelogger")
 
 class About(View):
 	def get(self, request):
-		t = loader.get_template('items.html')
+		t = loader.get_template('about.html')
 		c = RequestContext(request, {'page_title':'Data Living Turin'})
 		return HttpResponse(t.render(c), content_type="text/html")
 

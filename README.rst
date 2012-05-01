@@ -319,9 +319,14 @@ ul.auto-toc {
 
 <p>City Helper is an html5 Web Application written to compatible with smartphones and tablets to easuly manage
 your travels inside the City of Turin</p>
-<div class="section" id="city-helper-is-licenced-under-share-alike-cc-lisence">
-<h1>City Helper is Licenced Under Share Alike CC Lisence</h1>
-<p>&lt;a rel=&quot;license&quot; href=&quot;<a class="reference external" href="http://creativecommons.org/licenses/by-sa/3.0/">http://creativecommons.org/licenses/by-sa/3.0/</a>&quot;&gt;&lt;img alt=&quot;Creative Commons License&quot; style=&quot;border-width:0&quot; src=&quot;http://i.creativecommons.org/l/by-sa/3.0/80x15.png&quot; /&gt;&lt;/a&gt;&lt;br /&gt;&lt;span xmlns:dct=&quot;http://purl.org/dc/terms/&quot; href=&quot;http://purl.org/dc/dcmitype/InteractiveResource&quot; property=&quot;dct:title&quot; rel=&quot;dct:type&quot;&gt;City Helper&lt;/span&gt; by &lt;a xmlns:cc=&quot;http://creativecommons.org/ns#&quot; href=&quot;http://webeventi.it&quot; property=&quot;cc:attributionName&quot; rel=&quot;cc:attributionURL&quot;&gt;Webeventi S.r.l&lt;/a&gt; is licensed under a &lt;a rel=&quot;license&quot; href=&quot;http://creativecommons.org/licenses/by-sa/3.0/&quot;&gt;Creative Commons Attribution-ShareAlike 3.0 Unported License&lt;/a&gt;.&lt;br /&gt;Based on a work at &lt;a xmlns:dct=&quot;http://purl.org/dc/terms/&quot; href=&quot;https://github.com/rogopag/cityhelper&quot; rel=&quot;dct:source&quot;&gt;github.com&lt;/a&gt;.</p>
+<div class="section" id="license">
+<h1>License</h1>
+<p>City Helper is Licenced Under Share Alike CC Lisence</p>
+</div>
+<div class="section" id="usage">
+<h1>USAGE</h1>
+<p>City Helper is a Django back-ended Web Application written mostly in Javascript.
+In order to use it on your own you should have a Django installation.</p>
 </div>
 </div>
 </body>
