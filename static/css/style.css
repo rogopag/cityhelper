@@ -285,12 +285,14 @@ span.nui-dlg.locations-saved-list .close {
 	border-bottom-left-radius: .4em;
 	border-bottom-right-radius: .4em;
 }
-span.nui-dlg.locations-saved-list .close {
+span.nui-dlg.locations-saved-list .close,
+span.nui-dlg.places-show-data .close {
 	position: absolute;
 	bottom: 0;
 }
 span.nui-dlg.dircontrol .close span,
-span.nui-dlg.locations-saved-list .close span {
+span.nui-dlg.locations-saved-list .close span,
+span.nui-dlg.places-show-data .close span {
 	width: auto;
 	padding: 40px 0 2px;
 	color: #ff6666;
@@ -334,21 +336,77 @@ span.nui-dlg.places-show-data {
 	left: 0;
 	width: 100%;
 	height: 100% !important;
+	border: 0;
+	background-color: #f3f2f2;
 }
-span.nui-dlg.places-show-data span {
-	display: block;
+span.nui-dlg.places-show-data span.info-head,
+span.nui-dlg.places-show-data span.info-body {
+	display: table;
 	float: none;
-	width: 95%;
-	padding: 10px;
-	
+	width: 100%;
+	background-color: #fff;
+	height: 135px;
+}
+span.nui-dlg.places-show-data span.info-body {
+	height: auto;
+	background: none;	
+
+}
+span.nui-dlg.places-show-data span.info-body span {
+	padding-top: 25px;
+}
+span.nui-dlg.places-show-data span.info-head + span.info-body span {
+	padding-top: 50px;
+}
+span.nui-dlg.places-show-data .span-kind {
+	display: table-cell;
+	min-width: 117px;
+	max-width: 117px;
+	font-size: .8em;
+	padding: 0 10px 0 20px;
+	text-transform: lowercase;
+}
+span.info-head .span-kind,
+span.info-head .span-name {
+	vertical-align: bottom;
+	padding-bottom: 15px !important;
+}
+span.nui-dlg.places-show-data .span-name,
+span.nui-dlg.places-show-data .span-info {
+	display: table-cell;
+	font-size: .9em;
+	font-weight: bold;
+	padding: 0 20px 0 10px;
+	width: 80%;
+	border-left: 1px solid #a79681;
+}
+span.nui-dlg.places-show-data .span-info {
+	border-color: #ccc5bc;
+}
+span.info-head .span-name {
+	font-size: 1.1em !important;
+}
+span.nui-dlg.places-show-data .close {
+	width: 100%;
+	background-color: #8e7a60;
+	height: 60px;
+	display: block;
+	text-align: center;
+}
+span.nui-dlg.places-show-data .close span {
+	color: #fff;
+	padding-top: 20px;
+	border-color: #fff;
 }
 span.nui-dlg.places-show-data .nui-icn {
-	opacity: 0.5;
-	filter: alpha(opacity=0.5);
+	opacity: 0;
+	filter: alpha(opacity=0);
 	height: 60px;
 	bottom: 0;
 	top: auto !important;
+	z-index: 90;
 }
+
 
 /* list view dialog */
 
@@ -784,57 +842,31 @@ div.backmap .backtext {
 	display: none;	
 }
 table#adp-placemark tr td:first-child,
-div[jsselect="legs"] table.adp-placemark tr td:first-child {
+table.adp-placemark tr td:first-child {
 	background: #C5BFBD url('../images/site/legs.png') no-repeat 0 50%;
 }
 div[jsselect="legs"]:nth-child(3) table.adp-placemark tr td:first-child {
-	background-position-y: -40px;
+	background-position-x: -40px;
 }
 div[jsselect="legs"]:nth-child(4) table.adp-placemark tr td:first-child {
-	background-position-y: -80px;
+	background-position-x: -80px;
 }
 div[jsselect="legs"]:nth-child(5) table.adp-placemark tr td:first-child {
-	background-position-y: -120px;
+	background-position-x: -120px;
 }
 div[jsselect="legs"]:nth-child(6) table.adp-placemark tr td:first-child {
-	background-position-y: -160px;
+	background-position-x: -160px;
 }
 div[jsselect="legs"]:nth-child(7) table.adp-placemark tr td:first-child {
-	background-position-y: -200px;
+	background-position-x: -200px;
 }
 div[jsselect="legs"]:nth-child(8) table.adp-placemark tr td:first-child {
-	background-position-y: -240px;
+	background-position-x: -240px;
 }
 div[jsselect="legs"]:nth-child(8) table.adp-placemark tr td:first-child {
-	background-position-y: -280px;
+	background-position-x: -280px;
 }
 
-
-
-
-/*
-div[jsselect="legs"]:nth-child(3) table.adp-placemark tr td:first-child {
-	background: #C5BFBD url('../images/site/legs.png') no-repeat -40px 50%;
-}
-div[jsselect="legs"]:nth-child(4) table.adp-placemark tr td:first-child {
-	background: #C5BFBD url('../images/site/legs.png') no-repeat -80px 50%;
-}
-div[jsselect="legs"]:nth-child(5) table.adp-placemark tr td:first-child {
-	background: #C5BFBD url('../images/site/legs.png') no-repeat -120px 50%;
-}
-div[jsselect="legs"]:nth-child(6) table.adp-placemark tr td:first-child {
-	background: #C5BFBD url('../images/site/legs.png') no-repeat -160px 50%;
-}
-div[jsselect="legs"]:nth-child(7) table.adp-placemark tr td:first-child {
-	background: #C5BFBD url('../images/site/legs.png') no-repeat -200px 50%;
-}
-div[jsselect="legs"]:nth-child(8) table.adp-placemark tr td:first-child {
-	background: #C5BFBD url('../images/site/legs.png') no-repeat -240px 50%;
-}
-div[jsselect="legs"]:nth-child(8) table.adp-placemark tr td:first-child {
-	background: #C5BFBD url('../images/site/legs.png') no-repeat -280px 50%;
-}
-*/
 
 
 /*/////// INFO BOX /////////////////////////////*/

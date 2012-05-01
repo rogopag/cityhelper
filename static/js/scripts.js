@@ -341,15 +341,17 @@ function main()
 		{
 			//console.log(obj)
 			var html = '';
-			html += '<span class="span-row">'+obj.name+'</span>';
+			html += '<span class="info-head">';
+			// if( obj.kind )
+			html += '<span class="span-kind">'+obj.kind+'</span>';
+			html += '<span class="span-name">'+obj.name+'</span></span>';
 			if( obj.free && obj.total )
-			html += '<span class="span-row">'+obj.free+' posti liberi su '+obj.total+' totali</span>';
-			if( obj.kind )
-			html += '<span class="span-row">'+obj.kind+'</span>';
+			html += '<span class="info-body"><span class="span-kind">posti liberi</span><span class="span-info">'+obj.free+'</span></span>';
 			if(obj.address)
-			html += '<span class="span-row">'+obj.address+'</span>';
+			html += '<span class="info-body"><span class="span-kind">indirizzo</span><span class="span-info">'+obj.address+'</span></span>';
 			if( obj.phone)
-			html += '<span class="span-row">'+obj.phone+'</span>';
+			html += '<span class="info-body"><span class="span-kind">telefono</span><span class="span-info">'+obj.phone+'</span></span>';
+			html += '<span class="close"><span>Torna indietro</span></span>';
 			return html;
 		},
 		close_info_box:function()
