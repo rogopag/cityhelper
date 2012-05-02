@@ -639,7 +639,10 @@ function main()
 		},
 		info_dialog:function()
 		{
-			var span = $('<span class="info_span">');
+			var span = $('<span class="info_span">'),
+				middle = $('<span class="middle">Webeventi Srl<br />Corso Garibaldi 17 – Ivrea (TO) Italia<br />info@webeventi.it - www.webeventi.it</span>'),
+				close = $('<span class="close"><span>Chiudi</span>');
+			
 
 			view.info_dialog = $.ninja.dialog({
 				html: ''
@@ -649,7 +652,7 @@ function main()
 
 			});
 			
-			view.info_dialog.append(span)
+			view.info_dialog.append(span, middle, close);
 		},
 		removeMarkers:function()
 		{

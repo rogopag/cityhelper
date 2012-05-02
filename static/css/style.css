@@ -294,14 +294,16 @@ span.nui-dlg.locations-saved-list .close {
 }
 span.nui-dlg.locations-saved-list .close,
 span.nui-dlg.places-show-data .close,
-span.nui-dlg.help-dialog .close {
+span.nui-dlg.help-dialog .close,
+span.nui-dlg.info-dialog .close {
 	position: absolute;
 	bottom: 0;
 }
 span.nui-dlg.dircontrol .close span,
 span.nui-dlg.locations-saved-list .close span,
 span.nui-dlg.places-show-data .close span,
-span.nui-dlg.help-dialog .close span {
+span.nui-dlg.help-dialog .close span,
+span.nui-dlg.info-dialog .close span {
 	width: auto;
 	padding: 40px 0 2px;
 	color: #ff6666;
@@ -340,10 +342,11 @@ span.nui-dlg.help-dialog .close span {
 }
 
 span.nui-dlg.places-show-data,
-span.nui-dlg.help-dialog {
+span.nui-dlg.help-dialog,
+span.nui-dlg.info-dialog {
 	position: absolute;
 	top: 0 !important;
-	left: 0;
+	left: 0 !important;
 	width: 100%;
 	height: 100% !important;
 	border: 0;
@@ -396,7 +399,8 @@ span.info-head .span-name {
 	font-size: 1.1em !important;
 }
 span.nui-dlg.places-show-data .close,
-span.nui-dlg.help-dialog .close {
+span.nui-dlg.help-dialog .close,
+span.nui-dlg.info-dialog .close {
 	width: 100%;
 	background-color: #8e7a60;
 	height: 60px;
@@ -404,7 +408,8 @@ span.nui-dlg.help-dialog .close {
 	text-align: center;
 }
 span.nui-dlg.places-show-data .close span,
-span.nui-dlg.help-dialog .close span {
+span.nui-dlg.help-dialog .close span,
+span.nui-dlg.info-dialog .close span {
 	color: #fff;
 	padding-top: 20px;
 	border-color: #fff;
@@ -419,7 +424,8 @@ span.nui-dlg.places-show-data .nui-icn {
 }
 
 
-span.nui-dlg.help-dialog {
+span.nui-dlg.help-dialog,
+span.nui-dlg.info-dialog {
 	z-index: 99;
 	background: #2d1500;
 	color: #fff;
@@ -444,7 +450,6 @@ span.nui-dlg.help-dialog .help_span p {
 span.nui-dlg.help-dialog .middle {
 	display: block;
 	width: 100%;
-	
 }
 span.nui-dlg.help-dialog .middle p {
 	padding: 20px;
@@ -457,11 +462,12 @@ span.nui-dlg.help-dialog .middle p:nth-child(2) {
 	height: 80px;
 	background: cyan;
 }
-span.nui-dlg.help-dialog .close {
+span.nui-dlg.help-dialog .close,
+span.nui-dlg.info-dialog .close {
 	font-size: 1.1em;	
 }
-
-span.nui-dlg.help-dialog .nui-icn {
+span.nui-dlg.help-dialog .nui-icn,
+span.nui-dlg.info-dialog .nui-icn {
 	opacity: 0.5;
 	filter: alpha(opacity=0.5);
 	z-index: 90;
@@ -472,7 +478,18 @@ span.nui-dlg.help-dialog .nui-icn {
 	width: 100%;
 	height: 60px;
 }
-
+span.nui-dlg.info-dialog .info_span {
+	display: block;
+	height: 50%;
+	width: 100%;
+	background: cyan;
+}
+span.nui-dlg.info-dialog .middle {
+	padding: 20px 0;
+	text-align: center;
+	width: 100%;
+	display: block;
+}
 
 /* list view dialog */
 
