@@ -427,7 +427,7 @@ span.nui-dlg.places-show-data .nui-icn {
 span.nui-dlg.help-dialog,
 span.nui-dlg.info-dialog {
 	z-index: 99;
-	background: #2d1500;
+	background: rgba(45,21,0,0.95);
 	color: #fff;
 	font-size: .9em;
 	line-height: 1.3em;
@@ -436,16 +436,26 @@ span.nui-dlg.info-dialog {
 span.nui-dlg.help-dialog .help_span {
 	width: 100%;
 	height: 60px;
-	background: #7f5900;
+	background: rgba(127,89,0,0.4);
 	display: block;
-	text-align: center;
+	overflow: hidden;
 }
 span.nui-dlg.help-dialog .help_span p {
-	padding-top: 22px;
 	font-weight: bold;
 	width: 33.33%;
 	margin: 0;
 	float: left;
+	text-align: center;
+	height: 100%;
+	line-height: 4.1em;
+}
+span.nui-dlg.help-dialog .help_span p:nth-child(1),
+span.nui-dlg.help-dialog .help_span p:nth-child(3) {
+	width: 40%;
+}
+span.nui-dlg.help-dialog .help_span p:nth-child(2) {
+	background: rgba(255,255,255,0.2);
+	width: 20%;
 }
 span.nui-dlg.help-dialog .middle {
 	display: block;
@@ -460,7 +470,9 @@ span.nui-dlg.help-dialog .middle p strong {
 }
 span.nui-dlg.help-dialog .middle p:nth-child(2) {
 	height: 80px;
-	background: cyan;
+	background: url('../images/site/help.png') no-repeat 50% 50%;
+	padding: 0;
+	margin: 20px 0;
 }
 span.nui-dlg.help-dialog .close,
 span.nui-dlg.info-dialog .close {
@@ -468,8 +480,8 @@ span.nui-dlg.info-dialog .close {
 }
 span.nui-dlg.help-dialog .nui-icn,
 span.nui-dlg.info-dialog .nui-icn {
-	opacity: 0.5;
-	filter: alpha(opacity=0.5);
+	opacity: 0;
+	filter: alpha(opacity=0);
 	z-index: 90;
 	position: absolute;
 	bottom: 0;
@@ -478,14 +490,18 @@ span.nui-dlg.info-dialog .nui-icn {
 	width: 100%;
 	height: 60px;
 }
+span.nui-dlg.info-dialog {
+	background: #fff;
+	color: #2d1500;
+}
 span.nui-dlg.info-dialog .info_span {
 	display: block;
 	height: 50%;
 	width: 100%;
-	background: cyan;
+ 	background: url('../images/site/info.png') no-repeat 50% 50%;
 }
 span.nui-dlg.info-dialog .middle {
-	padding: 20px 0;
+	padding: 30px 0 0;
 	text-align: center;
 	width: 100%;
 	display: block;
