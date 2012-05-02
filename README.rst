@@ -6,7 +6,7 @@ your travels inside the City of Turin
 ====================================================
 License
 ====================================================
-City Helper by Webeventi S.r.l is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
+<span class="info-head"><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br /></span><span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/InteractiveResource" property="dct:title" rel="dct:type" class="info-head" >City Helper</span> by <span class="info-body"><a xmlns:cc="http://creativecommons.org/ns#" href="http://webeventi.it" property="cc:attributionName" rel="cc:attributionURL">Webeventi S.r.l</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.<br />Based on a work at <a xmlns:dct="http://purl.org/dc/terms/" href="https://github.com/rogopag/cityhelper" rel="dct:source">github.com</a>.</span>
 
 ====================================================
 USAGE
