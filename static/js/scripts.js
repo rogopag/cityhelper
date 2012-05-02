@@ -339,7 +339,6 @@ function main()
 		},
 		parseDataToList:function(obj)
 		{
-			console.log(obj)
 			var html = '';
 			html += '<span class="info-head">';
 			if( obj.kind && obj.kind != obj.type )
@@ -348,7 +347,8 @@ function main()
 			}
 			else
 			{
-				html += '<span class="span-kind">'+self.switch_parameters(obj.type)+'</span>';
+				console.log( self.switch_parameters(obj.type) );
+				html += '<span class="span-kind">'+self.switch_parameters(obj.type).trans+'</span>';
 			}
 			
 			html += '<span class="span-name">'+obj.name+'</span></span>';
