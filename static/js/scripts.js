@@ -623,7 +623,9 @@ function main()
 		},
 		help_dialog:function()
 		{
-			var span = $('<span class="help_span">');
+			var span = $('<span class="help_span"><p>1</p><p>3</p><p>2</p>'),
+				middle = $('<span class="middle"><p><strong>mainbar:</strong> Consente di trovare la propria posizione e salvare/caricare i percorsi (1), scegliere diversi mezzi di trasporto e modificare alcune impostazioni (2).</p><p></p><p><strong>view:</strong> Il tipo di visualizzazione (3) consente di vedere solo la mappa, la mappa e la lista (con possibilità di riordinare i punti), o solo la lista con i dettagli del percorso.</p>'),
+				close = $('<span class="close"><span>Chiudi</span>');
 
 			view.help_dialog = $.ninja.dialog({
 				html: ''
@@ -633,11 +635,14 @@ function main()
 
 			});
 			
-			view.help_dialog.append(span)
+			view.help_dialog.append(span, middle, close);
 		},
 		info_dialog:function()
 		{
-			var span = $('<span class="info_span">');
+			var span = $('<span class="info_span">'),
+				middle = $('<span class="middle">Webeventi Srl<br />Corso Garibaldi 17 – Ivrea (TO) Italia<br />info@webeventi.it - www.webeventi.it</span>'),
+				close = $('<span class="close"><span>Chiudi</span>');
+			
 
 			view.info_dialog = $.ninja.dialog({
 				html: ''
@@ -647,7 +652,7 @@ function main()
 
 			});
 			
-			view.help_dialog.append(span)
+			view.info_dialog.append(span, middle, close);
 		},
 		removeMarkers:function()
 		{
