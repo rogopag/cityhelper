@@ -342,8 +342,15 @@ function main()
 			//console.log(obj)
 			var html = '';
 			html += '<span class="info-head">';
-			// if( obj.kind )
-			html += '<span class="span-kind">'+obj.kind+'</span>';
+			if( obj.kind )
+			{
+				html += '<span class="span-kind">'+obj.kind+'</span>';
+			}
+			else
+			{
+				html += '<span class="span-kind">Nome</span>';
+			}
+			
 			html += '<span class="span-name">'+obj.name+'</span></span>';
 			if( obj.free && obj.total )
 			html += '<span class="info-body"><span class="span-kind">posti liberi</span><span class="span-info">'+obj.free+'</span></span>';
@@ -539,6 +546,9 @@ function main()
 		dialogs_open:[],
 		clear_button:null,
 		rows_selected:[], // push menu elements here if you want them to be deselected when another element is selected
+		help_button:null,
+		help_dialog:null,
+		info_button:null,
 		init: function(mng)
 		{
 			view = this;
@@ -550,9 +560,11 @@ function main()
 		{
 			// create elements and their options
 			view.addButton();
+			view.help_dialog();
+			view.info_dialog();
 			//append elements created to buttons
 			$('div.bt_4 span').append(view.options);
-			$('div.bt_4 span .open').append(view.clear_button);
+			$('div.bt_4 span .open').append(view.info_button, view.help_button, view.clear_button);
 		},
 		addButton: function() {
 			/* create drawers */
@@ -582,6 +594,60 @@ function main()
 				mainview.listDialog.detach();
 			});
 			view.rows_selected.push( view.clear_button );
+			
+			view.help_button = $.ninja.button({
+				html: 'Help'
+			}).select(function(){
+				view.purge_open( view.options );
+				view.purgeCssClass( $(this) );
+				mainview.listDialog.detach();
+				view.help_dialog.attach();
+			}).deselect(function(){
+				view.help_dialog.detach();
+			});
+			view.help_button.addClass("help_button");
+			view.rows_selected.push(view.help_button);
+			
+			view.info_button = $.ninja.button({
+				html: 'Info',
+			}).select(function(){
+				view.purge_open( view.options );
+				view.purgeCssClass( $(this) );
+				mainview.listDialog.detach();
+				view.info_dialog.attach();
+			}).deselect(function(){
+				view.help_dialog.detach();
+			});
+			view.help_button.addClass("info_button");
+			view.rows_selected.push(view.info_button);
+		},
+		help_dialog:function()
+		{
+			var span = $('<span class="help_span">');
+
+			view.help_dialog = $.ninja.dialog({
+				html: ''
+			}).attach(function () {
+
+			}).detach(function () {
+
+			});
+			
+			view.help_dialog.append(span)
+		},
+		info_dialog:function()
+		{
+			var span = $('<span class="help_span">');
+
+			view.info_dialog = $.ninja.dialog({
+				html: ''
+			}).attach(function () {
+
+			}).detach(function () {
+
+			});
+			
+			view.help_dialog.append(span)
 		},
 		removeMarkers:function()
 		{
