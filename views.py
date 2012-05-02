@@ -15,7 +15,7 @@ log = logging.getLogger("cityhelper.filelogger")
 
 class About(View):
 	def get(self, request):
-		t = loader.get_template('items.html')
+		t = loader.get_template('about.html')
 		c = RequestContext(request, {'page_title':'Data Living Turin'})
 		return HttpResponse(t.render(c), content_type="text/html")
 
@@ -51,7 +51,7 @@ class HomePage(View):
 			r = minidom.parse(s)
 			for node in r.getElementsByTagName('td:PK_data'):
 				parkings.append({
-				'name' : node.getAttribute('Name'),
+				'name' : node.getAttribute('Name').title(),
 				'status': node.getAttribute('status'),
 				'total': node.getAttribute('Total'),
 				'free': node.getAttribute('Free'),
@@ -72,7 +72,7 @@ class HomePage(View):
 			for node in r.getElementsByTagName('FDT_data'):
 				child = node.getElementsByTagName('speedflow')[0]
 				traffic.append({
-				'name' : node.getAttribute('Road_name'),
+				'name' : node.getAttribute('Road_name').title(),
 				'lat': node.getAttribute('lat'),
 				'lng': node.getAttribute('lng'),
 				'flow' : child.getAttribute('flow'),
