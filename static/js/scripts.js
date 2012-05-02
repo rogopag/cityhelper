@@ -628,7 +628,7 @@ function main()
 			view.help_dialog = $.ninja.dialog({
 				html: ''
 			}).attach(function () {
-
+				$(this).addClass("help-dialog");
 			}).detach(function () {
 
 			});
@@ -637,12 +637,12 @@ function main()
 		},
 		info_dialog:function()
 		{
-			var span = $('<span class="help_span">');
+			var span = $('<span class="info_span">');
 
 			view.info_dialog = $.ninja.dialog({
 				html: ''
 			}).attach(function () {
-
+				$(this).addClass("info-dialog");
 			}).detach(function () {
 
 			});
