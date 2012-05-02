@@ -1782,8 +1782,10 @@ function main()
 					{
 						if( 'name' in item )
 						{
-							content = item.address+", "+item.cap+", "+item.town+", "+item.phone;
-							combined.attachListDialog(content);
+							//content = item.address+", "+item.cap+", "+item.town+", "+item.phone;
+							//combined.attachListDialog(content);
+							var con = view.listGenericDialog( self.parseDataToList( item ) );
+							con.attach();
 						}
 						else
 						{
