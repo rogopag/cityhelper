@@ -12,7 +12,7 @@ function main()
 		map : null,
 		d : null,
 		objects : {},
-		ZOOM: 12,
+		ZOOM: 11,
 		clusterMaxZoom:16,
 		mng: null,
 		icons: {},
@@ -339,16 +339,16 @@ function main()
 		},
 		parseDataToList:function(obj)
 		{
-			//console.log(obj)
+			console.log(obj)
 			var html = '';
 			html += '<span class="info-head">';
-			if( obj.kind )
+			if( obj.kind && obj.kind != obj.type )
 			{
 				html += '<span class="span-kind">'+obj.kind+'</span>';
 			}
 			else
 			{
-				html += '<span class="span-kind">Nome</span>';
+				html += '<span class="span-kind">'+self.switch_parameters(obj.type)+'</span>';
 			}
 			
 			html += '<span class="span-name">'+obj.name+'</span></span>';
