@@ -1984,7 +1984,7 @@ String.prototype.hasIn = function(pattern)
 	
 	for(var i=0;i<len;i++)
 	{
-		if( splits[i].length > 2 && splits[i].startsWith(pattern) ) return true;	
+		if( splits[i].length > 3 && splits[i].startsWith(pattern) ) return true;	
 	}
 };
 // Array Remove - By John Resig (MIT Licensed)
