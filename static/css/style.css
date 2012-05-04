@@ -7,21 +7,14 @@
 html, body {
 	padding: 0;
 	margin: 0;
-	/*forces address bar to hide on iphone*/
-	min-height:540px;
 	height: 100%;
 }
-/*forces address bar to hide on iphone*/
-body[orient="portrait"] { min-height:540px; }
-body[orient="landscape"] { min-height:400px; }
 /* main top bar */
 div#wrap_all {
-	min-height: 100%;
-	height: auto !important;
+	width: 100%;
 	height: 100%;
-//	margin: 60px auto 0px;
-	position:relative;
-	bottom:0;
+	position: absolute;
+	bottom: 0;
 }
 #mainbar {
 	position: fixed;
@@ -472,7 +465,6 @@ span.nui-dlg.help-dialog .middle p:nth-child(2) {
 	height: 80px;
 	background: url('../images/site/help.png') no-repeat 50% 50%;
 	padding: 0;
-	margin: 20px 0;
 }
 span.nui-dlg.help-dialog .close,
 span.nui-dlg.info-dialog .close {
@@ -550,38 +542,6 @@ div#loading-gif {
 }
 
 
-/* 
-** media calls //////////////////////////////////
-*/
-
-/* assets for retina displays and high-res */
-@media
-only screen and (-webkit-min-device-pixel-ratio: 2) {
-}
-
-/* submenu for smartphones */
-@media
-only screen and (max-width: 960px),
-only screen and (max-device-width: 960px) {
-	div.right div.nui-try {
-		position: absolute;
-		right: 0;
-	}
-	div.left div.nui-try {
-		position: absolute;
-		left: 0;
-	}
-}
-
-/* submenu for standard screens */
-@media
-only screen and (min-width: 960px),
-only screen and (max-device-width: 960px) {
-}
-
-
-
-
 /*///// A panel to show stuff to work on//////////*/
 div#working-panel {
 	display: none;	
@@ -616,12 +576,12 @@ div#wrap_combined_inputs {
 	overflow: auto;
 	max-height: 100%;
 }
-div#wrap_combined_inputs_save{
+div#wrap_combined_inputs_save {
 	width: 100%;
 	overflow: auto;
 	max-height: 100%;
-	position:relative;
-	left:40%;
+	position: relative;
+	left: 40%;
 }
 #save_input {
 	clear: both;
@@ -635,6 +595,7 @@ div#wrap_combined_inputs_save{
 	font-weight: bold;
 	font-size: .9em;
 	text-transform: capitalize;
+	border-radius: 0;
 }
 div#wrap_combined_inputs span.nui-atc {
 	border: 0;
@@ -977,8 +938,80 @@ div[jsselect="legs"]:nth-child(8) table.adp-placemark tr td:first-child {
 /*/////COMBINED///////////*/
 .ui-state-default{padding-left:3px;padding-right:3px;}
 .delete_handle{cursor:pointer;}
+.combined-list-steps{width: 100%;overflow: auto;max-height: 100%;}
 
 /*SAVED DATA*/
 .store_delete{position:absolute;cursor:pointer;right:3px;width: 40px;
 height: 40px;background: url('../images/site/save_texture.png') no-repeat 0 -120px;background-position: 6px -240px;}
 .store_text{cursor:pointer;}
+
+/* 
+** media calls //////////////////////////////////
+*/
+
+/* assets for retina displays and high-res */
+@media
+only screen and (-webkit-min-device-pixel-ratio: 2) {
+
+	body[orient="portrait"] {
+		min-height:960px;
+	}
+	body {
+//		background: green;
+	}
+	div#wrap_all {
+//		background: red;
+		margin-bottom: -61px !important; /* force retina to respect bottom */
+	}
+	div#map_canvas {
+		bottom: 0 !important; /* make sure the map is bottom aligned*/
+	}
+	span.nui-dlg.places-show-data,
+	span.nui-dlg.help-dialog,
+	span.nui-dlg.info-dialog {
+		height: 118% !important; /* fake height */
+	}	
+	div#wrap_combined_inputs span.nui-atc:first-child {
+		margin-top: 0; /* no number necessary as wrap_all is already pushing */
+	}
+
+}
+
+/* submenu for smartphones */
+@media
+only screen and (max-width: 960px),
+only screen and (max-device-width: 960px) {
+
+
+	/*forces address bar to hide on iphone*/
+
+	/*
+	body[orient="portrait"] {
+		min-height:540px;
+	}
+	body[orient="landscape"] {
+		min-height:400px;
+	}
+	*/
+
+
+	div.right div.nui-try {
+		position: absolute;
+		right: 0;
+	}
+	div.left div.nui-try {
+		position: absolute;
+		left: 0;
+	}
+}
+
+/* submenu for standard screens */
+@media
+only screen and (min-width: 960px),
+only screen and (max-device-width: 960px) {
+}
+
+
+
+
+

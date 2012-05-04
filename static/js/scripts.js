@@ -355,7 +355,7 @@ function main()
 			if( obj.free && obj.total )
 			html += '<span class="info-body"><span class="span-kind">posti liberi</span><span class="span-info">'+obj.free+'</span></span>';
 			if(obj.address)
-			html += '<span class="info-body"><span class="span-kind">indirizzo</span><span class="span-info">'+obj.address+'</span></span>';
+			html += '<span class="info-body"><span class="span-kind">indirizzo</span><span class="span-info">'+obj.address+','+obj.cap+' '+obj.town+'</span></span>';
 			if( obj.phone)
 			html += '<span class="info-body"><span class="span-kind">telefono</span><span class="span-info">'+obj.phone+'</span></span>';
 			html += '<span class="close"><span>Torna indietro</span></span>';
@@ -1480,7 +1480,10 @@ function main()
 				mainview.is_combined = true;
 				if( has_dir )
 				{
-					dir.directionDisplay.setPanel(this);					
+					var wrapper = document.createElement('div');
+					wrapper.setAttribute('class', 'combined-list-steps');
+					$(this).append( wrapper );
+					dir.directionDisplay.setPanel(wrapper);					
 				}
 				else
 				{
