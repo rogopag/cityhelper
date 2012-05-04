@@ -1480,7 +1480,10 @@ function main()
 				mainview.is_combined = true;
 				if( has_dir )
 				{
-					dir.directionDisplay.setPanel(this);					
+					var wrapper = document.createElement('div');
+					wrapper.setAttribute('class', 'combined-list-steps');
+					$(this).append( wrapper );
+					dir.directionDisplay.setPanel(wrapper);					
 				}
 				else
 				{

@@ -938,21 +938,12 @@ div[jsselect="legs"]:nth-child(8) table.adp-placemark tr td:first-child {
 /*/////COMBINED///////////*/
 .ui-state-default{padding-left:3px;padding-right:3px;}
 .delete_handle{cursor:pointer;}
+.combined-list-steps{width: 100%;overflow: auto;max-height: 100%;}
 
 /*SAVED DATA*/
 .store_delete{position:absolute;cursor:pointer;right:3px;width: 40px;
 height: 40px;background: url('../images/site/save_texture.png') no-repeat 0 -120px;background-position: 6px -240px;}
 .store_text{cursor:pointer;}
-
-
-
-
-
-
-
-
-
-
 
 /* 
 ** media calls //////////////////////////////////
@@ -1012,12 +1003,6 @@ only screen and (max-device-width: 960px) {
 		position: absolute;
 		left: 0;
 	}
-	
-	
-	
-	
-
-
 }
 
 /* submenu for standard screens */
